@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper,notitlepage]{article}
+\documentclass[11pt,a4paper,notitlepage,twocolumn]{article}
 \usepackage{fullpage}
 \usepackage[utf8x]{inputenc}
 \usepackage{ucs}
@@ -8,18 +8,19 @@
 \usepackage{ifpdf}
 \usepackage{float}
 \ifpdf
-	\usepackage[pdftex]{graphicx}
-	\graphicspath{{./img/}}
-	\DeclareGraphicsExtensions{.pdf}
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.pdf}
 \else
-	\usepackage[dvips]{graphicx}
-	\graphicspath{{./img/}}
-	\DeclareGraphicsExtensions{.eps}
+\usepackage[dvips]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.eps}
 \fi
 
-
+\renewcommand{\figurename}{Obr.}
 
 \begin{document}
+
 \title{\textbf{Astrofyzika 2011 LS}\\vypracování otázek k zápočtovámu testu}
 \author{Peter Boráros}
 \date{10.5.2011}
@@ -110,32 +111,26 @@ hvězdnou velikostí m je dán rovnicí
 \[ M = m + 5 [1 − log_{10}(d)] \]
 kde\\
 $ d $ je vzdálenost hvězdy v parsecích od pozorovatele (od Země).
+
 \paragraph{Co je Hertzsprungův-Russelův diagram?}
-Hertzsprungův-Russellův diagram vyjadřuje závislost povrchové teploty (spektrální typ) hvězd 
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{HR_diagram}
+\caption{HR diagram}
+\label{fig:HR_diagram}
+\end{figure}
+Hertzsprungův-Russellův diagram vyjadřuje závislost povrchové teploty (spektrální typ)
+hvězd 
 na~jejích svítivosti (zářivý výkon) nebo absolutní magnitudě v různých fázích vývoje. 
 Závislost absolutní hvězdné velikosti na spektrární třídě hvězd objevil v roce 1909 E.
-Hertzsprungem a později zdokonalené H. N. Russellem. Obr. \ref{HR_diagram}.
-\begin{figure}[H]
-\centering
-\includegraphics[width=80mm]{HR_diagram}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-\caption{HR diagram}
-\label{HR_diagram}
-\end{figure}
+Hertzsprungem a později zdokonalené H. N. Russellem. Obr. \ref{fig:HR_diagram}.
 \paragraph{Co jsou to kuželosečky?}
-Kuželosečka je rovinná křivka, která vznikne jako průnik roviny s pláštěm rotačního kuželu
-(tzv. kuželová plocha), přičemž rovina neprochází jeho vrcholem. Obr. \ref{kuzelosecky}.
 \begin{figure}[H]
-\centering
-\includegraphics[width=80mm]{kuzelosecky}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
+\includegraphics[width=0.38\textwidth]{kuzelosecky}
 \caption{Kuželosečky}
-\label{kuzelosecky}
+\label{fig:kuzelosecky}
 \end{figure}
+Kuželosečka je rovinná křivka, která vznikne jako průnik roviny s pláštěm rotačního kuželu
+(tzv. kuželová plocha), přičemž rovina neprochází jeho vrcholem. Obr. \ref{fig:kuzelosecky}.
 \paragraph{Po jakých trajektoriích se pohybují planety ve sluneční soustavě?}
 \paragraph{Jakou numerickou výstřednost má elipsa?}
 \paragraph{Jakou numerickou výstřednost má parabola?}
