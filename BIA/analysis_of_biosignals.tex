@@ -141,6 +141,7 @@ feelings or enable ability to classify the sleep stages and possibly control
 external equipment during specific sleep stage.
 
 \subsection{Signal}
+%TODO: rewrite
 The signal for this research was obtained using device 
 \textbf{Nia game controller}, made by 
 \textbf{OCZ Techologies}.
@@ -163,20 +164,14 @@ by averaging samples. Classification information is reduced by electing
 most frequent samples. Reduction rate of the frequency is one of the 
 parameters that to be sought.
 
-\subsection{Spectrums}
-Raw signal has to be transformed from time domain to frequency domain.
-At first it is choped into overlaping slices (windows).
-Then fast fourier transform is aplied to each slice. This results in set of 
-complex spectral components of same size like time windows.
-Phase information should be discarded.
+\subsection{Transformation}
+Signal has to be transformed from time domain to frequency domain.
+This can be achieved by fourier or wavelet transform.
+Wavelet transform
+captures not only a notion of the frequency content of the input,
+by examining it at different scales, but also temporal content.
+This work uses only fourier transform.
 
-Spectral components are subject to normalisation.
-There are several algorithms to choose. Best seems to be 
-discrete histogram equlization with scaling the values between [0, 1].
-Other possibilities are logistic or range normalisation, that again normalize
-values between [0, 1].
-
-Window size, overlap and normalisation algorithm are parameters that to be sought.
 
 
 \subsection{Self-organizing map}
@@ -186,12 +181,23 @@ cluster analysis. Clusters are represented by best matching units (BMUs)
 by iterative process using training data. Topological neighborhood plays 
 also important role and it distincts this method from k-means cluster analysis.
 After iterations BMUs should represent real clusters in data.
+\begin{figure}[h]
+\includegraphics[width=80mm]{som_topol_proj}
+\caption{Projection of topology of self-organizing map along with a data}
+\label{som_topol_proj}
+\end{figure}
+
+\begin{figure}[h]
+\includegraphics[width=80mm]{som_umat}
+\caption{U-matrix and classification of BMUs}
+\label{som_umat}
+\end{figure}
 
 This unsupervised process can be turned to supervised by adding a classification
 information before process.
-Class information  could be encoded with 1 of N encoding and appended to the 
+Class information  could be encoded with 1-of-N encoding and appended to the 
 spectral vectors. After training it is removed from BMUs and class is 
-decoded from 1 of N code as maximal component of appended part.
+decoded from 1-of-N code as maximal component of appended part.
 
 The spatial 
 layout of topological surface has to be checked. It should not contain irregularites, 
@@ -220,111 +226,63 @@ finding single solution. That allows further heuristics upon the results.
 Evolutionary algorithm is inspired by nature and process of evolution...
 %TODO: link to proof how and why it works
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=80mm]{som_topol_proj}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-\caption{Projection of topology of self-organizing map along with a data}
-\label{som_topol_proj}
-\end{figure}
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=80mm]{som_umat}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-\caption{U-matrix and classification of BMUs}
-\label{som_umat}
-\end{figure}
+\section{Experiments}
+\subsection{Training data, preprocessing}
+Training data is pulse-code modulated (PCM) signal as well the training 
+information attached during the signal gathering.
+PCM signal is single channel balanced measure of voltage
+quantized at 24-bit sample size
+and sampled at frequency 4kHz,
 
-% An example of a floating figure using the graphicx package.
-% Note that \label must occur AFTER (or within) \caption.
-% For figures, \caption should occur after the \includegraphics.
-% Note that IEEEtran v1.7 and later has special internal code that
-% is designed to preserve the operation of \label within \caption
-% even when the captionsoff option is in effect. However, because
-% of issues like this, it may be the safest practice to put all your
-% \label just after \caption rather than within \caption{}.
-%
-% Reminder: the "draftcls" or "draftclsnofoot", not "draft", class
-% option should be used if it is desired that the figures are to be
-% displayed while in draft mode.
-%
+At first signal is choped into overlaping slices (windows).
+Mean of each slice is subtracted.
+Then fast fourier transform is aplied to each slice resulting in
+complex spectral components of same size like time windows.
+Phase information should be discarded.
 
-% Note that IEEE typically puts floats only at the top, even when this
-% results in a large percentage of a column being occupied by floats.
-% However, the Computer Society has been known to put floats at the bottom.
+Next the resulting vectors are subject to reduction by masking its components.
+This is frequency filtering.
 
+Spectral components are subject to normalisation.
+There are several algorithms to choose. Best seems to be 
+discrete histogram or logistic equlization with scaling the values between [0, 1].
+Other possibilities are logaritmic or range normalisation, that again normalize
+values between [0, 1].
 
-% An example of a double column floating figure using two subfigures.
-% (The subfig.sty package must be loaded for this to work.)
-% The subfigure \label commands are set within each subfloat command, the
-% \label for the overall figure must come after \caption.
-% \hfil must be used as a separator to get equal spacing.
-% The subfigure.sty package works much the same way, except \subfigure is
-% used instead of \subfloat.
-%
-%\begin{figure*}[!t]
-%\centerline{\subfloat[Case I]\includegraphics[width=2.5in]{subfigcase1}%
-%\label{fig_first_case}}
-%\hfil
-%\subfloat[Case II]{\includegraphics[width=2.5in]{subfigcase2}%
-%\label{fig_second_case}}}
-%\caption{Simulation results}
-%\label{fig_sim}
-%\end{figure*}
-%
-% Note that often IEEE papers with subfigures do not employ subfigure
-% captions (using the optional argument to \subfloat), but instead will
-% reference/describe all of them (a), (b), etc., within the main caption.
+Window size, overlap, frequency filters and normalisation algorithm 
+are parameters that to be sought.
 
+\subsection{Self-organising map}
+Normalised data is then used to train the SOM, i.e. find the BMUs for given data.
+The quality of output is controled by several parameters. The most important are 
+training algorithm, maps size and topografic layout and lattice.
 
-% An example of a floating table. Note that, for IEEE style tables, the 
-% \caption command should come BEFORE the table. Table text will default to
-% \footnotesize as IEEE normally uses this smaller font for tables.
-% The \label must come after \caption as always.
-%
-%\begin{table}[!t]
-%% increase table row spacing, adjust to taste
-%\renewcommand{\arraystretch}{1.3}
-% if using array.sty, it might be a good idea to tweak the value of
-% \extrarowheight as needed to properly center the text within the cells
-%\caption{An Example of a Table}
-%\label{table_example}
-%\centering
-%% Some packages, such as MDW tools, offer better commands for making tables
-%% than the plain LaTeX2e tabular which is used here.
-%\begin{tabular}{|c||c|}
-%\hline
-%One & Two\\
-%\hline
-%Three & Four\\
-%\hline
-%\end{tabular}
-%\end{table}
+\subsection{Search for the proper parameters}
+Parameter space is searched for a best solution. Following degrees of 
+freedom was selected:
+\begin{itemize}
+	\item sampling frequency,
+	\item time window before fourier transform,
+	\item overlap of time windows,
+	\item frequency filter,
+	\item normalisation method (histogram, logaritmic, range, logistic),
+	\item SOM training algorithm (batch or sequential),
+	\item lattice of SOM (hexagonal or rectangular),
+	\item size of SOM (depend on size of traning dataset).
+\end{itemize}
+Possible optimalisation objectives are:
+\begin{itemize}
+	\item validation error of the trained SOM network evaluated by k-fold
+	crossvalidation,
+	\item topological error,
+	\item mean quantisation error,
+	\item window size (should be low in order to allow fast responses),
+	\item running time of whole process.
+\end{itemize}
 
-
-% Note that IEEE does not put floats in the very first column - or typically
-% anywhere on the first page for that matter. Also, in-text middle ("here")
-% positioning is not used. Most IEEE journals use top floats exclusively.
-% However, Computer Society journals sometimes do use bottom floats - bear
-% this in mind when choosing appropriate optional arguments for the
-% figure/table environments.
-% Note that, LaTeX2e, unlike IEEE journals, places footnotes above bottom
-% floats. This can be corrected via the \fnbelowfloat command of the
-% stfloats package.
-
-
-
-\section{Conclusion}
-The conclusion goes here.
-
-
-
-
+\subsection{Evolutionary algorithm}
+Implementation of search algorithm has following 
 
 % if have a single appendix:
 %\appendix[Proof of the Zonklar Equations]
