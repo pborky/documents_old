@@ -286,26 +286,26 @@ Values of particular degrees of freedom are listed  in table \ref{searchspace}.
 \begin{table}[h]
 \caption{Search space}
 	\begin{center}
-		\begin{tabular}{|l| p{1.2cm} p{1.2cm} p{1.2cm} p{1.2cm} |}			
+		\begin{tabular}{|l| l |}			
 			\hline
-			degree of freedom & \multicolumn{4}{c|}{values} \\
+			degree of freedom & values \\
 			\hline
 			\hline
-			$ f_{samp} [Hz] $ & 200 & 666 & 1800 & 4000\\
+			$ f_{samp} [Hz] $ & 200, 666, 1800, 4000\\
 			\hline
-			$ n_w $ & 200 & 600 & 1200 & 3200 \\
+			$ n_w $ & 200, 600, 1200, 3200 \\
 			\hline
-			$ n_o $ & 2 & 8 & & \\
+			$ n_o $ & 2, 8 \\
 			\hline
-			$ (f_l[Hz], f_h[Hz]) $ & $ (0, 50) $ & $ (20, 250) $ & & \\
+			$ (f_l[Hz], f_h[Hz]) $ & $ (0, 50) $,  $ (20, 250) $  \\
 			\hline
-			normalisation & histogram & logaritmic & range & logistic \\
+			normalisation & histogram, logaritmic, range, logistic \\
 			\hline
-			algorithm & \multicolumn{2}{l}{batch} & \multicolumn{2}{l|}{sequential}  \\
+			algorithm & batch, sequential  \\
 			\hline
-			map lattice & \multicolumn{2}{l}{hexagonal} & \multicolumn{2}{l|}{rectangular} \\
+			map lattice & hexagonal, rectangular \\
 			\hline
-			map size  & \multicolumn{2}{l}{small} & \multicolumn{2}{l|}{normal} \\
+			map size  & small, normal \\
 			\hline
 		\end{tabular}
 	\end{center}
@@ -324,7 +324,7 @@ Possible optimalisation objectives are:
 
 The fitness function takes all of listed objectives in account and 
 was choosen empirically as:
-\[ f = -\ln(e_{v}+10^{-4}) - \ln(e_t + \frac{1}{2}) - 
+\[ f = -\ln(e_{v}+10^{-4}) - \ln(e_t + \frac{1}{2}) -
 \ln(\Delta t_w + \frac{1}{2}) - \frac{1}{1+10\cdot \exp(-t_r)} \]
 where:\\
 $ e_v $ is validation error $ e_v \in \langle 0, 1 \rangle $,\\
