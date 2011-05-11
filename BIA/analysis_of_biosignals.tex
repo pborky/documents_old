@@ -142,7 +142,7 @@ external equipment during specific sleep stage.
 
 \subsection{Signal}
 %TODO: rewrite
-The signal for this research was obtained using device 
+The signal was obtained using device 
 \textbf{Nia game controller}, made by 
 \textbf{OCZ Techologies}.
 It needs no special software driver.
@@ -170,7 +170,8 @@ This can be achieved by fourier or wavelet transform.
 Wavelet transform
 captures not only a notion of the frequency content of the input,
 by examining it at different scales, but also temporal content.
-This work uses only fourier transform.
+
+This document describes only the usage of fourier transform.
 
 
 
@@ -181,13 +182,16 @@ cluster analysis. Clusters are represented by best matching units (BMUs)
 by iterative process using training data. Topological neighborhood plays 
 also important role and it distincts this method from k-means cluster analysis.
 After iterations BMUs should represent real clusters in data.
+
 \begin{figure}[h]
+\centering
 \includegraphics[width=80mm]{som_topol_proj}
 \caption{Projection of topology of self-organizing map along with a data}
 \label{som_topol_proj}
 \end{figure}
 
 \begin{figure}[h]
+\centering
 \includegraphics[width=80mm]{som_umat}
 \caption{U-matrix and classification of BMUs}
 \label{som_umat}
@@ -229,11 +233,13 @@ Evolutionary algorithm is inspired by nature and process of evolution...
 
 \section{Experiments}
 \subsection{Training data, preprocessing}
-Training data is pulse-code modulated (PCM) signal as well the training 
+Training data is pulse-code modulated (PCM) signal as well the classification 
 information attached during the signal gathering.
 PCM signal is single channel balanced measure of voltage
 quantized at 24-bit sample size
-and sampled at frequency 4kHz,
+and sampled at frequency 4kHz. To chceck optimal sampling frequency,
+it is reduced by averaging particular number of samples. Classification
+is reduced by electing most frequent classes.
 
 At first signal is choped into overlaping slices (windows).
 Mean of each slice is subtracted.
@@ -250,7 +256,7 @@ discrete histogram or logistic equlization with scaling the values between [0, 1
 Other possibilities are logaritmic or range normalisation, that again normalize
 values between [0, 1].
 
-Window size, overlap, frequency filters and normalisation algorithm 
+Sampling frequency, window size, overlap, frequency filters and normalisation algorithm 
 are parameters that to be sought.
 
 \subsection{Self-organising map}
@@ -262,24 +268,73 @@ training algorithm, maps size and topografic layout and lattice.
 Parameter space is searched for a best solution. Following degrees of 
 freedom was selected:
 \begin{itemize}
-	\item sampling frequency,
-	\item time window before fourier transform,
-	\item overlap of time windows,
-	\item frequency filter,
+	\item sampling frequency $ f_{samp} $,
+	\item time window before fourier transform $ n_w $,
+	\item overlap of time windows $ n_o $,
+	\item frequency filter after fourier tranform ( interval $ (f_l, f_h) $ defines 
+	range that is kept,
 	\item normalisation method (histogram, logaritmic, range, logistic),
 	\item SOM training algorithm (batch or sequential),
 	\item lattice of SOM (hexagonal or rectangular),
 	\item size of SOM (depend on size of traning dataset).
 \end{itemize}
+The search space is discrete, and the states are selected with prior knowledge.
+Values of particular degrees of freedom are listed  in table \ref{searchspace}.
+
+
+% TODO tabular list of degrees of freedom and search space
+\begin{table}[h]
+\caption{Search space}
+	\begin{center}
+		\begin{tabular}{|l| p{1.2cm} p{1.2cm} p{1.2cm} p{1.2cm} |}			
+			\hline
+			degree of freedom & \multicolumn{4}{c|}{values} \\
+			\hline
+			\hline
+			$ f_{samp} [Hz] $ & 200 & 666 & 1800 & 4000\\
+			\hline
+			$ n_w $ & 200 & 600 & 1200 & 3200 \\
+			\hline
+			$ n_o $ & 2 & 8 & & \\
+			\hline
+			$ (f_l[Hz], f_h[Hz]) $ & $ (0, 50) $ & $ (20, 250) $ & & \\
+			\hline
+			normalisation & histogram & logaritmic & range & logistic \\
+			\hline
+			algorithm & \multicolumn{2}{l}{batch} & \multicolumn{2}{l|}{sequential}  \\
+			\hline
+			map lattice & \multicolumn{2}{l}{hexagonal} & \multicolumn{2}{l|}{rectangular} \\
+			\hline
+			map size  & \multicolumn{2}{l}{small} & \multicolumn{2}{l|}{normal} \\
+			\hline
+		\end{tabular}
+	\end{center}
+\label{searchspace}
+\end{table}
+
 Possible optimalisation objectives are:
 \begin{itemize}
 	\item validation error of the trained SOM network evaluated by k-fold
 	crossvalidation,
 	\item topological error,
 	\item mean quantisation error,
-	\item window size (should be low in order to allow fast responses),
+	\item window size (should be low in order to allow fast response times),
 	\item running time of whole process.
 \end{itemize}
+
+The fitness function takes all of listed objectives in account and 
+was choosen empirically as:
+\[ f = -\ln(e_{v}+10^{-4}) - \ln(e_t + \frac{1}{2}) - 
+\ln(\Delta t_w + \frac{1}{2}) - \frac{1}{1+10\cdot \exp(-t_r)} \]
+where:\\
+$ e_v $ is validation error $ e_v \in \langle 0, 1 \rangle $,\\
+$ e_t $ is topological error,\\
+$ t_r $ is running time,\\
+$ \Delta t_w $ is window time span and it can be expressed as 
+\[  \Delta t_w = \frac{n_w}{f_{samp}}  \]
+where:\\
+$ n_w $ is number of samples in window,\\
+$ f_{samp} $ is sampling frequency.
 
 \subsection{Evolutionary algorithm}
 Implementation of search algorithm has following 
@@ -404,5 +459,4 @@ Biography text here.
 
 % that's all folks
 \end{document}
-
 
