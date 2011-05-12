@@ -26,20 +26,19 @@
 
 
 \documentclass[a4paper,journal]{IEEEtran}
-\ifCLASSOPTIONcompsoc
-	\usepackage[nocompress]{cite}
-\else
-	\usepackage{cite}
-\fi
 
-\ifCLASSINFOpdf
-	\usepackage[pdftex]{graphicx}
-	\graphicspath{{./img/}}
-	\DeclareGraphicsExtensions{.pdf}
+\usepackage{cite}
+% \usepackage[nocompress]{cite}
+\usepackage{ifpdf}
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.pdf}
 \else
-	\usepackage[dvips]{graphicx}
-	\graphicspath{{./img/}}
-	\DeclareGraphicsExtensions{.eps}
+\usepackage[dvips]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.eps}
 \fi
 
 \usepackage[cmex10]{amsmath}
@@ -56,18 +55,11 @@
 
 \usepackage{eqparbox}
 
-\ifCLASSOPTIONcompsoc
-	\usepackage[tight,normalsize,sf,SF]{subfigure}
-\else
-	\usepackage[tight,footnotesize]{subfigure}
-\fi
+% \usepackage[tight,normalsize,sf,SF]{subfigure}
+\usepackage[tight,footnotesize]{subfigure}
 
-\ifCLASSOPTIONcompsoc
-	\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
-\else
-	\usepackage[caption=false,font=footnotesize]{subfig}
-\fi
-
+% \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage[caption=false,font=footnotesize]{subfig}
 
 \usepackage[utf8x]{inputenc}
 \usepackage{url}
@@ -122,11 +114,11 @@ Prague, Czech Republic}%
 \IEEEcompsoctitleabstractindextext{%
 \begin{abstract}
 The aim of this document is to show the usage of biologically inspired algorithms
-in analysis of facial electromyography (EMG) and electroencephalography (EEG).
+in analysis of facial electromyography and electroencephalography.
 Concretelly, it depicts the process of obtaining data, preprocessing using fast fourier
-transform and classifing by means of self-organizing maps (SOM). 
+transform and classifing by means of self-organizing maps. 
 Searching through the parameter space in order to find proper parametrisation of whole
-classification process is performed by evolutionary algorithm (EA).
+classification process is performed by evolutionary algorithm.
 \end{abstract}}
 
 \maketitle
@@ -136,27 +128,25 @@ classification process is performed by evolutionary algorithm (EA).
 
 \section{Introduction}
 \IEEEPARstart{S}{submission} to this work is to implement methods for analysis 
-EMG and EEG signals in order to allow estimation of the subject`s mimics, 
+electromyography (EMG) and electroencephalography (EEG) 
+signals in order to allow estimation of the subject`s mimics, 
 feelings or enable ability to classify the sleep stages and possibly control 
 external equipment during specific sleep stage.
 
-\subsection{Signal}
-%TODO: rewrite
-The signal was obtained using device 
-\textbf{Nia game controller}, made by 
-\textbf{OCZ Techologies}.
-It needs no special software driver.
-This device provides HID standard interface.
-After it is connected, it starts to send 24-bit samples, 
-sampled at frequency 4kHz. 
-Data represents time series of voltage between two electrodes.
-The device has only one balanced channel, thus 
+Equipment used for this experiment is {Nia game controller}, made by 
+{OCZ Techologies}. This device provides HID standard interface.
+After it is connected, it starts to send 24-bit PCM samples, 
+sampled at frequency 4kHz. The device has only one balanced channel, thus 
 it is not possible to preform complex analysis of neural signals,
 however for detection of EMG signal it is sufficient.
 
-Training information is attached during data gathering by human operator.
-The raw data from device is saved along with class information from
-SW user interface.
+Training information is attached during data gathering by human operator 
+through GUI application.
+The PCM data from device is saved along with class information from
+user interface.
+
+
+\subsection{Signal}
 
 Sampling frequency is quite high so the frequency should be reduced to limit
 computational complexity. Frequency reduction is performed
@@ -210,12 +200,13 @@ The tolopological error is the criterion to check.
 
 Another criterion is validation/testing error. Traning set is divided into k-folds
 and using k-fold crossvalidation the map is trained using k-1 folds and  error 
-is determined using the rest fold. This is repeated for each fold. Average error is 
+is determined using the remaining fold. This is repeated for each fold. Average error is 
 the subject to minimize.
 %TODO: link to more detailed descprition
 
 
 \subsection{Evolutionary algorithm}
+%TODO: rewrite
 The whole process can be parametrised by many parameters. Optimal parametrisation 
 is that maximizes correctness e.g. criterion like validation error, resp. correctness.
 The other objectives may be e.g. size of window and overlap
@@ -265,8 +256,8 @@ The quality of output is controled by several parameters. The most important are
 training algorithm, maps size and topografic layout and lattice.
 
 \subsection{Search for the proper parameters}
-Parameter space is searched for a best solution. Following degrees of 
-freedom was selected:
+Parameter space is searched for a best solution. There was identified
+following degrees of freedom:
 \begin{itemize}
 	\item sampling frequency $ f_{samp} $,
 	\item time window before fourier transform $ n_w $,
@@ -286,14 +277,14 @@ Values of particular degrees of freedom are listed  in table \ref{searchspace}.
 \begin{table}[h]
 \caption{Search space}
 	\begin{center}
-		\begin{tabular}{|l| l |}			
+		\begin{tabular}{|l| l |}
 			\hline
 			degree of freedom & values \\
 			\hline
 			\hline
-			$ f_{samp} [Hz] $ & 200, 666, 1800, 4000\\
+			$ f_{samp} [Hz] $ & 256, 666, 1333, 4000\\
 			\hline
-			$ n_w $ & 200, 600, 1200, 3200 \\
+			$ n_w $ & 80, 200, 800, 2000 \\
 			\hline
 			$ n_o $ & 2, 8 \\
 			\hline
@@ -301,7 +292,7 @@ Values of particular degrees of freedom are listed  in table \ref{searchspace}.
 			\hline
 			normalisation & histogram, logaritmic, range, logistic \\
 			\hline
-			algorithm & batch, sequential  \\
+			training algorithm & batch, sequential  \\
 			\hline
 			map lattice & hexagonal, rectangular \\
 			\hline
@@ -314,20 +305,20 @@ Values of particular degrees of freedom are listed  in table \ref{searchspace}.
 
 Possible optimalisation objectives are:
 \begin{itemize}
-	\item validation error of the trained SOM network evaluated by k-fold
-	crossvalidation,
-	\item topological error,
-	\item mean quantisation error,
-	\item window size (should be low in order to allow fast response times),
-	\item running time of whole process.
+	\item validation error $ e_v $ of the trained SOM network evaluated by k-fold
+	crossvalidation, $ e_v \in \langle 0, 1 \rangle $,
+	\item topological error $ e_t $ (should be zero),
+	\item mean quantisation error $ e_q $,
+	\item window size $ \Delta t_w $ (should be low in order to allow fast response times),
+	\item running time $ t_r $ of whole process (not more than 20 seconds).
 \end{itemize}
 
-The fitness function takes all of listed objectives in account and 
-was choosen empirically as:
-\[ f = -\ln(e_{v}+10^{-4}) - \ln(e_t + \frac{1}{2}) -
-\ln(\Delta t_w + \frac{1}{2}) - \frac{1}{1+10\cdot \exp(-t_r)} \]
+The fitness function was choosen empirically as follows:
+\[ f = -\ln(e_v+10^{-4}) - \ln(\Delta t_w+\frac{1}{2}) - \ln(e_t+\frac{1}{2}) - P(t_r) \]
 where:\\
-$ e_v $ is validation error $ e_v \in \langle 0, 1 \rangle $,\\
+$ P(t) $ is sigmoid function defined as:
+\[ P(t) = \frac{5}{1+10\cdot e^{6-0.15t}} \]
+$ e_v $ is validation error,\\
 $ e_t $ is topological error,\\
 $ t_r $ is running time,\\
 $ \Delta t_w $ is window time span and it can be expressed as 
@@ -335,9 +326,85 @@ $ \Delta t_w $ is window time span and it can be expressed as
 where:\\
 $ n_w $ is number of samples in window,\\
 $ f_{samp} $ is sampling frequency.
+%TODO: explain fitness function
 
 \subsection{Evolutionary algorithm}
-Implementation of search algorithm has following 
+Implementation of evolutionary search algorithm has following properties:
+\begin{itemize}
+	\item given population size,
+	\item random uniform initialization,
+	\item selection strategy:
+	\begin{itemize}
+		\item surviving species are selected using stochastic universal 
+		sampling reducing 
+		the population size to given value,
+	\end{itemize}
+	\item crossover:
+	\begin{itemize}
+		\item parents for crossover are selected using fitness proportionate
+		selection of the surviving species,
+		\item count of selection rounds is determined by empiric formula
+		 \[ n_{pr} = \lceil 0.2\cdot n_{survived} \rceil \] 
+		where:\\
+		$ n_{survived} $ is the number of survived species after stochastic selection.
+		\item for each parent, its pair is selected by random,
+		\item swap different genes selected by random, accepted solution is that 
+		produces  offsprings different from parents,
+	\end{itemize}
+	\item mutations:
+	\begin{itemize}
+		\item species are selected by 2 ways:
+		\begin{itemize}
+			\item using inversed-fitness proportionate
+			selection of the surving species where inverse fitness $ f' $ is 
+			calculated using formula \[  f' = e^{-f} \]
+			and count of selection rounds is
+			\[ n_{mr} = \lceil \dfrac{0.1}{10\cdot e^{0.15\cdot i_{epoch} - 9}} 
+			\cdot n_{survived} \rceil \]
+			where: $ i_{epoch} $ is the actual epoch.
+			\item from offsprings with probability for each one:
+			\[ P_{mo} = \dfrac{0.3}{1+10\cdot e^{0.15\cdot i_{epoch} - 9}} \]
+		\end{itemize}
+		\item each bit is flipped with probability\\
+		\[ P_{mb} = \dfrac{0.3}{1+50\cdot e^{-0.4\cdot i_{epoch}}} \]
+	\end{itemize}
+	\item stop condition:
+	\begin{itemize}
+		\item fitness of best-fit species for given interval of epochs is flat.
+	\end{itemize}
+	
+\end{itemize}
+
+%
+%\begin{algorithmic}
+%\STATE $ pop \gets random\:population $
+%\STATE $ gen \gets 0 $
+%\LOOP 
+%	\STATE $ f \gets  fitness\:of\:population\:pop$
+%	\STATE $ pop \gets  stochastic\:universal\:sampling\:of\:pop$
+%	\IF {$ plateau\:of\:\max(f)\:over\:generations\:detected$}
+%		\RETURN \textbf{pop}
+%	\ENDIF	
+%	\STATE $ parents \gets fitness\:proportionate\:selection\:of\:pop $
+%	\FORALL{$ parent \in parents $}
+%		\STATE $ parent2 \gets random\:member\:of\:parents \setminus parent $ 
+%		\STATE $ children \gets combination\:of\:parent\:and\:parent2 $
+%		\COMMENT{Only genes that are different are to be swapped with uniform probability.}
+%	\ENDFOR
+%	\STATE $ mutates \gets inverse\:fitness\:prop.\:selection\:of\:pop\:\cup $
+%	\STATE $ \cup\:random\:subset\:of\:children $
+%	\COMMENT{Select each children with probability of $ Pr_1 $.}
+%	\FORALL{$ mutate \in mutates $}
+%		\FORALL{$ bit \in bitsof(mutate) $}
+%			\STATE $ bit \gets flip\:bit\:with\:probability\:Pr_2 $
+%		\ENDFOR
+%		\STATE $ children \gets combination\:of\:parent\:and\:parent2 $
+%		\COMMENT{Only genes that are different are to be swapped with uniform probability.}
+%	\ENDFOR
+%	%\STATE $ mutates \gets children\:with\:Pr = \dfrac{0.3}{1+10\cdot e^{0.15\cdot gen -9}} $
+%	\STATE $ gen \gets gen+1 $
+%\ENDLOOP
+%\end{algorithmic}
 
 % if have a single appendix:
 %\appendix[Proof of the Zonklar Equations]
