@@ -134,8 +134,9 @@ feelings or enable ability to classify the sleep stages and possibly control
 external equipment during specific sleep stage.
 
 This work depicts usage of self-organizing maps (SOM) as well the usage of genetic
-algorithm. It ispossible to use other recognition techniques but usage of mentioned 
-methods was induced by semestral work in school.
+algorithm (GA). It ispossible to use other recognition or optimalisation
+techniques but usage of mentioned 
+methods was induced by project assignment at school.
 
 %TODO: used methods
 
@@ -220,8 +221,18 @@ following degrees of freedom:
 	\item lattice of SOM (hexagonal or rectangular),
 	\item size of SOM (depend on size of traning dataset).
 \end{itemize}
-The search space is discrete, and the states are selected with prior knowledge.
-Values of particular degrees of freedom are listed  in table \ref{searchspace}.
+The search space is discrete, and the states are
+listed  in table~\ref{searchspace}.
+
+Possible optimalisation objectives are:%
+\begin{itemize}
+	\item validation error $ e_v $ of the trained SOM network evaluated by k-fold
+	crossvalidation, $ e_v \in \langle 0, 1 \rangle $,
+	\item topological error $ e_t $ (should be zero),
+	\item mean quantisation error $ e_q $,
+	\item window size $ \Delta t_w $ (should be low in order to allow fast response times),
+	\item running time $ t_r $ of whole process (not more than 20 seconds).
+\end{itemize}
 
 
 % TODO tabular list of degrees of freedom and search space
@@ -253,16 +264,6 @@ Values of particular degrees of freedom are listed  in table \ref{searchspace}.
 	\end{center}
 \label{searchspace}
 \end{table}
-
-Possible optimalisation objectives are:
-\begin{itemize}
-	\item validation error $ e_v $ of the trained SOM network evaluated by k-fold
-	crossvalidation, $ e_v \in \langle 0, 1 \rangle $,
-	\item topological error $ e_t $ (should be zero),
-	\item mean quantisation error $ e_q $,
-	\item window size $ \Delta t_w $ (should be low in order to allow fast response times),
-	\item running time $ t_r $ of whole process (not more than 20 seconds).
-\end{itemize}
 
 The fitness function was choosen empirically as follows:
 \[ f = -\ln(e_v+10^{-4}) - \ln(\Delta t_w+\frac{1}{2}) - \ln(e_t+\frac{1}{2}) - P(t_r) \]
@@ -314,7 +315,7 @@ Implementation of genetic algorithm to be introduced has following properties:
 		The value of $ n_{pr} $ limits the count of selected species.
 		\item for each parent, its pair is selected by random,
 		\item genes selected by random are swapped; accepted solution is that 
-		produces  offsprings different from parents (i.e. at least one differing gene must be
+		produces  offsprings distinct from parents (i.e. at least one differing gene must be
 		kept),
 	\end{itemize}
 	\item mutations:
@@ -373,11 +374,11 @@ Recording time is about 120 seconds.
 \caption{U-matrix and classification of BMUs}
 \label{som_umat}
 \end{figure}
-Figure \ref{som_topol_proj} depicts the trained sel-organizing map and 
+Figure~\ref{som_topol_proj} depicts the trained sel-organizing map and 
 traning data.
-Figure \ref{som_umat} shows best matching units...
+Figure~\ref{som_umat} shows best matching units...
 
-\subsection{Genetic algorithm}
+\subsection{Genetic algorithm}$ \mu  $
 
 % if have a single appendix:
 %\appendix[Proof of the Zonklar Equations]
