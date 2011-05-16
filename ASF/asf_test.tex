@@ -166,29 +166,107 @@ tělesa M a na vzdálenosti r od středu tohoto tělesa podle vztahu
 kde $ \varkappa $ je gravitační konstanta a $ \mu $ je gravitační parametr centrálního tělesa.
 
 \paragraph{Co je třetí kosmická rychlost?}
-3. kosmická rychlost je rychlost pořebná k vypuštění tělesa mimo gravitační pole Slunce, tj. mimo Sluneční soustavu. Tato rychlost má ve vzdálenosti Slunce-Země velikost 42,1 km/s. Na Zemi však můžeme využít oběžné rychlosti planety Země, která činí 29,8 km/s. Potřebná dodatečná rychlost pak je 12,4 km/s. Těleso by však muselo též překonat gravitační pole Země. Třetí kosmická rychlost je proto 16,7 km/s při startu ze zemského povrchu (tak se udává nejčastěji), případně 13,8 km/s pro odlet z vyčkávací dráhy kolem Země.
+je rychlost pořebná k vypuštění tělesa mimo gravitační pole Slunce, tj. mimo Sluneční soustavu. Tato rychlost má ve vzdálenosti Slunce-Země velikost 42,1 km/s. Na Zemi však můžeme využít oběžné rychlosti planety Země, která činí 29,8 km/s. Potřebná dodatečná rychlost pak je 12,4 km/s. Těleso by však muselo též překonat gravitační pole Země. Třetí kosmická rychlost je proto 16,7 km/s při startu ze zemského povrchu (tak se udává nejčastěji), případně 13,8 km/s pro odlet z vyčkávací dráhy kolem Země.
 
 \paragraph{Co je čtvrtá kosmická rychlost?}
 Rychlost potřebná k dosažení Slunce.[2] Pro start z povrchu Země je její hodnota 31,8 km/s.
 \paragraph{Jakou rychlost musíme udělit projektilu, aby se pohyboval po parabolické trajektorii?}
-Druhou kosmickou rychlost.
+vid druhou kosmickou rychlost.
 \paragraph{Jakým směrem musíme vystřelit projektil, aby vzhledem ke Slunci měl co možná největší rychlost?}
+pri starte z obeznej drahy Zemeteleso vystrelime v smere pohybu Zeme. Rýchlosť
+telesa musí dosiahnuť minimálne 3. kozmickej rýchlosti. Vtedy sa bude teleso pohybovat po parabolickej únikovej dráhe smerom od Slnka.
 \paragraph{Co je Eulerovo schéma (Eulerova metoda)?}
-\paragraph{Mechanický princip relativity}
+je nejjednodušší metodou numerického řešení obyčejných 
+diferenciálních rovnic s danými počátečními podmínkami.
+Eulerova metoda vychází z rovnic pro změnu polohy x(t) a rychlosti v(t) určitého objektu. Proměnná a(t) značí zrychlení.
+\[ a(t) = \frac{dv(t)}{dt} \]
+\[ v(t) = \frac{dx(t)}{dt} \]
+teda:
+\[ v(t_0 + h) = v(t_0) + h a(t_0)\, \]
+\[ x(t_0 + h) = x(t_0) + h v(t_0)\, \]
+
+
+\paragraph{Mechanický princip relativity} (Galileiho):
+zákony Newtonovy mechaniky jsou ve všech inerciálních soustavách stejné.
+Newtonovy pohybové zákony platí ve všech inerciálních vztažných soustavách. 
+Ve všech těchto soustavách musí však také platit dynamické zákony, které z 
+Newtonových pohybových zákonů vyplývají (např. zákon zachování hybnosti, 
+mechanické energie apod.).
+Jelikož mechanické děje probíhají ve všech inerciální vztažných soustavách 
+stejným způsobem, nelze žádnými mechanickými pokusy provedenými uvnitř 
+inerciální soustavy rozhodnout, zda se soustava pohybuje rovnoměrným přímočarým
+pohybem vzhledem k určité inerciální vztažné soustavě a jakou rychlostí, 
+nebo je-li vzhledem k této soustavě v klidu.
+
 \paragraph{Einsteinovy postuláty STR}
+\textit{Postulát relativity:} Ve všech inerciálních vztažných soustavách platí stejné 
+fyzikální zákony.
+\textit{Postulát rychlosti světla:} Ve všech inerciálních vztažných soustavách 
+má rychlost světla konstantní velikost, a to nezávisle na pohybu světelného zdroje. 
+Rychlost světla v libovolné inerciální vztažné soustavě je ve všech směrech stejná.
+
 \paragraph{Lorentzova transformace}
-\paragraph{Dilatace času}
-\paragraph{Kontrakce délek}
+je soustava rovnic umožňující pomocí souřadnic $ x $, $ y $, $ z $, $ t $
+nějaké události $ U $ v inerciální vztažné soustavě $ S $ vyjádřit souřadnice $ x' $ ,
+ $ y^\prime $ , $ z^\prime $ , $ t^\prime $ 
+téže události v jiné inerciální vztažné soustavě $ S^\prime $ , která se vzhledem k původní 
+soustavě $ S $ pohybuje rychlostí $ v  $ (obr. \ref{fig:vztazna_soustava}). 
+Podle týchž pravidel jako události se transformují i všechny ostatní čtyřvektory.
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{vztazna_soustava}
+\caption{Nákres vzájemné polohy vztažných soustav $ S $ a $ S^\prime $.}
+\label{fig:vztazna_soustava}
+\end{figure}
+\[ x^\prime = \frac{x - vt}{\sqrt{(1 - \frac{v^2}{c^2})}} \]
+\[ y^\prime = y \]
+\[ z^\prime = z \]
+\[ t^\prime = \frac{t - \frac{vx}{c^2}}{\sqrt{(1 - \frac{v^2}{c^2})}} \]
+Pro zjednodušení zápisu se často zavádí bezrozměrná rychlost $ \beta $ a tzv. 
+Lorentzův faktor $ \gamma $ vztahy:
+\[ \beta \equiv {v\over c} \,, \]
+\[ \gamma \equiv {1 \over \sqrt{1-\beta^2}} \,. \]
+Počítáme-li navíc v přirozených jednotkách, kde $ c = 1 $, můžeme speciální 
+Lorentzovu transformaci zapsat stručněji s důrazem na fyzikální význam:
+\[x^\prime = \gamma\left(x - vt\right)\]
+\[y^\prime = y\]
+\[z^\prime = z\]
+\[t^\prime = \gamma\left(t - {vx/{c^2}}\right)\]
+
+
+
+\paragraph{Dilatace času} (čili roztažení, zpomalení času) je fyzikální jev pozorovaný u všech objektů, které vzhledem k pozorovateli
+\textit{pohybují se velkou rychlostí} (důsledek zákonů speciální teorie relativity) nebo
+jsou v \textit{silnějším gravitačním poli} (důsledek zákonů obecné teorie relativity).
+V případě dvou pohybujících se pozorovatelů je dilatace času vzájemná, tedy oba dva vnímají hodiny toho druhého jako pomalejší. Naproti tomu u dilatace času gravitačním polem se pozorovatelé shodnou na tom, že hodiny s vyšším gravitačním potenciálem jsou pomalejší než hodiny s nižším potenciálem (dále od středu gravitace).
+\paragraph{Kontrakce délek} (Lorentzova kontrakce nebo Lorentzova-FitzGeraldova kontrakce) je fyzikální jev, kterým se označuje změna (zkrácení) délky objektu, který se vzhledem k pozorovateli pohybuje, než kdyby byl objekt a pozorovatel vůči sobě v klidu.
+Při malých rychlostech (ve srovnání s rychlostí světla) jsou změny zanedbatelné, proto jej lze v rámci klasické fyziky zanedbat. Speciální teorie relativity však již s tímto jevem počítá.
 \paragraph{Časoprostorový interval}
+Vzdálenost mezi dvěma událostmi v prostoročasu se označuje jako prostoročasová vzdálenost (interval).Časoprostor nebo prostoročas je fyzikální pojem z teorie relativity sjednocující prostor a čas do jednoho čtyřrozměrného objektu. Čas hraje roli čtvrtého rozměru a je oproti zbylým třem prostorovým rozměrům význačný (například tím, že v něm lze pohybovat jen jedním směrem). V obecné teorii relativity je časoprostor obecně zakřivený a má strukturu variety. Projevy zakřivení časoprostoru pozorujeme jako gravitaci.
 \paragraph{Minkowského metrika}
+\[ ds^2 = −c^2 dt^2+ dx^2 + dy^2 + dz^2\] 
+\[ ds^2 = −c^2 dt^2 + dr^2 + r^2 d\Theta^2 + r^2 sin^2\Theta d\phi^2 \]
 \paragraph{Schwarzschildův poloměr}
+je charakteristická vzdálenost pro každou hmotnost. Je to poloměr koule, do které musí být veškerá hmota o dané hmotnosti stlačena, aby již žádná síla nemohla odvrátit její zhroucení do gravitační singularity. Tento termín se používá ve fyzice a astronomii, zejména v teoriích gravitace jako je napříklat Obecná teorie relativity.
+
 \paragraph{Jak ovlivňuje gravitační pole chod času?}
+vid dilatace casu.
 \paragraph{Gravitační Dopplerův jev}
+Podle obecné teorie relativity kolem sebe tělesa zakřivují prostor a čas. V pokřiveném časoprostoru se potom pohybují po nejrovnějších možných drahách, tzv. geodetikách. Jedním z důsledků zakřivení času v okolí hmotných těles je různý chod hodin v různé vzdálenosti od daného tělesa. Tento jev můžeme měřit buď přímo za pomoci hodin umístěných v různé vzdálenosti od tělesa (Země) nebo pomocí červeného gravitačního posuvu. Foton opouštějící hmotné těleso (například Zemi) v důsledku změny chodu času (a změny zakřivení prostoru) mění svou frekvenci a červená, tj. prodlužuje svou vlnovou délku, což je měřitelné.
 \paragraph{Fridmanova metrika}
+\[ ds^2 = – c^2 dt^2+ a^2(t) [ dr^2/(1 – kr^2) +  r^2d\omega^2 ] \]
 \paragraph{Co vyjadřuje skalární křivost?}
+Riemannův (Riemannův-Christoffelův) tenzor křivosti zachycuje v Riemannově geometrii křivost Riemannova prostoru. Riemannův tenzor křivosti lze použít k vyjádření křivosti libovolné variety s afinní konexí.
+
 \paragraph{Co vyjadřuje expanzní funkce?}
 \paragraph{Kosmologický posuv}
+Spektrální čáry chemických prvků ve spektrech vzdálených objektů jsou proti měřením v pozemských chemických laboratořích posunuty směrem k dlouhovlnnému konci spektra. Tento rudý posuv spektrálních čar je tím větší, čím větší je vzdálenost pozorovaného objektu od Země a že i galaxie vzájemně se od sebe vzdalují rychlostí tím větší, čím jsou od sebe vzdálenější (Hubbleův zákon). To vede k teorii o rozpínání vesmíru.
 \paragraph{Hubbleův zákon}
-\paragraph{Hubbleův čas}
+Pro rychlost vzdalování vzdáleného objektu $ v $  platí:
+\[v = H_0D\]
+kde\\
+$ H_0 \approx 2.3 \cdot 10^{-18} s^{-1}$ je Hubbleova konstanta  a $ D $ je vzdialenost galaxie.
+
+\paragraph{Hubbleův čas} je miera expanzie 
+\[ \frac{1}{H_0}\]
 \paragraph{Jak starý je vesmír?}
 \end{document}
