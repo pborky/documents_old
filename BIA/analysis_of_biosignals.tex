@@ -25,7 +25,7 @@
 %% http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 
-\documentclass[a4paper]{IEEEtran}
+\documentclass[a4paper,jurnal]{IEEEtran}
 
 \usepackage{cite}
 % \usepackage[nocompress]{cite}
@@ -66,7 +66,7 @@
 \usepackage{fixltx2e}
 \usepackage{stfloats}
 \usepackage{ucs}
-
+\usepackage{multirow}
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
@@ -95,7 +95,7 @@
 
 
 \begin{document}
-\title{Analysis of biosignals by means of\\ biologically inspired algorithms}
+\title[Analysis of biosignals]{Analysis of biosignals by means of\\ biologically inspired algorithms}
 
 \author{Peter~Boraros% <-this % stops a space
 %\IEEEcompsocitemizethanks{
@@ -118,7 +118,7 @@ in analysis of facial electromyography and electroencephalography.
 Concretelly, it depicts the process of obtaining data, preprocessing using fast fourier
 transform and classifing by means of self-organizing maps. 
 Searching through the parameter space in order to find proper parametrisation of whole
-classification process is performed by genetic algorithm.
+classification process is performed by the genetic algorithm.
 \end{abstract}}
 
 \maketitle
@@ -127,71 +127,79 @@ classification process is performed by genetic algorithm.
 
 
 \section{Introduction}
-\IEEEPARstart{G}{oal} is to implement methods for analysis 
-electromyography (EMG) and electroencephalography (EEG) 
- in order to allow estimation of the subject`s mimics, 
-feelings or enable ability to classify the sleep stages and possibly control 
-external equipment during specific sleep stage.
+\IEEEPARstart{G}{oal} is to implement methods for analysis of
+electromyography (EMG) and electroencephalography (EEG)
+in order to allow estimation of the subject`s mimics, 
+feelings or enable ability to classify the sleep stages and eventually control 
+external equipment during a specific sleep stage.
 
-This work depicts usage of self-organizing maps (SOM) as well the usage of genetic
-algorithm (GA). It is of course possible to use other recognition or optimalization
+This work depicts usage of self-organizing maps (SOM) as well as the usage of a genetic
+algorithm (GA). It is, of course, possible to use other recognition or optimalization
 techniques but usage of mentioned 
-methods was induced by project assignment at school course ``Biologically inspired 
+methods was induced by project assignment at a school course ``Biologically inspired 
 algorithms''.
 
-The self-ogranizing maps is used as the method of feature recongnition in 
-supervised mode. Genetic algorithm is used to guess the configuration of 
-the classification process. It searches through possible parameter ranges and 
-based on value of fitness it chooses the best configuration. Fitness is
-calculated to model the objectives of optimalization. It is possible
-to choose between other recognition methods instead of self-organizing map.
+The self-ogranizing map is used  at this experiment as the method of feature recongnition in 
+supervised mode. The genetic algorithm is used to guess the configuration of 
+whole classification process. It searches through possible parameter ranges and 
+based on value of fitness it chooses the best configuration. A fitness function
+models a objectives of optimalization.
 
-The next research will be oriented on genetic programming and other 
-recognition methods. Genetic programming 
-is the method of construction execution plan by similar way like genethic
-algrithm. Both are inspired by nature and the process of evolution.
+Next research will be oriented on a genetic programming. The genetic programming 
+is the method of construction execution plan by similar way like genetic
+algorithm. Both are inspired by nature and the process of evolution.
 
 %Software used by this available at \url{https://github.com/pborky/biosiglab}.
 
 \subsection{Training data, preprocessing}
-Training data is pulse-code modulated signal (PCM) with the classification 
-information attached during the signal gathering \cite{pcm}. 
+Training data is usually a pulse-code modulated signal (PCM) \cite{pcm} with the
+classification information attached during the signal gathering.
 Sampling frequency,
 can be reduced by averaging particular number of samples. Classification
-information is reduced by electing most frequent classes in given set.
+information is reduced by electing a most frequent classes in given set.
 Reduction is optional; it lowers the resolution but also lowers the 
-computational complexity. Compromise should be found.
+computational complexity. Compromise ought to be found.
 
-Signal is then choped into overlaping slices (windows). 
-Mean of each slice is subtracted. %TODO: other choices
-Signal has to be transformed %TODO: really??
-from time domain to frequency domain.
-This can be achieved by fourier or wavelet transform\cite{fourier,wavelet}.  %TODO: only??
-%TODO: references fourier, wavelet
-Wavelet transform captures not only a notion of the frequency content of the input,
+The signal is then choped into overlaping slices (windows). 
+Mean value of each slice is subtracted. %TODO:why??
+The signal has to be transformed %TODO: really??
+from a time domain to a frequency domain.
+This can be achieved by fourier-related tranforms, e.g. fourier or wavelet transform\cite{fourier,wavelet}.
+The wavelet transform, unlike fourier transform, captures not only a notion of the 
+frequency content of the input,
 by examining it at different scales, but also temporal content.
-Only fast fourier transform is described in this work.
-So, next, the transform should be aplied to each slice resulting in
-complex spectral components.
+Only fast fourier transform has been used in this work.
+So, the transform ought to be aplied to each slice resulting in
+a complex spectral components.
 Phase information is usually discarded.
 %TODO:describe possible other methods
 
-Next the resulting vectors are subject to reduction by means of
-frequency filtering.%TODO: references to frequency filtering
+Next the resulting vectors are subject to reduction by means of a
+frequency filtering. Relevant frequency filters are problem dependent.
+Figure \ref{filters} shows aproximate ranges for some bioelectric signals.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm]{filters}
+	\caption{Aproximate frequency spectrums of bioelectric signals}
+	\label{filters}
+\end{figure}
 
-Fitered spectral components are subject to normalisation in order to put it
+Fitered spectral components are subject to normalisation/equalisation
+in order to put the components
 in the scale. There are several algorithms to choose. Best seems to be 
-discrete histogram or logistic equlization with scaling the values between [0, 1].
+discrete histogram \cite{hist} or logistic equalization with scaling the values between 
+$ \langle 0, 1 \rangle $.
 Other possibilities are logaritmic or range normalisation, that normalize
-values between [0, 1]. %TODO: references
+values between $ \langle 0, 1 \rangle $.
 
-Sampling frequency, window size, overlap, frequency filters and 
+The sampling frequency, window size, overlap, frequency filters and 
 normalisation algorithm
-are parameters that to be sought by genetic algorithm.
+are parameters ought to be sought by genetic algorithm.
 
 \subsection{Self-organizing map}
-Normalised data is then used to train the self-organising map (SOM).
-Self-organising map is a type of artificial neural network that is
+Normalised training data (filtered spectral vectors) is then used to train 
+the self-organising map.
+The self-organising map is a type of artificial neural network that is
 trained using unsupervised learning to produce a low-dimensional 
 (typically two-dimensional), discretized representation of the input 
 space of the training samples, called a map. It is method of vector 
@@ -202,6 +210,8 @@ Associated with each node is a weight vector of the same dimension
 as the input data vectors and a position in the map space. 
 The usual arrangement of nodes is a regular spacing in a hexagonal or rectangular grid. 
 %More detailed information about used algorithms is available at \cite{somtoolbox}. 
+The neurons with weight vectors most similar to the inputs are called 
+the best matching units (BMUs).
 
 There are two ways to interpret a SOM. 
 Because in the training phase weights of the whole neighborhood are moved in the 
@@ -215,25 +225,25 @@ They form a discrete approximation of the distribution of training samples.
 More neurons point to regions with high training sample concentration and 
 fewer where the samples are scarce \cite{somwiki}.
 
-Unsupervised process can be turned to supervised by adding a classification
+This unsupervised process can be commuted to a supervised by adding a classification
 information before process.
-Class information is then encoded using 1-of-N encoding and appended to the 
+The class information is then encoded using 1-of-N encoding and appended to the 
 spectral vectors. After training, the class of each map unit
 is determined by taking maximum over these added components.
-Finally class information is removed \cite{somtoolbox}.
+Finally the class information is removed \cite{somtoolbox}.
 
 The quality of output is controled by several parameters. The most important are 
 training algorithm, maps size and topografic layout and lattice.
 
 The spatial 
 layout of topological surface has to be checked. 
-It should not contain irregularites; the surface should be ``plain''.
+It should not contain irregularites; the surface ought to be ``plain''.
 To quantify this criterion tolopological error is defined. It is the proportion 
 of all data vectors for which first and second BMUs are not adjacent units.
 
-Another criterion is validation/testing error. Traning set is divided into k-folds
-and is trained using k-1 folds and  error 
-is determined using the remaining fold. This is repeated for each fold.
+Another criterion is validation/testing error. Traning set is divided into $ k $-folds
+and it is trained using $ k-1 $ folds. Error is determined using the remaining fold. 
+This is repeated for each fold.
 Average error is the subject to minimize.
 
 \subsection{Genetic algorithm}
@@ -268,7 +278,7 @@ A standard \textit{representation} of the solution is as an array of bits.
 Arrays of other types and structures can be used in essentially the same way. 
 The main property that makes these genetic representations convenient 
 is that their parts are easily aligned due to their fixed size,
-which facilitates simple crossoversomwiki operations. It is possible to 
+which facilitates simple crossover operations. It is possible to 
 represent solution by other techniques like variable array representation,
 trees or graphs but the operations are more complex in that case.
 The \textit{fitness function} is defined over the genetic representation and
@@ -286,7 +296,7 @@ program's ability to perform a given computational task \cite{gawiki}.
 
 
 \section{Experiments}
-\subsection{Training data}
+\subsection{Training data} %TODO: grammar from here
 Equipment used for this experiments is {Nia game controller}, made by 
 {OCZ Techologies}. This device provides HID standard interface.
 After it is connected, it starts to send 24-bit PCM samples, 
@@ -302,28 +312,22 @@ user interface.
 Training data contains features of facial mimics. In this experiments
 following class of grimaces has beem recorded: eye-wink (left, right, both), 
 relax (no grimace).
-Recording time is about 120 seconds. %TODO: check.
+Recording time is about up to 3 minutes
 
 \subsection{Self-organizing map}
-This experiment uses implemetation of SOM based on \cite{somtoolbox}.
-This implementation has wide set of options and algorithms.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=80mm]{som_topol_proj}
 	\caption{Projection of topology of self-organizing map along with a data}
 	\label{som_topol_proj}
 \end{figure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm]{som_umat}
-	\caption{U-matrix and classification of BMUs}
-	\label{som_umat}
-\end{figure}
+This experiment uses implemetation of SOM based on \cite{somtoolbox}.
+This implementation has wide set of options and algorithms.
 
 Following options were analysed:
 \begin{itemize}
-	\item usage of \textit{batch} or \textit{sequential} algorithm,
+	\item usage of \textit{batch} or \textit{sequential} training algorithm 
+	\cite{somtoolbox},
 	\item \textit{hexagonal} or \textit{rectangular} lattice of map,
 	\item size of the map - the default number of map units is determined heuristic formula 
 	$ n_{units} = 5\cdot {n_{data}}^{0.54321} $. \textit{Small} map then
@@ -332,8 +336,14 @@ Following options were analysed:
 \end{itemize}
 
 Figure~\ref{som_topol_proj} depicts the trained self-organizing map and traning data.
-It is PCA projection of input data vectors and BMUs.
+It is a PCA projection of input data vectors and BMUs.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm]{som_umat}
+	\caption{U-matrix and classification of BMUs}
+	\label{som_umat}
+\end{figure}
 Figure~\ref{som_umat} shows two-dimensional projection of the best matching units and
 the labeling information is classification of BMUs. 
 Color in U-matrix represents the distance between best matching unit. Lighter color
@@ -346,10 +356,31 @@ the division is not so clearly observable. Color of labeling is following
 	\item yellow - left eye wink.
 \end{itemize}
 
-This solution was selected based on
-its fitness. %Testing error should be determined using another dataset.
+This has been evaluated as best-fit solution by genetic algorithm.
+%TODO:tables of results, testting error
 
-%TODO:testting error
+%\begin{table}[b]
+%\caption{Measures of selected solutions}
+%%	\begin{center}
+%		\begin{tabular}[width=160mm]{|m{6mm}|m{6mm}|m{6mm}|m{6mm}|m{6mm}
+%								|m{10mm}|m{10mm}|m{10mm}|m{10mm}|m{10mm}|l|l|l|l|l|l|}
+%			\hline
+%			\multicolumn{9}{|c|}{Parameters} & 
+%			\multirow{2}{*}{val.err.} &
+%			\multirow{2}{*}{test err.} &
+%			\multirow{2}{*}{top.err.} &
+%			\multirow{2}{*}{runtime} &
+%			\multirow{2}{*}{windowsize} \\
+%			\hline
+%			$ f_{samp} $ & $ n_{wnd} $ & $ n_o $ & $ f_l $ & $ f_h $ &
+%			norm. method & train algo & map lattice & map size \\
+%			\hline
+%			1333 & 800 & 8 & 20 & 200 & histD & batch & hexa & normal\\
+%			\hline
+%		\end{tabular}
+%%	\end{center}
+%\label{results}
+%\end{table}
 
 \subsection{Search space}
 %TODO: move to section Experiments
@@ -368,73 +399,6 @@ Following degrees of freedom was identified:
 	\item lattice of SOM (\textit{hexagonal} or \textit{rectangular}),
 	\item size of SOM (depends on size of traning dataset).
 \end{itemize}
-Possible optimalization objectives are:%
-\begin{itemize}
-	\item validation error $ e_v $ of the trained SOM network evaluated by k-fold
-	crossvalidation, $ e_v \in \langle 0, 1 \rangle $,
-	\item topological error $ e_t \in \langle 0, 1 \rangle $,
-	\item mean quantisation error $ e_q $,
-	\item window size $ \Delta t_w $ (should be low),
-	\item running time $ t_r $ of whole process.
-\end{itemize}
-The fitness function was choosen empirically based on optimalization objectives:
-\[ f = -\ln(e_v+10^{-2 }) - \ln(\Delta t_w+0.5) - (0.7\cdot e_t-0.7) - P(t_r) \]
-where:\\
-$ P(t) $ is sigmoid function defined as:
-\[ P(t) = \frac{5}{1+10\cdot e^{6-0.15t}} \]
-$ e_v $ is validation error,\\
-$ e_t $ is topological error,\\
-$ t_r $ is running time,\\
-$ \Delta t_w $ is window time span and it can be expressed as 
-\[  \Delta t_w = \frac{n_w}{f_{samp}}  \]
-where:\\
-$ n_w $ is number of samples within window,\\
-$ f_{samp} $ is sampling frequency.
-\\
-Impact of particular optimalization objectives on value of fitness is following:
-\begin{itemize}
-	\item validation error $ -\ln(e_v+10^{-2 }) $ is the key objective and thus its impact
-	ont fitness function is maximal (fig. \ref{fit_ev}),
-	\item topological error $ -(0.7\cdot e_t-0.7) $ (fig. \ref{fit_et}),
-	\item time window $ -\ln(\Delta t_w+0.5) $; (fig. \ref{fit_tw}),
-	\item running time $ -\frac{5}{1+10\cdot e^{6-0.15t}} $ running
-	time should not exceed one minute thus sigmoid function models this case (fig.
-	 \ref{fit_tr}).
-\end{itemize}
-
-
-\begin{figure}[h] %
-	\centering
-	\parbox{40mm}{
-		\includegraphics[width=40mm]{fit_ev}
-		\caption{Validation error}
-		\label{fit_ev}
-	}
-	\qquad
-	\parbox{40mm}{
-		\includegraphics[width=40mm]{fit_et}
-		\caption{Topological error}
-		\label{fit_et}
-	}
-\end{figure}
-\begin{figure}[h] %
-	\parbox{40mm}{
-		\includegraphics[width=40mm]{fit_tw}
-		\caption{Time window width}
-		\label{fit_tw}
-	}
-	\qquad
-	\parbox{40mm}{
-		\includegraphics[width=40mm]{fit_tr}
-		\caption{Running time}
-		\label{fit_tr}
-	}
-\end{figure}
-
-\subsection{Genetic algorithm}
-%TODO: give further information
-Selected search space is discrete and it is listed  in table~\ref{searchspace}.%
-% TODO tabular list of degrees of freedom and search space
 \begin{table}[h]
 \caption{The search space}
 	\begin{center}
@@ -464,8 +428,73 @@ Selected search space is discrete and it is listed  in table~\ref{searchspace}.%
 	\end{center}
 \label{searchspace}
 \end{table}
+Possible objectives are:%
+\begin{itemize}
+	\item validation error $ e_v $ of the trained SOM network evaluated by k-fold
+	crossvalidation, $ e_v \in \langle 0, 1 \rangle $,
+	\item topological error $ e_t \in \langle 0, 1 \rangle $,
+	\item mean quantisation error $ e_q $,
+	\item window size $ \Delta t_w $,
+	\item running time $ t_r $ of whole process.
+\end{itemize}
+The fitness function was choosen empirically based on optimalization objectives:
+\[ f = -\ln(e_v+10^{-2 }) - \ln(\Delta t_w+0.5) - (0.7\cdot e_t-0.7) - P(t_r) \]
+where:\\
+$ P(t) $ is sigmoid function defined as:
+\[ P(t) = \frac{5}{1+10\cdot e^{6-0.15t}} \]
+$ e_v $ is validation error,\\
+$ e_t $ is topological error,\\
+$ t_r $ is running time,\\
+$ \Delta t_w $ is window time span and it can be expressed as 
+\[  \Delta t_w = \frac{n_w}{f_{samp}}  \]
+where:\\
+$ n_w $ is number of samples within window,\\
+$ f_{samp} $ is sampling frequency.
+\\
+\begin{figure}[h] %
+	\centering
+	\parbox{40mm}{
+		\includegraphics[width=40mm]{fit_ev}
+		\caption{Validation error}
+		\label{fit_ev}
+	}
+	\qquad
+	\parbox{40mm}{
+		\includegraphics[width=40mm]{fit_et}
+		\caption{Topological error}
+		\label{fit_et}
+	}
+\end{figure}
+
+\begin{figure}[h] %
+	\parbox{40mm}{
+		\includegraphics[width=40mm]{fit_tw}
+		\caption{Time window width}
+		\label{fit_tw}
+	}
+	\qquad
+	\parbox{40mm}{
+		\includegraphics[width=40mm]{fit_tr}
+		\caption{Running time}
+		\label{fit_tr}
+	}
+\end{figure}
+Impact of particular objectives on value of fitness is following:
+\begin{itemize}
+	\item validation error $ -\ln(e_v+10^{-2 }) $ is the key objective and thus its impact
+	ont fitness function is maximal (fig. \ref{fit_ev}),
+	\item topological error $ -(0.7\cdot e_t-0.7) $ (fig. \ref{fit_et}),
+	\item time window $ -\ln(\Delta t_w+0.5) $; (fig. \ref{fit_tw}),
+	\item running time $ -\frac{5}{1+10\cdot e^{6-0.15t}} $ running
+	time should not exceed one minute thus sigmoid function models this case (fig.
+	 \ref{fit_tr}).
+\end{itemize}
 
 
+\subsection{Genetic algorithm}
+%TODO: give further information
+Selected search space is discrete and it is listed  in table~\ref{searchspace}.%
+% TODO tabular list of degrees of freedom and search space
 
 Implementation of genetic algorithm to be introduced at this place
 has following properties:
@@ -507,13 +536,14 @@ has following properties:
 			$ f'=-f  $
 			and count of selection rounds is
 			\[ N_{mr} = \lceil n_{mr}\cdot N_{survived} \rceil \]
-			where:\\
-			$ i_{epoch} $ is the actual epoch and\\
+			where 
 			$ n_{mr} $  is the rate of mutation in given population denoted as:			
-			\[ n_{mr} = 0.05+\dfrac{0.25}{10\cdot e^{0.11\cdot i_{epoch}-7}}\]
+			\[ n_{mr} = 0.05+\dfrac{0.25}{10\cdot e^{0.11\cdot i_{gen}-7}}\]
+			where
+			$ i_{gen} $ is the actual generation.\\
 			The value of $ N_{mr} $ limits the count of selected species. 
-			See fig. \ref{mut_r} for visualisation of relation of $ n_{mr} $ 
-			on generation number.
+			See fig. \ref{mut_r} for visualisation of relation between $ n_{mr} $ 
+			and current generation.
 			\item from the actual offsprings with probability of mutation for each one:
 			$ P_{mo} = n_{mr} $.
 		\end{itemize}
@@ -521,21 +551,27 @@ has following properties:
 		$ P_{mb} = 0.2 $.
 	\end{itemize}
 \end{itemize}
+\begin{itemize}
+	\item stop condition:
+	\begin{itemize}
+		\item fitness of best-fit species for given interval of generations has not changed.
+	\end{itemize}	
+\end{itemize}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=80mm]{mut_r}
 	\caption{Dependency of mutation rate on generation.}
 	\label{mut_r}
 \end{figure}
-\begin{itemize}
-	\item stop condition:
-	\begin{itemize}
-		\item fitness of best-fit species for given interval of epochs has not changed.
-	\end{itemize}	
-\end{itemize}
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=80mm]{conv_curve}
+	\includegraphics[width=80mm,height=55mm]{ga_conv_curve_s}
+	\caption{Convergence curve of single run of GA.}
+	\label{conv_curve_s}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm,height=55mm]{ga_conv_curve}
 	\caption{Convergence curve calculated on 100 runs of GA with limit of 150 generations.}
 	\label{conv_curve}
 \end{figure}
@@ -584,7 +620,7 @@ has following properties:
 %\bibliographystyle{IEEEtran}
 % argument is your BibTeX string definitions and bibliography database(s)
 %\bibliography{IEEEabrv,../bib/paper}
-%
+%[1333]    [800]    [8]    [2x1 double]    'histD'    'batch'    'hexa'    'normal'
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
@@ -609,6 +645,9 @@ Esa Alhoniemi, Johan Himberg, Juha Parhankangas, Juha Vesanto:\\
 
 \bibitem{wavelet}
 \emph{Wavelet transform}, \hskip 1em plus 0.5em minus 0.4em\relax \url{http://en.wikipedia.org/wiki/Wavelet_transform}
+
+\bibitem{hist}
+\emph{Histogram equalization}, \hskip 1em plus 0.5em minus 0.4em\relax \url{http://en.wikipedia.org/wiki/Histogram_equalization}
 
 
 %TODO: more references 
