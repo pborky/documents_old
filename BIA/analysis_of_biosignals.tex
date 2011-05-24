@@ -176,12 +176,12 @@ Phase information is usually discarded.
 
 Next the resulting vectors are subject to reduction by means of a
 frequency filtering. Relevant frequency filters are problem dependent.
-Figure \ref{filters} shows aproximate ranges for some bioelectric signals.
+Figure \ref{filters2} shows aproximate ranges for some bioelectric signals.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=80mm]{filters}
-	\caption{Aproximate frequency spectrums of bioelectric signals}
-	\label{filters}
+	\includegraphics[width=80mm]{filters2}
+	\caption{Aproximate frequency spectrums of some bioelectric signals}
+	\label{filters2}
 \end{figure}
 
 Fitered spectral components are subject to normalisation/equalisation
@@ -315,12 +315,6 @@ relax (no grimace).
 Recording time is about up to 3 minutes
 
 \subsection{Self-organizing map}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm]{som_topol_proj}
-	\caption{Projection of topology of self-organizing map along with a data}
-	\label{som_topol_proj}
-\end{figure}
 This experiment uses implemetation of SOM based on \cite{somtoolbox}.
 This implementation has wide set of options and algorithms.
 
@@ -338,12 +332,6 @@ Following options were analysed:
 Figure~\ref{som_topol_proj} depicts the trained self-organizing map and traning data.
 It is a PCA projection of input data vectors and BMUs.
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm]{som_umat}
-	\caption{U-matrix and classification of BMUs}
-	\label{som_umat}
-\end{figure}
 Figure~\ref{som_umat} shows two-dimensional projection of the best matching units and
 the labeling information is classification of BMUs. 
 Color in U-matrix represents the distance between best matching unit. Lighter color
@@ -356,6 +344,18 @@ the division is not so clearly observable. Color of labeling is following
 	\item yellow - left eye wink.
 \end{itemize}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm]{som_umat}
+	\caption{U-matrix and classification of BMUs}
+	\label{som_umat}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm]{som_topol_proj}
+	\caption{PCA Projection of topology of self-organizing map along with a data}
+	\label{som_topol_proj}
+\end{figure}
 Figured solution has been evaluated as best-fit solution by genetic algorithm.
 %TODO:tables of results, testting error
 
@@ -401,7 +401,7 @@ Following degrees of freedom was identified:
 \begin{table}[h]
 \caption{The search space}
 	\begin{center}
-		\begin{tabular}{|l| l |}
+		\begin{tabular}{|l|| l |}
 			\hline
 			degree of freedom & values \\
 			\hline
@@ -465,6 +465,17 @@ $ f_{samp} $ is sampling frequency.
 	}
 \end{figure}
 
+Impact of particular objectives on value of fitness is following:
+\begin{itemize}
+	\item validation error $ -\ln(e_v+10^{-2 }) $ is the key objective and thus its impact
+	ont fitness function is maximal (fig. \ref{fit_ev}),
+	\item topological error $ -(0.7\cdot e_t-0.7) $ (fig. \ref{fit_et}),
+	\item time window $ -\ln(\Delta t_w+0.5) $; (fig. \ref{fit_tw}),
+	\item running time $ -\frac{5}{1+10\cdot e^{6-0.15t}} $ running
+	time should not exceed one minute thus sigmoid function models this case (fig.
+	 \ref{fit_tr}).
+\end{itemize}
+
 \begin{figure}[h] %
 	\parbox{40mm}{
 		\includegraphics[width=40mm]{fit_tw}
@@ -478,21 +489,10 @@ $ f_{samp} $ is sampling frequency.
 		\label{fit_tr}
 	}
 \end{figure}
-Impact of particular objectives on value of fitness is following:
-\begin{itemize}
-	\item validation error $ -\ln(e_v+10^{-2 }) $ is the key objective and thus its impact
-	ont fitness function is maximal (fig. \ref{fit_ev}),
-	\item topological error $ -(0.7\cdot e_t-0.7) $ (fig. \ref{fit_et}),
-	\item time window $ -\ln(\Delta t_w+0.5) $; (fig. \ref{fit_tw}),
-	\item running time $ -\frac{5}{1+10\cdot e^{6-0.15t}} $ running
-	time should not exceed one minute thus sigmoid function models this case (fig.
-	 \ref{fit_tr}).
-\end{itemize}
-
 
 \subsection{Genetic algorithm}
 Selected search space is discrete and it is listed  in table~\ref{searchspace}.%
-% TODO tabular list of degrees of freedom and search space
+%TODO tabular list of degrees of freedom and search space
 
 Implementation of genetic algorithm to be introduced at this place
 has following properties:
@@ -561,6 +561,9 @@ has following properties:
 	\caption{Dependency of mutation rate on generation.}
 	\label{mut_r}
 \end{figure}
+
+\subsection{Measuremenets}
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=80mm,height=55mm]{ga_conv_curve_s}
@@ -574,7 +577,6 @@ has following properties:
 	\label{conv_curve}
 \end{figure}
 
-\subsection{Measuremenets}
 % place for other SOM visualisations, and convergence curves
 % convergence curve describe
 % further decritption
