@@ -1,3 +1,4 @@
+
 %%*************************************************************************
 %%
 %% Analysis of Biosignals by Biologically Inspired Algorithms
@@ -94,7 +95,7 @@
 
 
 \begin{document}
-\title[Analysis of biosignals]{Analysis of biosignals by means of\\ biologically inspired algorithms}
+\title{Analysis of biosignals by means of\\ biologically inspired algorithms}
 
 \author{Peter~Boraros% <-this % stops a space
 %\IEEEcompsocitemizethanks{
@@ -355,7 +356,7 @@ the division is not so clearly observable. Color of labeling is following
 	\item yellow - left eye wink.
 \end{itemize}
 
-This has been evaluated as best-fit solution by genetic algorithm.
+Figured solution has been evaluated as best-fit solution by genetic algorithm.
 %TODO:tables of results, testting error
 
 %\begin{table}[b]
@@ -382,7 +383,6 @@ This has been evaluated as best-fit solution by genetic algorithm.
 %\end{table}
 
 \subsection{Search space}
-%TODO: move to section Experiments
 The whole process is controlled by several parameters.
 The parameters can be determined by way of searching the search space.
 Following degrees of freedom was identified:
@@ -491,7 +491,6 @@ Impact of particular objectives on value of fitness is following:
 
 
 \subsection{Genetic algorithm}
-%TODO: give further information
 Selected search space is discrete and it is listed  in table~\ref{searchspace}.%
 % TODO tabular list of degrees of freedom and search space
 
@@ -571,16 +570,30 @@ has following properties:
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=80mm,height=55mm]{ga_conv_curve}
-	\caption{Convergence curve calculated on 100 runs of GA with limit of 150 generations.}
+	\caption{Agregated convergence curve calculated on 100 runs with limit of 150 generations.}
 	\label{conv_curve}
 \end{figure}
 
-%TODO: convergence curve describe
-%TODO: further decritption
+\subsection{Measuremenets}
+% place for other SOM visualisations, and convergence curves
+% convergence curve describe
+% further decritption
+% dependency of quality of SOM on parameters (big? table) 
+% compare of best sought solution with worst
+
+\section{Discussion}
+% further decritption
+% describe original tries discuss some other possibilities.
+
 
 \section{Conclusion}
-%TODO: further decritption
+% what exactly measurement shows
+% reference to further research : use of diferent datasets, genetic programing
+% ... methods of optimisation (estimate the runnig time to avoid long running tasks)
+% ... 
 
+
+%TODO: consider put some big tables and figures in appendix
 % if have a single appendix:
 %\appendix[Proof of the Zonklar Equations]
 % orsomwiki
