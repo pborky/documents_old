@@ -24,8 +24,7 @@
 %% Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 %% http://creativecommons.org/licenses/by-nc-sa/3.0/
 
-
-\documentclass[a4paper,jurnal]{IEEEtran}
+\documentclass[a4paper]{IEEEtran}
 
 \usepackage{cite}
 % \usepackage[nocompress]{cite}
@@ -75,6 +74,8 @@
 \renewcommand{\labelitemii}{$\circ$}
 \renewcommand{\labelitemiii}{$\ast$}
 
+\setlength{\textheight}{260mm}
+
 % IEEEtran contains the IEEEeqnarray family of commands that can be used to
 % generate multiline equations as well as matrices, tables, etc., of high
 % quality.
@@ -109,12 +110,8 @@
 %		E-mail: see http://www.pborky.sk/contact}
 }
 
-
-
 % The paper headers
-\markboth{Peter Boraros, Czech technical university, Faculty of Electrical Engineering,
-Prague, Czech Republic}%
-{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for Computer Society Journals}
+\markboth{Peter Boraros, Czech technical university, Faculty of Electrical Engineering, Prague, Czech Republic}{}
 
 \IEEEcompsoctitleabstractindextext{%
 \begin{abstract}
@@ -193,9 +190,9 @@ frequency filtering. Frequency filters are problem dependent.
 Fitered spectral components are subject to normalisation/equalisation
 in order to put the components
 in the scale. There are several algorithms to choose. Analysed choices are:
-discrete histogram \cite{hist} or logistic equalization with scaling the values between 
-$ \langle 0, 1 \rangle $ or logaritmic or range normalisation, that normalize
-values between $ \langle 0, 1 \rangle $.
+histogram, logistic or logaritmic normalisation
+with scaling the values between $ \langle 0, 1 \rangle $ or a variance normalisation,
+that scales variables linearly such that their variance is equal to the one.
 
 The sampling frequency, window size, overlap, frequency filters and 
 normalisation algorithm
@@ -334,6 +331,13 @@ Following options were analysed:
 	\textit{small} and \textit{normal} is used due to to time complexity.
 \end{itemize}
 
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=80mm]{som_topol_proj}
+	\caption{PCA 3-D projection of topology of the self-organizing map along with the data}
+	\label{fig:som_topol_proj}
+\end{figure}
+
 \textit{Figure~\ref{fig:som_topol_proj}} depicts the trained self-organizing map and traning data.
 It is a PCA projection of input data vectors and BMUs.
 
@@ -349,20 +353,14 @@ the division is not so clearly observable. Color of labeling is following
 	\item yellow - left eye wink.
 \end{itemize}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm]{som_umat}
-	\caption{U-matrix and classification of BMUs}
-	\label{fig:som_umat}
-\end{figure}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm]{som_topol_proj}
-	\caption{PCA Projection of topology of self-organizing map along with a data}
-	\label{fig:som_topol_proj}
-\end{figure}
 Figured solution has been evaluated as best-fit solution by genetic algorithm.
 %TODO:tables of results, testting error
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=80mm]{som_umat}
+	\caption{The U-matrix and classification of best matching units}
+	\label{fig:som_umat}
+\end{figure}
 
 \subsection{Search space}
 The whole process is controlled by several parameters.
@@ -380,7 +378,7 @@ Following degrees of freedom was identified:
 	\item lattice of SOM (\textit{hexagonal} or \textit{rectangular}),
 	\item size of SOM (depends on size of traning dataset).
 \end{itemize}
-\begin{table}[h]
+\begin{table}[!h]
 \caption{The search space}
 	\begin{center}
 		\begin{tabular}{|l|| l |}
@@ -409,7 +407,7 @@ Following degrees of freedom was identified:
 	\end{center}
 \label{tbl:searchspace}
 \end{table}
-Possible objectives are:%
+Possible objectives are:
 \begin{itemize}
 	\item validation error $ e_v $ of the trained SOM network evaluated by k-fold
 	crossvalidation, $ e_v \in \langle 0, 1 \rangle $,
@@ -418,16 +416,15 @@ Possible objectives are:%
 	\item window size $ \Delta t_w $,
 	\item running time $ t_r $ of whole process.
 \end{itemize}
-\begin{figure}[h] %
+\begin{figure*}[!h] %
   \centering
-  \subfloat[Time window width]{\label{fig:fit_ev}\includegraphics[width=45mm]{fit_ev}}
-  \subfloat[Running time]{\label{fig:fit_et}\includegraphics[width=45mm]{fit_et}}
-  
-  \subfloat[Time window width]{\label{fig:fit_tw}\includegraphics[width=45mm]{fit_tw}}
-  \subfloat[Running time]{\label{fig:fit_tr}\includegraphics[width=45mm]{fit_tr}}
-  \caption{Fitness function partial graphs}
+  \subfloat[Time window width]{\label{fig:fit_ev}\includegraphics[width=44mm]{fit_ev}}
+  \subfloat[Running time]{\label{fig:fit_et}\includegraphics[width=44mm]{fit_et}}
+  \subfloat[Time window width]{\label{fig:fit_tw}\includegraphics[width=44mm]{fit_tw}}
+  \subfloat[Running time]{\label{fig:fit_tr}\includegraphics[width=44mm]{fit_tr}}
+  \caption{The fitness function partial graphs}
   \label{fig:fit}
-\end{figure}
+\end{figure*}
 The fitness function was choosen empirically based on optimalization objectives:
 \[ f = -\ln(e_v+10^{-2 }) - \ln(\Delta t_w+0.5) - (0.7\cdot e_t-0.7) - P(t_r) \]
 where:\\
@@ -488,6 +485,12 @@ has following properties:
 		produces  offsprings distinct from parents (i.e. at least one differing gene must be kept or swapped respectivelly),
 	\end{itemize}
 \end{itemize}
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=80mm]{mut_r}
+	\caption{Dependency of the mutation rate on the generation.}
+	\label{fig:mut_r}
+\end{figure}
 \begin{itemize}
 	\item mutations:
 	\begin{itemize}
@@ -519,54 +522,20 @@ has following properties:
 		\item fitness of best-fit species for given interval of generations has not changed.
 	\end{itemize}	
 \end{itemize}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm]{mut_r}
-	\caption{Dependency of mutation rate on generation.}
-	\label{fig:mut_r}
-\end{figure}
 
 \subsection{Measurements}
-\textit{Table~\ref{tbl:somagrresults}} represents distribution of fitness value over changing parameters.
-Agregations has been calculated for each possible value of particular parameter.
-Mean, minimal, maximal value and standard deviation has been calculated over 
-remaining configurations after holding one particular parameter. 
+Values in \textit{table~\ref{tbl:somagrresults}} are representing distribution of fitness
+ value over changing parameters.
+Agregations have been calculated .
+Mean, minimal, maximal value and standard deviation have been calculated
+for each possible value of particular parameter over
+remaining configurations. 
 \textit{Table~\ref{tbl:somresults}} represents measurements of fitness for several configurations.
 Internal state of the classifier (i.e. weight vectors of self-organizing map) 
 has been plotted on figures.. %TODO: include figures related to classifier
 
-Statistical agregations over 100 runs of genetic algorithm are stated in the \textit{table~\ref{tbl:garesults}}.
-A configuration has been considered to be winner if its measure of fitness has been best from last surviving population
-after the genetic algorithm reached the stop condition. Running time is time elapsed by single run of genetic
-algorithm. A generation count is a number of generations that has been emerged till the stop condition has been reached.
-A population count is a number of configurations in each particular generation. It has been computed over 
-all 100 runs and all generations.
-The states are considered to be visited once their fitness has been calculated.
-A values stated at \textit{table~\ref{tbl:garesults}} has been computed over 100 runs.
-
-Convergence of the genetic algorithm are drawn on \textit{figures \ref{fig:conv_curve_s}} and  \textit{\ref{fig:conv_curve}}.
-The \textit{figure \ref{fig:conv_curve_s}} depicts a distribution of the fitness and population size
-in particular generation during a single execution of the genetic algorithm.
-The graph on \textit{figure \ref{fig:conv_curve}} is distribution of best-fit species over 100 executions.
-Best-fit value of every execution and every generation has been taken. Drawn population size 
-is then mean over population sizes of all executions. Number of generations has been forcibly set to 150.
-
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm,height=55mm]{ga_conv_curve_s}
-	\caption{Convergence curve of single run of GA.}
-	\label{fig:conv_curve_s}
-\end{figure}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=80mm,height=55mm]{ga_conv_curve}
-	\caption{Agregated convergence curve calculated over 100 runs with limit of 150 generations.}
-	\label{fig:conv_curve}
-\end{figure}
-
-\begin{table}[h]
-	\caption{Agregated measures of 100 runs of genetic algorithm}
+\begin{table}[!h]
+	\caption{Dependency of the fitness on values of parameters}
 	\centering
 	\begin{tabular}{|c|c||r|r|r|r|}
 		\hline
@@ -582,49 +551,124 @@ is then mean over population sizes of all executions. Number of generations has 
 		\hline
 		\hline
 			\multirow{4}{*}{\parbox[c]{20mm}{\centering\textbf{samp. frequency}\\ $ \mathbf{f_{sampl}[Hz]} $}}
-			& 256 & & & & \\ \cline{2-6}
-			& 666 & & & & \\ \cline{2-6}
-			& 1333 & & & & \\ \cline{2-6}
-			& 4000 & & & & \\ 
+			& 256 & -5.3882 & 0.7539 & 2.1562 & 3.7107\\ \cline{2-6}
+			& 666 & 0.1852 & 1.8198 & 0.6429 & 4.2550\\ \cline{2-6}
+			& 1333 & 0.4574 & 1.9894 & 0.5854 & 4.1968\\ \cline{2-6}
+			& 4000 & -3.7500 & 1.7250 & 1.0428 & 4.1556\\
 		\hline
 			\multirow{4}{*}{\parbox[c]{20mm}{\centering\textbf{window width}\\ $ \mathbf{n_w} $}}
-			& 80 & & & & \\ \cline{2-6}
-			& 200 & & & & \\ \cline{2-6}
-			& 800 & & & & \\ \cline{2-6}
-			& 2000 & & & & \\ 
+			& 80 & -3.7500 & 1.6794 & 0.9686 & 2.9619\\ \cline{2-6}
+			& 200 & 0.4445 & 1.8854 & 0.4932 & 3.7107\\ \cline{2-6}
+			& 800 & -2.8073 & 1.8551 & 0.8120 & 4.2550\\ \cline{2-6}
+			& 2000 & -5.3882 & 0.8682 & 2.2125 & 4.1556\\ 
 		\hline
 			\multirow{2}{*}{\parbox[c]{20mm}{\centering\textbf{window overlap}\\ $ \mathbf{n_o} $}}
-			& 2 & & & & \\ \cline{2-6}
-			& 8 & & & & \\ 
+			& 2 & -5.3882 & 1.5664 & 1.2777 & 4.1968\\ \cline{2-6}
+			& 8 & -5.3445 & 1.5777 & 1.4405 & 4.2550\\
 		\hline		
 			\multirow{2}{*}{\parbox[c]{20mm}{\centering\textbf{frequency filter}\\$\mathbf{\langle f_l,f_h \rangle[Hz]}$}}
-			& $ \langle 0, 50 \rangle $ & & & & \\ \cline{2-6}
-			& $ \langle 20, 200 \rangle $ & & & & \\ 
+			& $ \langle 0, 50 \rangle $ & -3.7500 & 1.4637 & 0.6655 & 3.2315\\ \cline{2-6}
+			& $ \langle 20, 200 \rangle $ & -5.3882 & 1.6804 & 1.8004 & 4.2550\\
 		\hline
 			\multirow{4}{*}{\parbox[c]{20mm}{\centering\textbf{normalization}\\ \textbf{method}}}
-			& histD & & & & \\ \cline{2-6}
-			& log & & & & \\ \cline{2-6}
-			& logist & & & & \\ \cline{2-6}
-			& var & & & & \\ 
+			& histD & -5.0890 & 1.6729 & 1.3765 & 4.1616\\ \cline{2-6}
+			& log & -5.3882 & 1.2908 & 1.3005 & 2.6185\\ \cline{2-6}
+			& logist & -5.1476 & 1.5529 & 1.3119 & 3.4393\\ \cline{2-6}
+			& var & -5.0324 & 1.7716 & 1.4091 & 4.2550\\
 		\hline
 			\multirow{2}{*}{\parbox[c]{20mm}{\centering\textbf{training}\\ \textbf{algorithm}}}
-			& batch & & & & \\ \cline{2-6}
-			& sequence & & & & \\ 
+			& batch & -5.3882 & 1.4589 & 1.4011 & 3.6875\\ \cline{2-6}
+			& sequence & -5.2988 & 1.6852 & 1.3111 & 4.2550\\
 		\hline
 			\multirow{2}{*}{\textbf{map lattice}}
-			& rect & & & & \\ \cline{2-6}
-			& hexa & & & & \\ 
+			& rect & -5.3445 & 1.5727 & 1.3672 & 4.1968\\ \cline{2-6}
+			& hexa & -5.3882 & 1.5714 & 1.3559 & 4.2550\\
 		\hline
 			\multirow{2}{*}{\textbf{map size}}
-			& small & & & & \\ \cline{2-6}
-			& normal & & & & \\ 
+			& small & -5.3882 & 1.4177 & 1.2621 & 3.2344\\ \cline{2-6}
+			& normal & -5.0296 & 1.7264 & 1.4378 & 4.2550\\
 		\hline
 	\end{tabular}
 	\label{tbl:somagrresults}
 \end{table}
 
-\begin{table}[h]
-	\caption{Agregated measures of 100 runs of genetic algorithm}
+
+\begin{table*}[!h]
+\caption{Measures of choosen solutions}
+	\begin{tabular}{|c||p{8mm}|p{8mm}|p{4mm}|p{4mm}|m{5mm} |p{8.5mm}|p{7mm}|p{8mm}|p{11mm} ||p{10mm}|p{10mm}|p{10mm}|p{10mm}|p{10mm}|}
+		\hline
+			\multirow{2}{*}{\textbf{No}} & 
+			\multicolumn{9}{c||}{\textbf{Parameters}} & 
+			\multicolumn{5}{c|}{\textbf{Measures}} \\
+		\cline{2-15}
+			&
+			$ \mathbf{f_{samp}} $& 
+			$ \mathbf{n_{wnd}} $& 
+			$ \mathbf{n_o} $&
+			$ \mathbf{f_l} $&
+			$ \mathbf{f_h} $& 
+			\textbf{norm}&
+			\textbf{train}&
+			\textbf{lattice} &
+			\textbf{map~size} &
+			\textbf{val.err.}&
+			\textbf{top.err.}&
+			\textbf{runtime}&
+			\textbf{window}& 
+			\textbf{fitness}\\
+		\hline\hline
+1 & 666 & 800 & 8 & 20 & 200 & logistic & batch & rect & normal & 0.00646 &  0.02586 &  5.21314 &  1.2 & 4.2550 \\ \hline
+2 & 1333 & 800 & 2 & 20 & 200 & logistic & batch & hexa & normal &  0.01693 &  0.02966 &  1.50804 &  0.6 & 4.1968 \\ \hline
+3 & 1333 & 800 & 2 & 20 & 200 & logistic & batch & rect & normal &  0.01694 &  0.02966 &  1.30751 &  0.6 & 4.1964 \\ \hline
+4 & 1333 & 800 & 8 & 20 & 200 & histD & batch & hexa & normal &  0.01816 &  0.01495 &  4.24669 &  0.6 & 4.1616 \\ \hline
+5 & 4000 & 2000 & 2 & 20 & 200 & logistic & batch & rect & normal &  0.02113 & 0.01760 &  1.17217 &  0.5 & 4.1556 \\ \hline
+6 & 666 & 800 & 2 & 20 & 200 & logistic & batch & hexa & normal &  0.00865 &   0 &  3.12344 &  1.2 &   4.1489 \\ \hline
+7 & 666 & 800 & 8 & 20 & 200 & logistic & batch & hexa & normal &  0.00862 &  0.01077 &  4.86857 &  1.2 &  4.1426 \\ \hline
+8 & 1333 & 800 & 8 &  0 & 50 & log & batch & rect & small  &  0.39530 &  0.06196 &  0.45152 &  0.6 &   1.4631 \\ \hline
+9 & 256 & 800 & 8 & 20 & 200 & log & batch & hexa & normal &   0.11932 &    0 &  24.2796 &    3 &   1.4458 \\ \hline
+10 & 256 & 800 & 2 & 20 & 200 & logistic & batch & hexa & small &   0.30486 &    0 &   19.4080 &    3 &  0.5801 \\ \hline
+11 & 256 & 800 & 8 & 20 & 200 & logistic & seq & hexa & normal  &  0.09384 &   0 &  50.8771 &    3 & 0.0207 \\ \hline
+	\end{tabular}
+	\label{tbl:somresults}
+\end{table*}
+
+Statistical agregations over 100 runs of genetic algorithm are stated in the \textit{table~\ref{tbl:garesults}}.
+A configuration has been considered to be winner if its measure of fitness has been best from last surviving population
+after the genetic algorithm reached the stop condition. Running time is time elapsed by single run of genetic
+algorithm. A generation count is a number of generations that has been emerged till the stop condition has been reached.
+A population count is a number of configurations in each particular generation. It has been computed over 
+all 100 runs and all generations.
+The states are considered to be visited once their fitness has been calculated.
+A values stated at \textit{table~\ref{tbl:garesults}} has been computed over 100 runs.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm,height=55mm]{ga_conv_curve_s}
+	\caption{The convergence curve of single run of  the genetic algorithm.}
+	\label{fig:conv_curve_s}
+\end{figure}
+
+The convergence of the genetic algorithm has been visualised
+on \textit{figures \ref{fig:conv_curve_s}} and  \textit{\ref{fig:conv_curve}}.
+The \textit{figure \ref{fig:conv_curve_s}} depicts a mean and a standard deviation 
+along with a maximal and minimal value of the fitness
+in particular generation during a single execution of the genetic algorithm.
+The population size progression over generations has been drawn too.
+
+Similarly the \textit{figure \ref{fig:conv_curve}} is a distribution of best-fitting species over 100 executions.
+Best-fitting value of every population has been taken. Statistical characteristics for particular generation
+has been calculated over all executions.
+The mean population size progression has been drawn too. The number of generations has been forcibly set to~150.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=80mm,height=55mm]{ga_conv_curve}
+	\caption{The agregated convergence curve calculated over 100 runs with limit of 150 generations.}
+	\label{fig:conv_curve}
+\end{figure}
+
+\begin{table}[!h]
+	\caption{Agregated measures over 100 runs of the genetic algorithm}
 	\centering
 	\begin{tabular}{|c||r|r|r|r|}
 		\hline
@@ -638,47 +682,6 @@ is then mean over population sizes of all executions. Number of generations has 
 			\textbf{visited states} & 56 & 319 & 60 & 433 \\ \hline
 	\end{tabular}
 	\label{tbl:garesults}
-\end{table}
-
-\begin{table}[b]
-\caption{Measures of selected solutions}
-%	\begin{center}
-		\begin{tabular}{|c||p{8mm}|p{8mm}|p{4mm}|p{4mm}|m{5mm} |p{8.5mm}|p{7mm}|p{8mm}|p{11mm} ||p{10mm}|p{10mm}|p{10mm}|p{10mm}|p{10mm}|}
-			\hline
-				\multirow{2}{*}{\textbf{No}} & 
-				\multicolumn{9}{c||}{\textbf{Parameters}} & 
-				\multicolumn{5}{c|}{\textbf{Measures}} \\
-			\cline{2-15}
-				&
-				$ \mathbf{f_{samp}} $& 
-				$ \mathbf{n_{wnd}} $& 
-				$ \mathbf{n_o} $&
-				$ \mathbf{f_l} $&
-				$ \mathbf{f_h} $& 
-				\textbf{norm}&
-				\textbf{train}&
-				\textbf{lattice} &
-				\textbf{map~size} &
-				\textbf{val.err.}&
-				\textbf{top.err.}&
-				\textbf{runtime}&
-				\textbf{window}& 
-				\textbf{fitness}\\
-			\hline\hline
-1 & 666 & 800 & 8 & 20 & 200 & logistic & batch & rect & normal & 0.00646 &  0.02586 &  5.21314 &  1.2 & 4.2550 \\ \hline
-2 & 1333 & 800 & 2 & 20 & 200 & logistic & batch & hexa & normal &  0.01693 &  0.02966 &  1.50804 &  0.6 & 4.1968 \\ \hline
-3 & 1333 & 800 & 2 & 20 & 200 & logistic & batch & rect & normal &  0.01694 &  0.02966 &  1.30751 &  0.6 & 4.1964 \\ \hline
-4 & 1333 & 800 & 8 & 20 & 200 & histD & batch & hexa & normal &  0.01816 &  0.01495 &  4.24669 &  0.6 & 4.1616 \\ \hline
-5 & 4000 & 2000 & 2 & 20 & 200 & logistic & batch & rect & normal &  0.02113 & 0.01760 &  1.17217 &  0.5 & 4.1556 \\ \hline
-6 & 666 & 800 & 2 & 20 & 200 & logistic & batch & hexa & normal &  0.00865 &   0 &  3.12344 &  1.2 &   4.1489 \\ \hline
-7 & 666 & 800 & 8 & 20 & 200 & logistic & batch & hexa & normal &  0.00862 &  0.01077 &  4.86857 &  1.2 &  4.1426 \\ \hline
-8 & 1333 & 800 & 8 &  0 & 50 & log & batch & rect & small  &  0.39530 &  0.06196 &  0.45152 &  0.6 &   1.4631 \\ \hline
-9 & 256 & 800 & 8 & 20 & 200 & log & batch & hexa & normal &   0.11932 &    0 &  24.2796 &    3 &   1.4458 \\ \hline
-10 & 256 & 800 & 2 & 20 & 200 & logistic & batch & hexa & small &   0.30486 &    0 &   19.4080 &    3 &  0.5801 \\ \hline
-11 & 256 & 800 & 8 & 20 & 200 & logistic & seq & hexa & normal  &  0.09384 &   0 &  50.8771 &    3 & 0.0207 \\ \hline
-\end{tabular}
-%	\end{center}
-\label{tbl:somresults}
 \end{table}
 
 % place for other SOM visualisations, and convergence curves
@@ -718,7 +721,7 @@ is then mean over population sizes of all executions. Number of generations has 
 \appendices
 
 
-
+\newpage
 
 % trigger a \newpage just before the given reference
 % number - used to balance the columns on the last page
