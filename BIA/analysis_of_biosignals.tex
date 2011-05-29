@@ -89,11 +89,11 @@ see~\texttt{http://www.pborky.sk/contact} for a contact infomation}}%
 
 \IEEEcompsoctitleabstractindextext{%
 \begin{abstract}
-The aim of this document is to show the usage of biologically inspired algorithms
-in analysis of facial electromyography and electroencephalography.
-Concretelly, it depicts the process of obtaining data, preprocessing using fast fourier
+The aim of this document is to show an usage of biologically inspired algorithms
+in analysis of a facial electromyography and electroencephalography.
+Concretelly, it depicts a process of obtaining data, preprocessing using a fast fourier
 transform and classifing by means of a self-organizing map. 
-Searching through the parameter space in order to find proper parametrisation of whole
+Searching through a parameter space in order to find proper parametrisation of whole
 classification process is performed by a genetic algorithm. All source code has been
 published at \cite{biosiglab}.
 \end{abstract}}
@@ -105,10 +105,10 @@ published at \cite{biosiglab}.
 
 \section{Introduction}
 \IEEEPARstart{T}{}he goal is to implement methods for analysis of
-a electromyography (EMG) and a electroencephalography (EEG)
-in order to allow an estimation of the subject`s mimics, 
-feelings or enable ability to classify the sleep stages and eventually control 
-external equipment during a specific sleep stage.
+the electromyography (EMG) and the electroencephalography (EEG)
+in order to allow an estimation of an experimentee`s mimics, 
+feelings or enable ability to classify a sleep stages and eventually control 
+an external equipment during the specific sleep stage.
 
 This work depicts an usage of a self-organizing maps (SOM) as well as the usage of a genetic
 algorithms (GA). It is possible to use other recognition or optimalization
@@ -116,11 +116,12 @@ techniques but usage of mentioned
 methods was induced by project assignment at a school course ``Biologically inspired 
 algorithms''.
 
-The self-ogranizing map is used  at this experiment as the method of feature recongnition in 
+The self-ogranizing map is used  at this experiment as the method of the feature
+recongnition in 
 supervised mode. The genetic algorithm is used to estimate the proper parametrization of 
 whole classification process. It searches through possible parameter ranges and 
 depending on a value of fitness it chooses the best configuration. The fitness function
-models a objectives of optimalization.
+models an objectives of optimalization.
 
 The next research ought to be oriented on a genetic programming. The genetic programming 
 is the method of construction a computer program by similar way like the genetic
@@ -137,7 +138,7 @@ Reduction is optional, it lowers the resolution but also lowers the
 computational complexity. Compromise ought to be found.
 
 The signal has to be transformed
-from a time domain to a frequency domain. %TODO: really??
+from a time domain to a frequency domain.
 This can be achieved by fourier-related tranforms, e.g. by a fourier\cite{fourier} or
 a wavelet\cite{wavelet} transform.
 The wavelet transform, unlike the fourier transform, captures not only a notion of the 
@@ -147,9 +148,8 @@ Only the fast fourier transform has been used in this work.
 Before the fourier transform, the PCM signal is choped into overlaping slices (windows).
 The transform ought to be aplied to each slice resulting in a complex spectral components.
 Phase information is usually discarded.
-%TODO:describe possible other methods
 
-Next the resulting vectors are subject to reduction by means of a
+Next the resulting vectors are subject to a reduction by means of a
 frequency filtering. Frequency filters are problem dependent.
 The \textit{figure~\ref{fig:filters2}} shows aproximate ranges for some widely used bioelectric signals.
 \begin{figure}[h]
@@ -159,10 +159,10 @@ The \textit{figure~\ref{fig:filters2}} shows aproximate ranges for some widely u
 	\label{fig:filters2}
 \end{figure}
 
-Fitered spectral components are subject to normalisation/equalisation
-in order to put the components
-in the scale. There are several algorithms to choose. Analysed choices are:
-histogram~\cite{hist}, logistic or logaritmic normalisation
+The filtered spectral components are the subject to a normalisation/equalisation
+in order to put the components in a scale.
+There are several algorithms to choose. Following choices have been analysed:
+a histogram~\cite{hist}, a logistic or a logaritmic equalisation
 with scaling the values between $ \langle 0, 1 \rangle $ or a variance normalisation,
 that scales variables linearly such that their variance is equal~to~1.
 
@@ -707,10 +707,7 @@ distribution, but anyvay in this case following conclusion ought to be given:
 	without knowledge about problem may lead to higher computational komplexity
 	\item proper normalization or equalisation of input data is crucial; values in the
 	\textit{table \ref{tbl:somagrresults}} are showing that methods that diffuse an 
-	dense data (like histogram or logistic\footnote{Mentioning an ability of the diffusion
-	of the dense data
-	by means of the logistic function is not lucky, because this property may depend on
-	distribution of the input data.} equalisation),
+	dense data (like histogram or logistic\footnote{Mention of an ability of the diffusion of the dense data 	by means of the logistic function is not accurate, because this ability may depend on	distribution of the input data.} equalisation),
 	\item batch algorithm (instead of single input vector takes the whole dataset in each
 	iteration \cite{somtoolbox}) is better suitable to this problem,
 	\item small map size has been less fitter than normal size; less weight vectors 
