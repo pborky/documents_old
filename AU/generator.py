@@ -1,12 +1,6 @@
-
+#!/usr/bin/env python
 import parsedef  as  p
-import readline
-
-#p.lexer.input(data)
-
-# Tokenize
-#for tok in parsedef.lexer:
-#    print tok
+import sys
 
 data = ''
 while True:
@@ -19,5 +13,11 @@ while True:
 
 result = p.parser.parse(data)
 
-print p.graph
+if __name__ == "__main__" and len(sys.argv) > 1:
+    if sys.argv[1] == 'dot':
+        print p.graph.dot()
+    else:
+        raise Exception('unknown argument: '+sys.argv[1])
+else:
+    raise Exception('expected argument')
 

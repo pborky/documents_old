@@ -8,5 +8,5 @@ eprover:
 	eprover --print-statistics -xAuto -tAuto --cpu-limit=60 --memory-limit=Auto --tstp-format ${FILE} 
 
 graph:
-	t=`cat $(FILE) | python generator.py`; echo $$(expr "$${t//%/}" : '.*\(digraph[^{]*{[^}]*}\)' ) | dot -Tsvg -o$(TMPFILE)
-	( eog $(TMPFILE); rm $(TMPFILE) ) &
+	(cat test.in | ./generator.py dot | dot -Tsvg | display) &
+	

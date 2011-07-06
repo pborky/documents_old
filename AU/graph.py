@@ -16,9 +16,8 @@ class Vertex:
         self.edgesIn = edgesIn
         self.edgesOut = edgesOut
 
-    def __str__(self):
-        return self.name
-
+    def dot(self):
+        return unicode(self.name)
 
 class Edge:
     def __init__(self, name):
@@ -26,10 +25,11 @@ class Edge:
         self.start = None
         self.end = None
 
-    def __str__(self):
+    def dot(self):
         if self.start == None or self.end == None:
             raise Exception('fooka')
-        return str(self.start) + ' -> ' + str(self.end) + ' [label="'+self.name+'"]'
+        return self.start.dot() + u' -> ' + self.end.dot() + u' [label="'+unicode(self.name)+'"]'
+
 
 class Graph:
     def __init__(self, name):
@@ -60,14 +60,14 @@ class Graph:
 
         self.verticles[name] = Vertex(name, kind, ei, eo)
 
-    def __str__(self):
-        s = 'digraph '+self.name+' { '
+    def dot(self):
+        s = u'digraph '+self.name+u' { '
         for e in self.edges.values():
-            s = s+str(e)+'; '
+            s = s+e.dot()+u'; '
         for v in self.verticles.values():
             if v.kind in ['SIGNAL','INPUT', 'DIVERGING', 'CONNECTING']:
-                s = s+v.name+' [shape=hexagon]; ';
-        s = s+'rankdir=LR; }'
+                s = s+unicode(v.name)+u' [shape=hexagon]; ';
+        s = s+u'rankdir=LR; }'
         return s
 
 
