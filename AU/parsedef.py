@@ -64,6 +64,10 @@ def p_node_output(p):
     p[0] = 'output: ' + p[1] + '('+ p[5]  +')'
     graph.add(p[1], 'OUTPUT', [p[5],], [])
 
+def p_node_w(p):
+    'node : node WHITESPACE'
+    p[0] = p[1];
+
 def p_node_node(p):
     'node : node node'
     p[0] = p[1]+'\n'+p[2];
