@@ -36,41 +36,38 @@ graph = Graph('Default')
 
 def p_node_direct(p):
     'node : ID WHITESPACE DIRECT WHITESPACE ID WHITESPACE ID'
-    p[0] = 'direct: ' + p[1] + '('+ p[5] + ',' + p[7] +')'
-    graph.add(p[1], 'DIRECT', [p[5],], [p[7],])
+    p[0] = (graph.add(p[1], 'DIRECT', [p[5],], [p[7],]),graph)
 
 def p_node_signal(p):
     'node : ID WHITESPACE SIGNAL WHITESPACE ID WHITESPACE ID'
-    p[0] = 'signal: ' + p[1] + '('+ p[5] + ',' + p[7] +')'
-    graph.add(p[1], 'SIGNAL', [p[5],], [p[7],])
+    p[0] = (graph.add(p[1], 'SIGNAL', [p[5],], [p[7],]),graph)
 
 def p_node_diverging(p):
     'node : ID WHITESPACE DIVERGING WHITESPACE ID WHITESPACE ID WHITESPACE ID'
-    p[0] = 'diverging: ' + p[1] + '('+ p[5] + ',' + p[7] + ',' + p[9]  +')'
-    graph.add(p[1], 'DIVERGING', [p[5],], [p[7], p[9]])
+    p[0] = (graph.add(p[1], 'DIVERGING', [p[5],], [p[7], p[9]]),graph)
 
 def p_node_connecting(p):
     'node : ID WHITESPACE CONNECTING WHITESPACE ID WHITESPACE ID WHITESPACE ID'
-    p[0] = 'connecting: ' + p[1] + '('+ p[5] + ',' + p[7] + ',' + p[9]  +')'
-    graph.add(p[1], 'CONNECTING', [p[5], p[7]], [p[9],])
+    p[0] = (graph.add(p[1], 'CONNECTING', [p[5], p[7]], [p[9],]),graph)
 
 def p_node_input(p):
     'node : ID WHITESPACE INPUT WHITESPACE ID'
-    p[0] = 'input: ' + p[1] + '('+ p[5]  +')'
-    graph.add(p[1], 'INPUT', [], [p[5],])
+    p[0] = (graph.add(p[1], 'INPUT', [], [p[5],]),graph)
 
 def p_node_output(p):
     'node : ID WHITESPACE OUTPUT WHITESPACE ID'
-    p[0] = 'output: ' + p[1] + '('+ p[5]  +')'
-    graph.add(p[1], 'OUTPUT', [p[5],], [])
+    p[0] = (graph.add(p[1], 'OUTPUT', [p[5],], []),graph)
 
 def p_node_w(p):
     'node : node WHITESPACE'
-    p[0] = p[1];
+    p[0] = p[1]
 
 def p_node_node(p):
     'node : node node'
-    p[0] = p[1]+'\n'+p[2];
+    p[0] = graph
+
+def p_error(p):
+    raise Exception('Syntax error near token: "'+p.value+'" ('+p.type+').' )
 
 # Build the lexer
 lexer = lex.lex()

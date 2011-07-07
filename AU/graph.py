@@ -57,8 +57,9 @@ class Graph:
 
         if name in self.verticles:
             raise Exception('fooka')
-
-        self.verticles[name] = Vertex(name, kind, ei, eo)
+        v = Vertex(name, kind, ei, eo)
+        self.verticles[name] = v
+        return v
 
     def dot(self):
         s = u'digraph '+self.name+u' { '
