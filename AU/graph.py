@@ -61,13 +61,18 @@ class Graph:
         self.verticles[name] = v
         return v
 
-    def dot(self):
+    def dot(self):        
         s = u'digraph '+self.name+u' { '
         for e in self.edges.values():
             s = s+e.dot()+u'; '
         for v in self.verticles.values():
-            if v.kind in ['SIGNAL','INPUT', 'CONNECTING']:
-                s = s+unicode(v.name)+u' [shape=hexagon]; ';
+            if v.kind in ['CONNECTING',]:
+                s = s+unicode(v.name)+u' [shape=hexagon,fillcolor=lightslateblue,style=filled]; '
+            if v.kind in ['INPUT','SIGNAL']:
+                s = s+unicode(v.name)+u' [shape=hexagon,fillcolor=salmon,style=filled]; '
+            if v.kind in ['DIVERGING',]:
+                s = s+unicode(v.name)+u' [fillcolor=lightskyblue,style=filled]; '
+
         s = s+u'rankdir=LR; }'
         return s
 

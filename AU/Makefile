@@ -12,4 +12,4 @@ graph:
 	@for i in $(FILE); do ( cat $$i | ./generator.py dot | dot -Tsvg | display & ); done
 
 axioms:
-	@for i in $(FILE); do echo "% File $$i:"; ( cat $$i | ./generator.py tp | gvim - & ); echo; done
+	@for i in $(FILE); do echo "% File $$i:"; ( cat $$i | ./generator.py tp ); echo; done
