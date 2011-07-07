@@ -16,6 +16,8 @@ result = parsedef.parser.parse(data)
 if __name__ == "__main__" and len(sys.argv) > 1:
     if sys.argv[1] == 'dot':
         print result.dot()
+    elif sys.argv[1] == 'tp':
+        print result.tp()
     else:
         raise Exception('unknown argument: '+sys.argv[1])
 else:
