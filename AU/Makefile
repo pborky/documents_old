@@ -1,15 +1,22 @@
 # yum install graphviz ImageMagick python-ply
-TMPFILE = /tmp/$(FILE).tmp
 FILE = *.in
+VAMPCMD = vampire  --proof tptp --output_axiom_names on --mode casc
+ECMD = eprover --print-statistics -xAuto -tAuto --cpu-limit=60 --memory-limit=Auto --tstp-format
+ACTION = for i in $(FILE); do echo "% File $$i:"; ( cat $$i | ./generator.py $(SPEC) ); done
 
+vampire: SPEC = tp | $(VAMPCMD)
 vampire:
-	@vampire  --proof tptp --output_axiom_names on --mode casc --input_file $(FILE)
+	$(ACTION)
 
+eprover: SPEC = tp | $(ECMD)
 eprover:
-	@eprover --print-statistics -xAuto -tAuto --cpu-limit=60 --memory-limit=Auto --tstp-format $(FILE)
+	$(ACTION)
 
+graph: SPEC = dot | dot -Tsvg | display &
 graph:
-	@for i in $(FILE); do ( cat $$i | ./generator.py dot | dot -Tsvg | display & ); done
+	$(ACTION)
 
+axioms: SPEC = tp
 axioms:
-	@for i in $(FILE); do echo "% File $$i:"; ( cat $$i | ./generator.py tp ); echo; done
+	$(ACTION)
+
