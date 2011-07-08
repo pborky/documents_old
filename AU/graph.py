@@ -76,24 +76,24 @@ class Graph:
         s = s+u'rankdir=LR; }'
         return s
 
-    def getTimeTerm(self,time, s):
+    def getTimeTerm(self,time, s, literal=u'T'):
         if time == 0:
             if s == None:
-                return u'T'
+                return u'{}'.format(literal)
             else:
                 return s
         elif time > 0:
             if s == None:
-                return self.getTimeTerm(time-1, u'succ(T)')
+                return self.getTimeTerm(time-1, u'succ({})'.format(literal))
             else:
                 return self.getTimeTerm(time-1, u'succ({})'.format(s))
         elif time < 0:
             if s == None:
-                return self.getTimeTerm(time+1, u'pred(T)')
+                return self.getTimeTerm(time+1, u'pred({})'.format(literal))
             else:
                 return self.getTimeTerm(time+1, u'pred({})'.format(s))
 
-    def getIsHereClause(self, edge, time, neg=False, target='X'):
+    def getIsHereClause(self, edge, time, neg=False, target=u'X'):
         if neg:
             return u'~{}'.format(self.getIsHereClause(edge, time))
         return u'ishere({},{},{})'.format(self.getTimeTerm(time, None),edge.name, target)
@@ -137,7 +137,7 @@ class Graph:
         else:
             raise Exception('fooka')
 
-    def getLeaveClause(self, e, cannotleave=False,target='X'):
+    def getLeaveClause(self, e, cannotleave=False,target=u'X'):
         a = []
         if e.end.kind == 'SIGNAL':
             a.append(self.getIsHereClause(e, 0,target=target))
@@ -176,7 +176,7 @@ class Graph:
             a = []
             a.append(self.getCollisionClause(e, 1))
             a.append(self.getEnterClause(e))
-            c = self.getLeaveClause(e,target = 'Y')
+            c = self.getLeaveClause(e,target = u'Y')
             if c == None:
                 continue
             else:
