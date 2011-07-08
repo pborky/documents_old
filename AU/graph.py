@@ -76,7 +76,7 @@ class Graph:
         s = s+u'rankdir=LR; }'
         return s
 
-    def getTimeAxiom(self,time, s):
+    def getTimeTerm(self,time, s):
         if time == 0:
             if s == None:
                 return u'T'
@@ -84,77 +84,104 @@ class Graph:
                 return s
         elif time > 0:
             if s == None:
-                return self.getTimeAxiom(time-1, u'succ(T)')
+                return self.getTimeTerm(time-1, u'succ(T)')
             else:
-                return self.getTimeAxiom(time-1, u'succ({})'.format(s))
+                return self.getTimeTerm(time-1, u'succ({})'.format(s))
         elif time < 0:
             if s == None:
-                return self.getTimeAxiom(time+1, u'pred(T)')
+                return self.getTimeTerm(time+1, u'pred(T)')
             else:
-                return self.getTimeAxiom(time+1, u'pred({})'.format(s))
+                return self.getTimeTerm(time+1, u'pred({})'.format(s))
 
-    def getIsHereAxiom(self, edge, time):        
-        return u'ishere({},{})'.format(self.getTimeAxiom(time, None),edge.name)
+    def getIsHereClause(self, edge, time, neg=False):
+        if neg:
+            return u'~{}'.format(self.getIsHereClause(edge, time))
+        return u'ishere({},{})'.format(self.getTimeTerm(time, None),edge.name)
 
-    def getCanPassAxiom(self, vertex, time, inv):
-        if inv:
-            return u'~{}'.format(self.getCanPassAxiom(vertex, time, False))
-        return u'signal({},{})'.format(self.getTimeAxiom(time, None), vertex.name)
+    def getCollisionClause(self, edge, time, neg=False):
+        if neg:
+            return u'~{}'.format(self.getCollisionClause(edge, time))
+        return u'collision({},{})'.format(self.getTimeTerm(time, None),edge.name)
+
+    def getCanPassClause(self, vertex, time, neg=False):
+        if neg:
+            return u'~{}'.format(self.getCanPassClause(vertex, time))
+        return u'signal({},{})'.format(self.getTimeTerm(time, None), vertex.name)
+
+    def getEnterClause(self, e):
+        a = []
+        if e.start.kind == 'SIGNAL':
+            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
+            a.append(self.getCanPassClause(e.start, 0))
+            return u'{} & {}'.format(*a)
+        elif e.start.kind == 'INPUT':
+            a.append(self.getCanPassClause(e.start, 0))
+            return u'{}'.format(*a)
+        elif e.start.kind == 'DIRECT':
+            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
+            return u'{}'.format(*a)
+        elif e.start.kind == 'CONNECTING':
+            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
+            a.append(self.getCanPassClause(e.start, 0))
+            a.append(self.getIsHereClause(e.start.edgesIn[1], 0))
+            a.append(self.getCanPassClause(e.start, 0, True))
+            return u'{} & {} | {} & {}'.format(*a)
+        elif e.start.kind == 'DIVERGING':
+            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
+            if e.start.edgesOut[0] == e:
+                a.append(self.getCanPassClause(e.start, 0))
+            elif e.start.edgesOut[1] == e:
+                a.append(self.getCanPassClause(e.start, 0, True))
+            return u'{} & {}'.format(*a)
+        else:
+            raise Exception('fooka')
+
+    def getLeaveClause(self, e, cannotleave=False):
+        a = []
+        if e.end.kind == 'SIGNAL':
+            a.append(self.getIsHereClause(e, 0))
+            a.append(self.getCanPassClause(e.end, 0, not cannotleave))
+        elif e.end.kind == 'CONNECTING':
+            a.append(self.getIsHereClause(e, 0))
+            if e.end.edgesIn[0] == e:
+                a.append(self.getCanPassClause(e.end, 0, not cannotleave))
+            elif e.end.edgesIn[1] == e:
+                a.append(self.getCanPassClause(e.end, 0, cannotleave))
+        else:
+            return None
+
+        return u'{} & {}'.format(*a)
 
     def getBehaviorAxioms(self):
         ax = {}
         for e in self.edges.values():
             n = u'ishere{}'.format(e.name)
-            s = None
-
-            # Backward
             a = []
-            if e.start.kind == 'SIGNAL':
-                a.append(self.getIsHereAxiom(e.start.edgesIn[0], 0))
-                a.append(self.getCanPassAxiom(e.start, 0, False))
-                s = u'{} & {}'.format(*a)
-            elif e.start.kind == 'INPUT':
-                a.append(self.getCanPassAxiom(e.start, 0, False))
-                s = u'{}'.format(*a)
-            elif e.start.kind == 'DIRECT':
-                a.append(self.getIsHereAxiom(e.start.edgesIn[0], 0))
-                s = u'{}'.format(*a)
-            elif e.start.kind == 'CONNECTING':
-                a.append(self.getIsHereAxiom(e.start.edgesIn[0], 0))
-                a.append(self.getCanPassAxiom(e.start, 0, False))
-                a.append(self.getIsHereAxiom(e.start.edgesIn[1], 0))
-                a.append(self.getCanPassAxiom(e.start, 0, True))
-                s = u'{} & {} | {} & {}'.format(*a)
-            elif e.start.kind == 'DIVERGING':
-                a.append(self.getIsHereAxiom(e.start.edgesIn[0], 0))
-                if e.start.edgesOut[0] == e:
-                    a.append(self.getCanPassAxiom(e.start, 0, False))
-                elif e.start.edgesOut[1] == e:
-                    a.append(self.getCanPassAxiom(e.start, 0, True))
-                s = u'{} & {}'.format(*a)
+            a.append(self.getIsHereClause(e, 1))
+            a.append(self.getEnterClause(e))
+            c = self.getLeaveClause(e)
+            if c == None:
+                ax[n] = u'![T]: ( {} <=> ( {} ) )'.format(*a)
             else:
-                raise Exception('fooka')
+                a.append(c)
+                ax[n] = u'![T]: ( {} <=> ( {} | {} ) )'.format(*a)
+        return ax
 
-            # Forward
-            a = []
-            if e.end.kind == 'SIGNAL':
-                a.append(s)
-                a.append(self.getIsHereAxiom(e, 0))
-                a.append(self.getCanPassAxiom(e.end, 0, True))
-                s = u'{} | {} & {}'.format(*a)
-            elif e.end.kind == 'CONNECTING':
-                a.append(s)
-                a.append(self.getIsHereAxiom(e, 0))
-                if e.end.edgesIn[0] == e:
-                    a.append(self.getCanPassAxiom(e.end, 0, False))
-                elif e.end.edgesIn[1] == e:
-                    a.append(self.getCanPassAxiom(e.end, 0, True))
-                s = u'{} | {} & {}'.format(*a)
+    def getCollisionAxioms(self):
+        ax = {}
+        for e in self.edges.values():
+            n = u'collision{}'.format(e.name)
 
-            # Final
+            c1 = self.getEnterClause(e)
+            c2 = self.getLeaveClause(e)
+
             a = []
-            a.append(self.getIsHereAxiom(e, 1))
-            a.append(s)
+            a.append(self.getCollisionClause(e, 1))
+            if c2 == None:
+                continue
+            else:
+                a.append(u'({}) & ({})'.format(c1, c2))
+
             ax[n] = u'![T]: ( {} <=> ( {} ) )'.format(*a)
         return ax
 
@@ -162,21 +189,23 @@ class Graph:
         ax = {}
         return ax
 
-    def tp(self):
-        ax = {}
-        ax.update(self.getBehaviorAxioms())
-        ax.update(self.getSignalingAxioms())
+    def getTPTPfof(self, kind, ax):
         s = None
         k = ax.keys()
         k.sort()
         for i in k:
             a = ax[i]
             if s == None:
-                s = u'fof( {}, axiom, ( {} )).'.format(i,a)
+                s = u'fof( {}, {}, ( {} )).'.format(i,kind,a)
             else:
-                s = u'{}\nfof( {}, axiom, ( {} )).'.format(s, i, a)
+                s = u'{}\nfof( {}, {}, ( {} )).'.format(s, i, kind, a)
 
         return s
-            
 
+
+    def tp(self):
+        return '% Train movement axioms \n{}\n\n% Collision axioms \n{}\n\n% Signaling control \n{}\n\n'.format(
+            self.getTPTPfof('axiom', self.getBehaviorAxioms()), 
+            self.getTPTPfof('axiom', self.getCollisionAxioms()), 
+            self.getTPTPfof('axiom', self.getSignalingAxioms()))
 
