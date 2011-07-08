@@ -93,10 +93,10 @@ class Graph:
             else:
                 return self.getTimeTerm(time+1, u'pred({})'.format(s))
 
-    def getIsHereClause(self, edge, time, neg=False):
+    def getIsHereClause(self, edge, time, neg=False, target='X'):
         if neg:
             return u'~{}'.format(self.getIsHereClause(edge, time))
-        return u'ishere({},{})'.format(self.getTimeTerm(time, None),edge.name)
+        return u'ishere({},{},{})'.format(self.getTimeTerm(time, None),edge.name, target)
 
     def getCollisionClause(self, edge, time, neg=False):
         if neg:
@@ -115,8 +115,9 @@ class Graph:
             a.append(self.getCanPassClause(e.start, 0))
             return u'{} & {}'.format(*a)
         elif e.start.kind == 'INPUT':
+            a.append(self.getIsHereClause(e.start, 0))
             a.append(self.getCanPassClause(e.start, 0))
-            return u'{}'.format(*a)
+            return u'{} & {}'.format(*a)
         elif e.start.kind == 'DIRECT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             return u'{}'.format(*a)
@@ -136,13 +137,13 @@ class Graph:
         else:
             raise Exception('fooka')
 
-    def getLeaveClause(self, e, cannotleave=False):
+    def getLeaveClause(self, e, cannotleave=False,target='X'):
         a = []
         if e.end.kind == 'SIGNAL':
-            a.append(self.getIsHereClause(e, 0))
+            a.append(self.getIsHereClause(e, 0,target=target))
             a.append(self.getCanPassClause(e.end, 0, not cannotleave))
         elif e.end.kind == 'CONNECTING':
-            a.append(self.getIsHereClause(e, 0))
+            a.append(self.getIsHereClause(e, 0,target=target))
             if e.end.edgesIn[0] == e:
                 a.append(self.getCanPassClause(e.end, 0, not cannotleave))
             elif e.end.edgesIn[1] == e:
@@ -161,10 +162,10 @@ class Graph:
             a.append(self.getEnterClause(e))
             c = self.getLeaveClause(e)
             if c == None:
-                ax[n] = u'![T]: ( {} <=> ( {} ) )'.format(*a)
+                ax[n] = u'![T,X]:( {} <=> ( {} ) )'.format(*a)
             else:
                 a.append(c)
-                ax[n] = u'![T]: ( {} <=> ( {} | {} ) )'.format(*a)
+                ax[n] = u'![T,X]:( {} <=> ( {} | {} ) )'.format(*a)
         return ax
 
     def getCollisionAxioms(self):
@@ -172,17 +173,15 @@ class Graph:
         for e in self.edges.values():
             n = u'collision{}'.format(e.name)
 
-            c1 = self.getEnterClause(e)
-            c2 = self.getLeaveClause(e)
-
             a = []
             a.append(self.getCollisionClause(e, 1))
-            if c2 == None:
+            a.append(self.getEnterClause(e))
+            c = self.getLeaveClause(e,target = 'Y')
+            if c == None:
                 continue
             else:
-                a.append(u'({}) & ({})'.format(c1, c2))
-
-            ax[n] = u'![T]: ( {} <=> ( {} ) )'.format(*a)
+                a.append(c)
+                ax[n] = u'![T]:(?[X,Y]:( {} <=> ( ({}) & ({}) ) ))'.format(*a)
         return ax
 
     def getSignalingAxioms(self):
