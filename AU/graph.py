@@ -126,7 +126,7 @@ class Graph:
             a.append(self.getCanPassClause(e.start, 0))
             a.append(self.getIsHereClause(e.start.edgesIn[1], 0))
             a.append(self.getCanPassClause(e.start, 0, True))
-            return u'{} & {} | {} & {}'.format(*a)
+            return u'({} & {}) | ({} & {})'.format(*a)
         elif e.start.kind == 'DIVERGING':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             if e.start.edgesOut[0] == e:
@@ -165,8 +165,8 @@ class Graph:
                 ax[n] = u'![T,X]:( {} <=> ( {} ) )'.format(*a)
             else:
                 a.append(c)
-                ax[n] = u'![T,X]:( {} <=> ( {} | {} ) )'.format(*a)
-        return ax
+                ax[n] = u'![T,X]:( {} <=> ( ({}) | ({}) ) )'.format(*a)
+        return ax 
 
     def getCollisionAxioms(self):
         ax = {}
@@ -189,7 +189,7 @@ class Graph:
         return ax
 
     def getTPTPfof(self, kind, ax):
-        s = None
+        s = '% None'
         k = ax.keys()
         k.sort()
         for i in k:
@@ -208,3 +208,19 @@ class Graph:
             self.getTPTPfof('axiom', self.getCollisionAxioms()), 
             self.getTPTPfof('axiom', self.getSignalingAxioms()))
 
+#   for each control node n in graph
+#       traverse by means of DFS following direction of the edges
+#           break the DFS when reaching another control node
+#           if no control node is reachable forget the path
+#           obtain list of control nodes rachable from n
+#       reverse the orientation of edges
+#       for each rachable node n2
+#           traverse back foloving the reversed direction of edges
+#               if no control node is reachable forget the path
+#               obtain list of related edges to node n
+#       obtain map of nodes and related edges
+#   map ougth be used as axioms of form:
+#   * signal(KEYi) <=> (~ishere(VALi1) & ~ishere(VALi2) & ... & ~ishere(VALij) )
+#       for all KEYi in map and for all VALij in lists of related edges
+#   * signal(KEYi1) => ( ~signal(KEYi2) & ~signal(KEYi3) & ... & ~signal(KEYij) )
+#       for all KEYij in map and KEYij <> KEYik for all j,k 
