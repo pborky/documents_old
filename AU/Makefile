@@ -6,17 +6,17 @@ ACTION = for i in $(FILE); do echo "% File $$i:"; ( cat $$i | ./generator.py $(S
 
 vampire: SPEC = tp | $(VAMPCMD)
 vampire:
-	$(ACTION)
+	@$(ACTION)
 
 eprover: SPEC = tp | $(ECMD)
 eprover:
-	$(ACTION)
+	@$(ACTION)
 
 graph: SPEC = dot | dot -Tsvg | display &
 graph:
-	$(ACTION)
+	@$(ACTION)
 
 axioms: SPEC = tp
 axioms:
-	$(ACTION)
+	@$(ACTION)
 

@@ -6,8 +6,8 @@ from graph import Graph
 node_type = {
     '-' : 'DIRECT',
     '|' : 'SIGNAL',
-    '<' : 'DIVERGING',
-    '>' : 'CONNECTING',
+    '<' : 'DIVERGENT',
+    '>' : 'CONVERGENT',
     'I' : 'INPUT',
     'O' : 'OUTPUT'
 }
@@ -43,12 +43,12 @@ def p_node_signal(p):
     p[0] = (graph.add(p[1], 'SIGNAL', [p[5],], [p[7],]),graph)
 
 def p_node_diverging(p):
-    'node : ID WHITESPACE DIVERGING WHITESPACE ID WHITESPACE ID WHITESPACE ID'
-    p[0] = (graph.add(p[1], 'DIVERGING', [p[5],], [p[7], p[9]]),graph)
+    'node : ID WHITESPACE DIVERGENT WHITESPACE ID WHITESPACE ID WHITESPACE ID'
+    p[0] = (graph.add(p[1], 'DIVERGENT', [p[5],], [p[7], p[9]]),graph)
 
 def p_node_connecting(p):
-    'node : ID WHITESPACE CONNECTING WHITESPACE ID WHITESPACE ID WHITESPACE ID'
-    p[0] = (graph.add(p[1], 'CONNECTING', [p[5], p[7]], [p[9],]),graph)
+    'node : ID WHITESPACE CONVERGENT WHITESPACE ID WHITESPACE ID WHITESPACE ID'
+    p[0] = (graph.add(p[1], 'CONVERGENT', [p[5], p[7]], [p[9],]),graph)
 
 def p_node_input(p):
     'node : ID WHITESPACE INPUT WHITESPACE ID'

@@ -66,11 +66,11 @@ class Graph:
         for e in self.edges.values():
             s = s+e.dot()+u'; '
         for v in self.verticles.values():
-            if v.kind in ['CONNECTING',]:
+            if v.kind in ['CONVERGENT',]:
                 s = s+unicode(v.name)+u' [shape=hexagon,fillcolor=lightslateblue,style=filled]; '
             if v.kind in ['INPUT','SIGNAL']:
                 s = s+unicode(v.name)+u' [shape=hexagon,fillcolor=salmon,style=filled]; '
-            if v.kind in ['DIVERGING',]:
+            if v.kind in ['DIVERGENT',]:
                 s = s+unicode(v.name)+u' [fillcolor=lightskyblue,style=filled]; '
 
         s = s+u'rankdir=LR; }'
@@ -121,13 +121,13 @@ class Graph:
         elif e.start.kind == 'DIRECT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             return u'{}'.format(*a)
-        elif e.start.kind == 'CONNECTING':
+        elif e.start.kind == 'CONVERGENT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             a.append(self.getCanPassClause(e.start, 0))
             a.append(self.getIsHereClause(e.start.edgesIn[1], 0))
             a.append(self.getCanPassClause(e.start, 0, True))
             return u'({} & {}) | ({} & {})'.format(*a)
-        elif e.start.kind == 'DIVERGING':
+        elif e.start.kind == 'DIVERGENT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             if e.start.edgesOut[0] == e:
                 a.append(self.getCanPassClause(e.start, 0))
@@ -142,7 +142,7 @@ class Graph:
         if e.end.kind == 'SIGNAL':
             a.append(self.getIsHereClause(e, 0,target=target))
             a.append(self.getCanPassClause(e.end, 0, not cannotleave))
-        elif e.end.kind == 'CONNECTING':
+        elif e.end.kind == 'CONVERGENT':
             a.append(self.getIsHereClause(e, 0,target=target))
             if e.end.edgesIn[0] == e:
                 a.append(self.getCanPassClause(e.end, 0, not cannotleave))
@@ -156,7 +156,7 @@ class Graph:
     def getBehaviorAxioms(self):
         ax = {}
         for e in self.edges.values():
-            n = u'ishere{}'.format(e.name)
+            n = u'ishere_{}'.format(e.name)
             a = []
             a.append(self.getIsHereClause(e, 1))
             a.append(self.getEnterClause(e))
@@ -171,7 +171,7 @@ class Graph:
     def getCollisionAxioms(self):
         ax = {}
         for e in self.edges.values():
-            n = u'collision{}'.format(e.name)
+            n = u'collision_{}'.format(e.name)
 
             a = []
             a.append(self.getCollisionClause(e, 1))
@@ -184,43 +184,123 @@ class Graph:
                 ax[n] = u'![T]:(?[X,Y]:( {} <=> ( ({}) & ({}) ) ))'.format(*a)
         return ax
 
-    def getSignalingAxioms(self):
-        ax = {}
-        return ax
-
     def getTPTPfof(self, kind, ax):
-        s = '% None'
         k = ax.keys()
-        k.sort()
-        for i in k:
-            a = ax[i]
-            if s == None:
-                s = u'fof( {}, {}, ( {} )).'.format(i,kind,a)
-            else:
-                s = u'{}\nfof( {}, {}, ( {} )).'.format(s, i, kind, a)
-
+        if len(k) == 0:
+            s = '% None'
+        else:
+            s = None 
+            k.sort()
+            for i in k:
+                a = ax[i]
+                if s == None:
+                    s = u'fof( {}, {}, ( {} )).'.format(i,kind,a)
+                else:
+                    s = u'{}\nfof( {}, {}, ( {} )).'.format(s, i, kind, a)
         return s
 
 
     def tp(self):
         return '% Train movement axioms \n{}\n\n% Collision axioms \n{}\n\n% Signaling control \n{}\n\n'.format(
-            self.getTPTPfof('axiom', self.getBehaviorAxioms()), 
-            self.getTPTPfof('axiom', self.getCollisionAxioms()), 
+            self.getTPTPfof('axiom', self.getBehaviorAxioms()),
+            self.getTPTPfof('axiom', self.getCollisionAxioms()),
             self.getTPTPfof('axiom', self.getSignalingAxioms()))
 
-#   for each control node n in graph
-#       traverse by means of DFS following direction of the edges
-#           break the DFS when reaching another control node
-#           if no control node is reachable forget the path
-#           obtain list of control nodes rachable from n
-#       reverse the orientation of edges
-#       for each rachable node n2
-#           traverse back foloving the reversed direction of edges
-#               if no control node is reachable forget the path
-#               obtain list of related edges to node n
-#       obtain map of nodes and related edges
-#   map ougth be used as axioms of form:
-#   * signal(KEYi) <=> (~ishere(VALi1) & ~ishere(VALi2) & ... & ~ishere(VALij) )
-#       for all KEYi in map and for all VALij in lists of related edges
-#   * signal(KEYi1) => ( ~signal(KEYi2) & ~signal(KEYi3) & ... & ~signal(KEYij) )
-#       for all KEYij in map and KEYij <> KEYik for all j,k 
+    def traverse(self, edge, nodeset=None, edgeset=None, back=False, targets=['INPUT','SIGNAL']):
+        node = (back and [edge.start] or [edge.end])[0]
+        if node.kind in targets:
+            if nodeset <> None:
+                nodeset.add(node)
+            if edgeset <> None:
+                edgeset.add(edge)
+        else:
+            edges = (back and [node.edgesIn] or [node.edgesOut])[0]
+            for e in edges:
+                es = set()
+                self.traverse(e, nodeset, edgeset=es, back=back,targets=targets)
+                if len(es) > 0:
+                    if edgeset <> None:
+                        edgeset.add(edge)
+                        edgeset |= es
+
+    def getSignalingByEdges(self, node, edges):
+        i = 0
+        s = None
+        q = None
+        for e in edges:
+            if s == None:
+                s = u'~ishere(T,{},Y{})'.format(e.name,i)
+            else:
+                s = u'{} & ~ishere(T,{},Y{})'.format(s,e.name,i)
+            if q == None:
+                q = u'Y{}'.format(i)
+            else:
+                q = u'{},Y{}'.format(q,i)
+            i = i + 1
+        if s <> None:
+            return u'![T,{}]:( signal(T,{}) <=> ({}) )'.format(q,node.name,s)
+
+    def getSignalingByNodes(self, node, nodes):
+        s = None
+        for n in nodes:
+            if s == None:
+                s = u'~signal(T,{})'.format(n.name)
+            else:
+                s = u'{} & ~signal(T,{})'.format(s,n.name)
+        if s <> None:
+            return u'![T]:( signal(T,{}) => ({}) )'.format(node.name,s)
+
+    def getSubgraph(self, node):
+        edgeset = set()
+        nodeset = set()
+        nodeset2 = set()
+        for e in node.edgesOut:
+            self.traverse(e, nodeset=nodeset2)
+        for n in nodeset2:
+            for e in n.edgesIn:
+                self.traverse(e, nodeset=nodeset, edgeset=edgeset, back=True)
+        if node in nodeset:
+            nodeset.remove(node)
+        return (nodeset, edgeset)
+
+    def getSignalingAxioms(self):
+        ax = {}
+        for node in self.verticles.values():
+            if node.kind in ['CONVERGENT']:
+                n = u'signal_{}'.format(node.name)
+                ax[n] = u'![T,X]:(ishere(T,{},X) => signal(T,{}))'.format(node.edgesIn[0].name, node.name)
+            elif node.kind in ['DIVERGENT']:
+                nodeset0 = set()
+                nodeset1 = set()
+                self.traverse(node.edgesOut[0], nodeset=nodeset0, targets=['OUTPUT'])
+                self.traverse(node.edgesOut[1], nodeset=nodeset1, targets=['OUTPUT'])
+                same = nodeset0 & nodeset1
+                diff0 = nodeset0 - nodeset1
+                diff1 = nodeset1 - nodeset0
+                for n in same: #both directions are correct, choosing first
+                    s = u'![T]:(ishere(T,{},{}) => signal(T,{}))'.format(node.edgesIn[0].name, n.name, node.name)
+                    n = u'diverging_{}_{}'.format(node.name,n.name)
+                    ax[n] = s
+                for n in diff0:
+                    s = u'![T]:(ishere(T,{},{}) => signal(T,{}))'.format(node.edgesIn[0].name, n.name, node.name)
+                    n = u'diverging_{}_{}'.format(node.name,n.name)
+                    ax[n] = s
+                for n in diff1:
+                    s = u'![T]:(ishere(T,{},{}) => ~signal(T,{}))'.format(node.edgesIn[0].name, n.name, node.name)
+                    n = u'diverging_{}_{}'.format(node.name,n.name)
+                    ax[n] = s
+            elif node.kind in ['INPUT','SIGNAL']:
+                (nodeset, edgeset) = self.getSubgraph(node)
+                n = u'signalex_{}'.format(node.name)
+                s = self.getSignalingByNodes(node, nodeset)
+                if s <> None:
+                    ax[n] = s
+                n = u'signal_{}'.format(node.name)
+                s = self.getSignalingByEdges(node, edgeset)
+                if s <> None:
+                    ax[n] = s
+                else:
+                    ax[n] = u'![T]:( signal(T,{}) )'.format(node.name)
+        return ax
+       
+
