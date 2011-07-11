@@ -231,24 +231,9 @@ class Graph:
             s = f.format(*s)
             n = u'input_{}'.format(v.name)
             ax[n] = u'?[T]:({})'.format(s)
+        ax[u'zzz'] = u'ishere(t,06,o1) & ishere(t,07,o3) & ishere(t,11,o3) '
         return ax
 
-    def tp(self):
-        conjectures = {}
-        nconjectures = {'test':u'?[T,X]:(collision(T,X))'}
-        fmt = u'% Train movement axioms \n{}\n\
-            \n% Collision axioms \n{}\n\
-            \n% Signaling control \n{}\n\
-            \n% Train on input \n{}\n\
-            \n% Conjectures \n{}\n\
-            \n% Negated conjectures \n{}';
-        return fmt.format(
-            self.getTPTPfof('axiom', self.getBehaviorAxioms()),
-            self.getTPTPfof('axiom', self.getCollisionAxioms()),
-            self.getTPTPfof('axiom', self.getSignalingAxioms()),
-            self.getTPTPfof('axiom', self.getTrainOnInput()),
-            self.getTPTPfof('conjecture', conjectures),
-            self.getTPTPfof('negated_conjecture', nconjectures))
 
     def traverse(self, edge, nodeset=None, edgeset=None, back=False, targets=['INPUT','SIGNAL']):
         node = (back and [edge.start] or [edge.end])[0]
@@ -342,5 +327,28 @@ class Graph:
                 else:
                     ax[n] = u'![T]:( signal(T,{}) )'.format(node.name)
         return ax
-       
 
+    def getConjectures(self):
+        ax = {}
+        ax['test'] = u'?[T,X]:(collision(T,X))'
+        return ax
+
+    def getNegConjectures(self):
+        ax = {}
+        #ax['test'] = u'?[T,X]:(collision(T,X))'
+        return ax
+
+    def tp(self):
+        fmt = u'% Train movement axioms \n{}\n\
+            \n% Collision axioms \n{}\n\
+            \n% Signaling control \n{}\n\
+            \n% Train on input \n{}\n\
+            \n% Conjectures \n{}\n\
+            \n% Negated conjectures \n{}';
+        return fmt.format(
+            self.getTPTPfof('axiom', self.getBehaviorAxioms()),
+            self.getTPTPfof('axiom', self.getCollisionAxioms()),
+            self.getTPTPfof('axiom', self.getSignalingAxioms()),
+            self.getTPTPfof('axiom', self.getTrainOnInput()),
+            self.getTPTPfof('conjecture', self.getConjectures()),
+            self.getTPTPfof('negated_conjecture', self.getNegConjectures()))

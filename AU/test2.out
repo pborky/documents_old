@@ -38,16 +38,16 @@ fof( signal_c_o1, axiom, ( ![T]:(ishere(T,04,o1) => signal(T,c)) )).
 fof( signal_c_o2, axiom, ( ![T]:(ishere(T,04,o2) => signal(T,c)) )).
 fof( signal_c_o3, axiom, ( ![T]:(ishere(T,04,o3) => signal(T,c)) )).
 fof( signal_e, axiom, ( ![T,X]:(ishere(T,06,X) => signal(T,e)) )).
-fof( signal_f, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5]:( signal(T,f) <=> (~ishere(T,14,Y0) & ~ishere(T,11,Y1) & ~ishere(T,10,Y2) & ~ishere(T,15,Y3) & ~ishere(T,12,Y4) & ~ishere(T,16,Y5)) ) )).
+fof( signal_f, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5]:( signal(T,f) <=> (~ishere(T,14,Y0) & ~ishere(T,10,Y1) & ~ishere(T,15,Y2) & ~ishere(T,11,Y3) & ~ishere(T,16,Y4) & ~ishere(T,12,Y5)) ) )).
 fof( signal_f_exclusive, axiom, ( ![T]:( signal(T,f) => (~signal(T,g)) ) )).
-fof( signal_g, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5]:( signal(T,g) <=> (~ishere(T,14,Y0) & ~ishere(T,11,Y1) & ~ishere(T,10,Y2) & ~ishere(T,15,Y3) & ~ishere(T,12,Y4) & ~ishere(T,16,Y5)) ) )).
+fof( signal_g, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5]:( signal(T,g) <=> (~ishere(T,14,Y0) & ~ishere(T,10,Y1) & ~ishere(T,15,Y2) & ~ishere(T,11,Y3) & ~ishere(T,16,Y4) & ~ishere(T,12,Y5)) ) )).
 fof( signal_g_exclusive, axiom, ( ![T]:( signal(T,g) => (~signal(T,f)) ) )).
 fof( signal_h, axiom, ( ![T,X]:(ishere(T,10,X) => signal(T,h)) )).
-fof( signal_i1, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5,Y6,Y7,Y8]:( signal(T,i1) <=> (~ishere(T,05,Y0) & ~ishere(T,06,Y1) & ~ishere(T,02,Y2) & ~ishere(T,04,Y3) & ~ishere(T,09,Y4) & ~ishere(T,07,Y5) & ~ishere(T,01,Y6) & ~ishere(T,03,Y7) & ~ishere(T,08,Y8)) ) )).
-fof( signal_i1_exclusive, axiom, ( ![T]:( signal(T,i1) => (~signal(T,i3) & ~signal(T,i2)) ) )).
-fof( signal_i2, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5,Y6,Y7,Y8]:( signal(T,i2) <=> (~ishere(T,05,Y0) & ~ishere(T,06,Y1) & ~ishere(T,02,Y2) & ~ishere(T,04,Y3) & ~ishere(T,09,Y4) & ~ishere(T,07,Y5) & ~ishere(T,01,Y6) & ~ishere(T,03,Y7) & ~ishere(T,08,Y8)) ) )).
-fof( signal_i2_exclusive, axiom, ( ![T]:( signal(T,i2) => (~signal(T,i3) & ~signal(T,i1)) ) )).
-fof( signal_i3, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5,Y6]:( signal(T,i3) <=> (~ishere(T,01,Y0) & ~ishere(T,04,Y1) & ~ishere(T,03,Y2) & ~ishere(T,09,Y3) & ~ishere(T,07,Y4) & ~ishere(T,06,Y5) & ~ishere(T,02,Y6)) ) )).
+fof( signal_i1, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5,Y6,Y7,Y8]:( signal(T,i1) <=> (~ishere(T,03,Y0) & ~ishere(T,06,Y1) & ~ishere(T,02,Y2) & ~ishere(T,04,Y3) & ~ishere(T,09,Y4) & ~ishere(T,07,Y5) & ~ishere(T,01,Y6) & ~ishere(T,08,Y7) & ~ishere(T,05,Y8)) ) )).
+fof( signal_i1_exclusive, axiom, ( ![T]:( signal(T,i1) => (~signal(T,i2) & ~signal(T,i3)) ) )).
+fof( signal_i2, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5,Y6,Y7,Y8]:( signal(T,i2) <=> (~ishere(T,03,Y0) & ~ishere(T,06,Y1) & ~ishere(T,02,Y2) & ~ishere(T,04,Y3) & ~ishere(T,09,Y4) & ~ishere(T,07,Y5) & ~ishere(T,01,Y6) & ~ishere(T,08,Y7) & ~ishere(T,05,Y8)) ) )).
+fof( signal_i2_exclusive, axiom, ( ![T]:( signal(T,i2) => (~signal(T,i1) & ~signal(T,i3)) ) )).
+fof( signal_i3, axiom, ( ![T,Y0,Y1,Y2,Y3,Y4,Y5,Y6]:( signal(T,i3) <=> (~ishere(T,03,Y0) & ~ishere(T,09,Y1) & ~ishere(T,07,Y2) & ~ishere(T,01,Y3) & ~ishere(T,06,Y4) & ~ishere(T,02,Y5) & ~ishere(T,04,Y6)) ) )).
 fof( signal_i3_exclusive, axiom, ( ![T]:( signal(T,i3) => (~signal(T,i1) & ~signal(T,i2)) ) )).
 fof( signal_i_o1, axiom, ( ![T]:(ishere(T,12,o1) => signal(T,i)) )).
 fof( signal_i_o2, axiom, ( ![T]:(ishere(T,12,o2) => ~signal(T,i)) )).
@@ -58,15 +58,12 @@ fof( signal_k, axiom, ( ![T]:( signal(T,k) ) )).
 fof( signal_l, axiom, ( ![T]:( signal(T,l) ) )).
             
 % Train on input 
-fof( input_i1, axiom, ( ?[T]:(ishere(T,i1,o2) | ishere(T,i1,o3) | ishere(T,i1,o1)) )).
-fof( input_i1_exclude, axiom, ( ![T,Y1,Y2]:((Y1!=Y2) & (ishere(T,i1,Y1) <=> ~ ishere(T,i1,Y2))) )).
-fof( input_i2, axiom, ( ?[T]:(ishere(T,i2,o2) | ishere(T,i2,o3) | ishere(T,i2,o1)) )).
-fof( input_i2_exclude, axiom, ( ![T,Y1,Y2]:((Y1!=Y2) & (ishere(T,i2,Y1) <=> ~ ishere(T,i2,Y2))) )).
-fof( input_i3, axiom, ( ?[T]:(ishere(T,i3,o2) | ishere(T,i3,o3) | ishere(T,i3,o1)) )).
-fof( input_i3_exclude, axiom, ( ![T,Y1,Y2]:((Y1!=Y2) & (ishere(T,i3,Y1) <=> ~ ishere(T,i3,Y2))) )).
+fof( input_i1, axiom, ( ?[T]:((ishere(T,i1,o2) & ~ ishere(T,i1,o3) & ~ ishere(T,i1,o1)) | (~ ishere(T,i1,o2) & ishere(T,i1,o3) & ~ ishere(T,i1,o1)) | (~ ishere(T,i1,o2) & ~ ishere(T,i1,o3) & ishere(T,i1,o1))) )).
+fof( input_i2, axiom, ( ?[T]:((ishere(T,i2,o2) & ~ ishere(T,i2,o3) & ~ ishere(T,i2,o1)) | (~ ishere(T,i2,o2) & ishere(T,i2,o3) & ~ ishere(T,i2,o1)) | (~ ishere(T,i2,o2) & ~ ishere(T,i2,o3) & ishere(T,i2,o1))) )).
+fof( input_i3, axiom, ( ?[T]:((ishere(T,i3,o2) & ~ ishere(T,i3,o3) & ~ ishere(T,i3,o1)) | (~ ishere(T,i3,o2) & ishere(T,i3,o3) & ~ ishere(T,i3,o1)) | (~ ishere(T,i3,o2) & ~ ishere(T,i3,o3) & ishere(T,i3,o1))) )).
             
 % Conjectures 
-% None
+fof( test, conjecture, ( ?[T,X]:(collision(T,X)) )).
             
 % Negated conjectures 
 % None
