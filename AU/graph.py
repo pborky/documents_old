@@ -210,25 +210,32 @@ class Graph:
             if v.kind in ['OUTPUT']:
                 overticles.append(v)
         s = None
-        i = 1
         for v in iverticles:
-            s = None
+            c = []
+            fmt = []
+            fmt2 = []
             for o in overticles:
-                if s == None:
-                    s = u'ishere(T,{},{})'.format(v.name, o.name)
-                else:
-                    s = u'{} | ishere(T,{},{})'.format(s, v.name, o.name)
+                c.append(u'ishere(T,{},{})'.format(v.name, o.name))
+                fmt.append(u'~ {} & ')
+                fmt2.append(u'{} | ')
+            l = len(overticles)
+            fmt[l-1] = u'~ {}'
+            fmt2[l-1] = u'{}'
+            s = []
+            for i in range(l):
+                f = fmt[:]
+                f[i] = f[i][2:]
+                f = u'({})'.format(''.join(f))
+                s.append(f.format(*c))
+            f =  ''.join(fmt2)
+            s = f.format(*s)
             n = u'input_{}'.format(v.name)
             ax[n] = u'?[T]:({})'.format(s)
-            n = u'input_{}_exclude'.format(v.name)
-            ax[n] = u'![T,Y1,Y2]:((Y1!=Y2) & (ishere(T,{0},Y1) <=> ~ ishere(T,{0},Y2)))'.format(v.name)
-            i = i + 1
         return ax
-# ?[T]:((ishere(T,i1,o1) & ~ishere(T,i1,o2) & ~ishere(T,i1,o3)) | (~ishere(T,i1,o1) & ishere(T,i1,o2) & ~ishere(T,i1,o3)) | (~ishere(T,i1,o1) & ~ishere(T,i1,o2) & ishere(T,i1,o3)))
 
     def tp(self):
-        nconjectures = {}
-        conjectures = {}#{'test':u'![T,X]:(~collision(T,X))'}
+        conjectures = {}
+        nconjectures = {'test':u'?[T,X]:(collision(T,X))'}
         fmt = u'% Train movement axioms \n{}\n\
             \n% Collision axioms \n{}\n\
             \n% Signaling control \n{}\n\
@@ -273,7 +280,7 @@ class Graph:
                 q = u'Y{}'.format(i)
             else:
                 q = u'{},Y{}'.format(q,i)
-            i = i + 1
+            i += 1
         if s <> None:
             return u'![T,{}]:( signal(T,{}) <=> ({}) )'.format(q,node.name,s)
 
