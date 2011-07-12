@@ -231,7 +231,14 @@ class Graph:
             s = f.format(*s)
             n = u'input_{}'.format(v.name)
             ax[n] = u'?[T]:({})'.format(s)
-        ax[u'zzz'] = u'ishere(t,06,o1) & ishere(t,07,o3) & ishere(t,11,o3) '
+        #ax[u'zzz0'] = u'ishere(t,06,o1) & ishere(t,07,o3) & ishere(t,11,o3) '
+        s = None
+        for v in self.edges.values():
+            if s == None:
+                s = u'~ ishere(T,{},Y)'.format(v.name)
+            else:
+                s = u'{} & ~ ishere(T,{},Y)'.format(s,v.name)
+        ax[u'zzz1'] = u'?[T]:(![Y]:({}))'.format(s)
         return ax
 
 
@@ -330,7 +337,7 @@ class Graph:
 
     def getConjectures(self):
         ax = {}
-        ax['test'] = u'?[T,X]:(collision(T,X))'
+        #ax['test'] = u'?[T,X]:(collision(T,X))'
         return ax
 
     def getNegConjectures(self):
