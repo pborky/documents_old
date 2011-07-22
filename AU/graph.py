@@ -76,6 +76,21 @@ class Graph:
         s = s+u'rankdir=LR; }'
         return s
 
+    def tp(self):
+        fmt = u'% Train movement axioms \n{}\n\
+            \n% Collision axioms \n{}\n\
+            \n% Signaling control \n{}\n\
+            \n% Train on input \n{}\n\
+            \n% Conjectures \n{}\n\
+            \n% Negated conjectures \n{}';
+        return fmt.format(
+            self.getTPTPfof('axiom', self.getBehaviorAxioms()),
+            self.getTPTPfof('axiom', self.getCollisionAxioms()),
+            self.getTPTPfof('axiom', self.getSignalingAxioms()),
+            self.getTPTPfof('axiom', self.getTrainOnInput()),
+            self.getTPTPfof('conjecture', self.getConjectures()),
+            self.getTPTPfof('negated_conjecture', self.getNegConjectures()))
+
     def getTimeTerm(self,time, s=None, literal=u'T'):
         if time == 0:
             if s == None:
@@ -96,17 +111,17 @@ class Graph:
     def getIsHereClause(self, edge, time, neg=False, target=u'X'):
         if neg:
             return u'~{}'.format(self.getIsHereClause(edge, time))
-        return u'ishere({},{},{})'.format(self.getTimeTerm(time),edge.name, target)
+        return u'ishere_{1}({0},{2})'.format(self.getTimeTerm(time),edge.name, target)
 
     def getCollisionClause(self, edge, time, neg=False):
         if neg:
             return u'~{}'.format(self.getCollisionClause(edge, time))
-        return u'collision({},{})'.format(self.getTimeTerm(time),edge.name)
+        return u'collision_{1}({0})'.format(self.getTimeTerm(time),edge.name)
 
     def getCanPassClause(self, vertex, time, neg=False):
         if neg:
             return u'~{}'.format(self.getCanPassClause(vertex, time))
-        return u'signal({},{})'.format(self.getTimeTerm(time), vertex.name)
+        return u'signal_{1}({0})'.format(self.getTimeTerm(time), vertex.name)
 
     def getEnterClause(self, e):
         a = []
@@ -215,7 +230,7 @@ class Graph:
             fmt = []
             fmt2 = []
             for o in overticles:
-                c.append(u'ishere(T,{},{})'.format(v.name, o.name))
+                c.append(u'ishere_{}(T,{})'.format(v.name, o.name))
                 fmt.append(u'~ {} & ')
                 fmt2.append(u'{} | ')
             l = len(overticles)
@@ -235,10 +250,10 @@ class Graph:
         s = None
         for v in self.edges.values():
             if s == None:
-                s = u'~ ishere(T,{},Y)'.format(v.name)
+                s = u'~ ?[Y]:ishere_{}(T,Y)'.format(v.name)
             else:
-                s = u'{} & ~ ishere(T,{},Y)'.format(s,v.name)
-        ax[u'zzz1'] = u'?[T]:(![Y]:({}))'.format(s)
+                s = u'{} & ~ ?[Y]:ishere_{}(T,Y)'.format(s,v.name)
+        ax[u'empty'] = u'?[T]:({})'.format(s)
         return ax
 
 
@@ -260,31 +275,25 @@ class Graph:
                         edgeset |= es
 
     def getSignalingByEdges(self, node, edges):
-        i = 0
         s = None
         q = None
         for e in edges:
             if s == None:
-                s = u'~ishere(T,{},Y{})'.format(e.name,i)
+                s = u'![Y]:ishere_{}(T,Y)'.format(e.name)
             else:
-                s = u'{} & ~ishere(T,{},Y{})'.format(s,e.name,i)
-            if q == None:
-                q = u'Y{}'.format(i)
-            else:
-                q = u'{},Y{}'.format(q,i)
-            i += 1
+                s = u'{} | ![Y]:ishere_{}(T,Y)'.format(s,e.name)
         if s <> None:
-            return u'![T,{}]:( signal(T,{}) <=> ({}) )'.format(q,node.name,s)
+            return u'![T]:( ({}) => ~signal_{}(T) )'.format(s,node.name)
 
     def getSignalingByNodes(self, node, nodes):
         s = None
         for n in nodes:
             if s == None:
-                s = u'~signal(T,{})'.format(n.name)
+                s = u'~signal_{}(T)'.format(n.name)
             else:
-                s = u'{} & ~signal(T,{})'.format(s,n.name)
+                s = u'{} & ~signal_{}(T)'.format(s,n.name)
         if s <> None:
-            return u'![T]:( signal(T,{}) => ({}) )'.format(node.name,s)
+            return u'![T]:( signal_{}(T) => ({}) )'.format(node.name,s)
 
     def getSubgraph(self, node):
         edgeset = set()
@@ -303,8 +312,10 @@ class Graph:
         ax = {}
         for node in self.verticles.values():
             if node.kind in ['CONVERGENT']:
+                s = u'![T,X]:((ishere_{0}(T,X) => signal_{2}(T)) & ((~ishere_{0}(T,X) & ishere_{1}(T,X)) => ~signal_{2}(T)))'.format(
+                        node.edgesIn[0].name, node.edgesIn[1].name, node.name)
                 n = u'signal_{}'.format(node.name)
-                ax[n] = u'![T,X]:(ishere(T,{},X) => signal(T,{}))'.format(node.edgesIn[0].name, node.name)
+                ax[n] = s
             elif node.kind in ['DIVERGENT']:
                 nodeset0 = set()
                 nodeset1 = set()
@@ -314,11 +325,11 @@ class Graph:
                 diff0 = nodeset0 - nodeset1
                 diff1 = nodeset1 - nodeset0
                 for n in same | diff0: 
-                    s = u'![T]:(ishere(T,{},{}) => signal(T,{}))'.format(node.edgesIn[0].name, n.name, node.name)
+                    s = u'![T]:(ishere_{}(T,{}) => signal_{}(T))'.format(node.edgesIn[0].name, n.name, node.name)
                     n = u'signal_{}_{}'.format(node.name,n.name)
                     ax[n] = s
                 for n in diff1:
-                    s = u'![T]:(ishere(T,{},{}) => ~signal(T,{}))'.format(node.edgesIn[0].name, n.name, node.name)
+                    s = u'![T]:(ishere_{}(T,{}) => ~signal_{}(T))'.format(node.edgesIn[0].name, n.name, node.name)
                     n = u'signal_{}_{}'.format(node.name,n.name)
                     ax[n] = s
             elif node.kind in ['INPUT','SIGNAL']:
@@ -332,30 +343,18 @@ class Graph:
                 if s <> None:
                     ax[n] = s
                 else:
-                    ax[n] = u'![T]:( signal(T,{}) )'.format(node.name)
+                    ax[n] = u'![T]:( signal_{}(T) )'.format(node.name)
         return ax
 
     def getConjectures(self):
         ax = {}
         #ax['test'] = u'?[T,X]:(collision(T,X))'
+        ax['test'] = u'![T,X]:(~collision(T,X))'
         return ax
 
     def getNegConjectures(self):
         ax = {}
         #ax['test'] = u'?[T,X]:(collision(T,X))'
+        #ax['test'] = u'![T,X]:(~collision(T,X))'
         return ax
 
-    def tp(self):
-        fmt = u'% Train movement axioms \n{}\n\
-            \n% Collision axioms \n{}\n\
-            \n% Signaling control \n{}\n\
-            \n% Train on input \n{}\n\
-            \n% Conjectures \n{}\n\
-            \n% Negated conjectures \n{}';
-        return fmt.format(
-            self.getTPTPfof('axiom', self.getBehaviorAxioms()),
-            self.getTPTPfof('axiom', self.getCollisionAxioms()),
-            self.getTPTPfof('axiom', self.getSignalingAxioms()),
-            self.getTPTPfof('axiom', self.getTrainOnInput()),
-            self.getTPTPfof('conjecture', self.getConjectures()),
-            self.getTPTPfof('negated_conjecture', self.getNegConjectures()))
