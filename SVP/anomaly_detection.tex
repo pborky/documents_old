@@ -2,7 +2,7 @@
 %%
 %% Anomaly detection by means of fourier tranform
 %% V1.0
-%% 2011/05/05
+%% 2011/07/25
 %% by Peter Boraros
 %% See http://www.pborky.sk/contact for current contact information.
 %%
@@ -76,7 +76,7 @@
 
 \begin{document}
 \title{Anomaly detection by means of fourier transform}
-\date{July 7, 2011}
+\date{July 25, 2011}
 \author{Peter~Boraros %
 \thanks{{Peter Boraros}, Czech technical university, Faculty of Electrical Engineering,
 see~\texttt{http://www.pborky.sk/contact} for a contact infomation}}%
@@ -93,7 +93,39 @@ The aim of this document is...
 \IEEEdisplaynotcompsoctitleabstractindextext
 \IEEEpeerreviewmaketitle
 
+\section{Introduction}
+This works provides explanation of the application of the Fourier transformation in terms of anomaly detection in computer network traffic.
+Concretely it provides further desription in following topics:
+\begin{itemize}
+	\item data - detailed description of input vectors and process of theirs gathering;
+	\item preprocessing - depicts the process of extracting features from the raw data in time domain;
+	\item transformation of the features from the time domain to the frequency domain - fourier transformation has been used for the purposes of this work;
+	\item normalisation and equalisation of the features - fits the data in the scale and evenly distributed;
+	\item visualisation of the features - principal component analysis, displaying the kernel density estimator;
+	\item clustering methods - grouping the ``similar'' features together;
+	\item 
+\end{itemize}
+
+\section{Conclusion}
+fooka
+
 \section{Outline}
+\subsection{Current state}
+\begin{itemize}
+	\item data - detailed explanation of the data for the experiment;
+	\item preprocessing - describe the binning process and agregation of particular features; give explanation of what are the features meaning in context of network traffic;
+	\item fourier transform - theory, contrast with wavelet transform;
+	\item clustering methods (k-means, SOM);
+	\item reducing the dimensionality - PCA, frequency filters;
+	\item probabilistic aproach - kernel density estimator.
+\end{itemize}
+\subsection{Ideas}
+\begin{itemize}
+	\item compute probability density more accurately;
+	\item transform the probability density to the fuzzy sets;
+	\item more datasets are needed;
+	\item 
+\end{itemize}
 
 %\begin{figure*}[!h] %
 %  \centering
