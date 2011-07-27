@@ -94,7 +94,7 @@ The aim of this document is...
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
-This works provides explanation of the application of the Fourier transformation in terms of anomaly detection in computer network traffic.
+This work provides explanation of the application of the Fourier transformation in terms of anomaly detection in computer network traffic.
 Concretely it provides further desription in following topics:
 \begin{itemize}
 	\item data - detailed description of input vectors and process of theirs gathering;
@@ -103,8 +103,30 @@ Concretely it provides further desription in following topics:
 	\item normalisation and equalisation of the features - fits the data in the scale and evenly distributed;
 	\item visualisation of the features - principal component analysis, displaying the kernel density estimator;
 	\item clustering methods - grouping the ``similar'' features together;
-	\item 
+	\item probabilistic aproach - ..
 \end{itemize}
+
+\subsection{Network traffic, gathering the data}
+Network traffic ought to be known as set of so called flows distributed in time.
+The flow is a sequence of packets that has similar attributes. Packets
+are exchanged usually among network endpoints. Attributes
+under consderation are at least: source and destination endpoint address and port,
+protocol. These are used to delimitate flows.
+
+In order to evaluate anomaly rate of paticular flow other properties ought to be
+taken in account. Especially number of packets and bytes, starting or ending time
+(timestamp of the first or the last packet in the flow).
+
+% mention the features 
+The time distribution of flows can be estimated by considering the
+starting timestamp of each flow. This 
+approach provides generalized view on one flow, as it has been occured 
+in network channel with unlimited throughput.
+
+\subsection{Data binning}
+In order to reduce minor observation error 
+
+\subsection{Fourier transformation}
 
 \section{Conclusion}
 fooka
