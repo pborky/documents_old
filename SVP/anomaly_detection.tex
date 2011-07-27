@@ -106,9 +106,10 @@ Concretely it provides further desription in following topics:
 	\item probabilistic aproach - ..
 \end{itemize}
 
+\section{Definitions}
 \subsection{Network traffic, gathering the data}
-Network traffic ought to be known as set of so called flows distributed in time.
-The flow is a sequence of packets that has similar attributes. Packets
+Network traffic is set of flows distributed in time.
+The flow is a sequence of packets, that has similar attributes. Packets
 are exchanged usually among network endpoints. Attributes
 under consderation are at least: source and destination endpoint address and port,
 protocol. These are used to delimitate flows.
@@ -117,14 +118,39 @@ In order to evaluate anomaly rate of paticular flow other properties ought to be
 taken in account. Especially number of packets and bytes, starting or ending time
 (timestamp of the first or the last packet in the flow).
 
-% mention the features 
-The time distribution of flows can be estimated by considering the
-starting timestamp of each flow. This 
-approach provides generalized view on one flow, as it has been occured 
-in network channel with unlimited throughput.
+%TODO mention the features 
+The time distribution of flows can be determined by considering the
+starting timestamp of each flow. This approach provides generalized view on the flow, 
+as it has been occured in network channel with unlimited throughput.
 
 \subsection{Data binning}
-In order to reduce minor observation error 
+In order to reduce minor observation errors binning technique ought to be used.
+The time axis is divided into disjoint intervals - bins.
+Let $n_\tau$ be number of bins and $F$ be the set of all flows captured in time interval
+$T = (0, T_{max}\rangle $. The $\tau$-th bin is known as set of flows $F_\tau$ 
+that occurs in time interval
+$T_\tau = (\tau\cdot \delta, (\tau+1)\cdot \delta\rangle $ where 
+$\tau \in \{0, 1, .. n_\tau-1\}$ and $\delta$ is the width of time intervals
+denoted $\delta = \frac{T_{max}}{n_\tau}$.
+Denote
+\[
+F_t = \{f : f \in F \wedge s(f) \in T_\tau \}
+\]
+where function $s:F \rightarrow N $ outputs starting timestamp of the flow $f\in F$.
+
+For each interval,
+representative value is calculated. Following formulas has been considered:
+\[
+r_\tau^{(1)} = \frac{\sum\limits_{f\in F_\tau}b(f)}{\sum\limits_{f\in F_\tau}p(f)}
+\]
+\[
+r_\tau^{(2)} = \log(1+\sum\limits_{f\in F_\tau}b(f))
+\]
+where $r_\tau$ is representative of time interval $\tau$, $F_\tau$ is set of flows captured in time 
+interval $\tau$, function $b:F \rightarrow N$ outputs size of the flow $f$ in bytes and function 
+$p:F \rightarrow N$ outputs the packet count of the flow $f$.
+
+%TODO further description of representatives
 
 \subsection{Fourier transformation}
 
