@@ -158,7 +158,7 @@ $p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$.
 %TODO further description of representatives and features
 
 \subsection{Fourier transformation}
-Representatives ($r_t$) are subject to transformation from the time domain to the
+Representatives $r_t$ are subject to transformation from the time domain to the
 frequency domain.
 This can be achieved by fourier-related
 tranforms, e.g. by a fourier or a wavelet transform.
@@ -219,14 +219,15 @@ The row $\mathcal{R}_{i,*}$ represents a trend of $i$-th fourier
 coeficient in time.
 
 \subsection{Experimental dataset}
-As mentioned above, provided experimental dataset contains also 
-information about harmfullness of particular endpoints. Endpoint is
-determined by its address. We now extend the definitions mentioned
-former in order to be able to distinct the fourier coeficients for
-particular endpoint.
+As mentioned above experimental dataset contains classification
+information qualifying the level of anomaly of particular endpoint.
+Endpoint is
+determined by its address. We now extend the definitions in order 
+to be able to distinct the fourier coeficients for
+particular endpoints.
 
 Let $\mathbb{E}$ be a set of all endpoints that
-participate in coummunication within time interval $\mathbb{T}$.
+participate in communication within time interval $\mathbb{T}$.
 Let $\mathbb{F}_{t,u \rightarrow}$ be the set of flows captured in
 time $\mathbb{T}_{t}$ %TODO: refer
 which are \textbf{initiated} by the endpoint $u \in \mathbb{E}$,
@@ -263,7 +264,7 @@ Matrix of fourier coeficients $\mathcal{R}^\bullet$ is 3-dimensional:
 
 
 \subsection{Probability density estimator}
-$Pr(R_i\mid e)$
+$\Pr(R_i\mid e)$
 
 
 \section{Conclusion}
