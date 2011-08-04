@@ -221,7 +221,6 @@ class Graph:
         for v in self.verticles.values():
             if v.kind in ['INPUT']:
                 iverticles.append(v)
-        for v in self.verticles.values():
             if v.kind in ['OUTPUT']:
                 overticles.append(v)
         s = None
@@ -231,21 +230,16 @@ class Graph:
             fmt2 = []
             for o in overticles:
                 c.append(u'ishere_{}(T,{})'.format(v.name, o.name))
-                fmt.append(u'~ {} & ')
-                fmt2.append(u'{} | ')
+                fmt.append(u'{} | ')
             l = len(overticles)
-            fmt[l-1] = u'~ {}'
-            fmt2[l-1] = u'{}'
-            s = []
-            for i in range(l):
-                f = fmt[:]
-                f[i] = f[i][2:]
-                f = u'({})'.format(''.join(f))
-                s.append(f.format(*c))
-            f =  ''.join(fmt2)
-            s = f.format(*s)
+            fmt[l-1] = u'{}'
+            f =  ''.join(fmt)
+            s = f.format(*c)
             n = u'input_{}'.format(v.name)
             ax[n] = u'?[T]:({})'.format(s)
+            n = u'input_{}_ex'.format(v.name)
+            ax[n] = u'![T,X]:( ishere_{0}(T,X) => (~ ?[Y]:( (X != Y) & ishere_{0}(T,Y) ) ) )'.format(v.name)
+
         #ax[u'zzz0'] = u'ishere(t,06,o1) & ishere(t,07,o3) & ishere(t,11,o3) '
         s = None
         for v in self.edges.values():
@@ -349,7 +343,7 @@ class Graph:
     def getConjectures(self):
         ax = {}
         #ax['test'] = u'?[T,X]:(collision(T,X))'
-        ax['test'] = u'![T,X]:(~collision(T,X))'
+        #ax['test'] = u'![T,X]:(~collision(T,X))'
         return ax
 
     def getNegConjectures(self):
