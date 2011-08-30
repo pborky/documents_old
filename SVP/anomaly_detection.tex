@@ -86,17 +86,17 @@ see~\texttt{http://www.pborky.sk/contact} for a contact infomation}}%
 
 \IEEEcompsoctitleabstractindextext{%
 \begin{abstract}
-This work provides explanation of the application of the Fourier transformation in terms of anomaly detection in computer network traffic.
-Concretely it provides further desription in following topics:
-\begin{itemize}
-	\item data - detailed description of input vectors and process of theirs gathering;
-	\item preprocessing - depicts the process of extracting features from the raw data in time domain;
-	\item transformation of the features from the time domain to the frequency domain - fourier transformation has been used for the purposes of this work;
-	\item normalisation and equalisation of the features - fits the data in the scale and evenly distributed;
-	\item visualisation of the features - principal component analysis, displaying the kernel density estimator;
-	\item clustering methods - grouping the ``similar'' features together;
-	\item probabilistic aproach - ..
-\end{itemize}
+This work provides explanation of the application of the Fourier transformation in terms of an anomaly detection in a computer network traffic.
+%Concretely it provides further desription in following topics:
+%\begin{itemize}
+%	\item data - detailed description of input vectors and process of theirs gathering;
+%	\item preprocessing - depicts the process of extracting features from the raw data in time domain;
+%	\item transformation of the features from the time domain to the frequency domain - fourier transformation has been used for the purposes of this work;
+%	\item normalisation and equalisation of the features - fits the data in the scale and evenly distributed;
+%	\item visualisation of the features - principal component analysis, displaying the kernel density estimator;
+%	\item clustering methods - grouping the ``similar'' features together;
+%	\item probabilistic aproach - ..
+%\end{itemize}
 \end{abstract}}
 
 \maketitle
@@ -105,6 +105,14 @@ Concretely it provides further desription in following topics:
 
 
 \section{Introduction}
+Motivation to this work was to distinguish a periodic behavior of 
+potential threats from ordinary network communication. Example dataset
+provided for this purposes contains a samples of communication of the unknown mallware along with the ordinary network communication.
+Mallware has been periodically (in interval of 10 seconds) sending small amount of data to one concrete host.
+
+For the purpose of this work only few of the network communication participants was used as most of the traffic is not known.
+Concretely it is a proxy server, web usage, host attacked with mallware and the destination of the mallware (server).
+
 \section{Definitions}
 \subsection{Network traffic, gathering the data}
 Network traffic can be represented by set of flows distributed in time.
@@ -158,7 +166,7 @@ $p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$.
 %TODO further description of representatives and features
 
 \subsection{Fourier transformation}
-Representatives $r_t$ are subject to transformation from the time domain to the
+Representatives ($r_t$) are subject to transformation from the time domain to the
 frequency domain.
 This can be achieved by fourier-related
 tranforms, e.g. by a fourier or a wavelet transform.
@@ -218,18 +226,18 @@ i.e.
 The row $\mathcal{R}_{i,*}$ represents a trend of $i$-th fourier
 coeficient in time.
 
-\subsection{Experimental dataset}
-As mentioned above experimental dataset contains classification
-information qualifying the level of anomaly of particular endpoint.
-Endpoint is
-determined by its address. We now extend the definitions in order 
-to be able to distinct the fourier coeficients for
-particular endpoints.
+\subsection{Distinguishing the endpoints}
+As mentioned above experimental dataset contains also
+classification information pointing out an level of anomaly of 
+particular endpoints. Endpoint is determined by its address.
+We now extend the definitions mentioned
+former in order to be able to distinct the fourier coeficients for
+particular endpoint.
 
 Let $\mathbb{E}$ be a set of all endpoints that
-participate in communication within time interval $\mathbb{T}$.
+participate in coummunication within time interval $\mathbb{T}$.
 Let $\mathbb{F}_{t,u \rightarrow}$ be the set of flows captured in
-time $\mathbb{T}_{t}$ %TODO: refer
+time interval $\mathbb{T}_{t}$ %TODO: refer
 which are \textbf{initiated} by the endpoint $u \in \mathbb{E}$,
 similarly $\mathbb{F}_{t, \rightarrow u}$ are \textbf{ended} at the
 endpoint $u$. Formaly
@@ -261,32 +269,75 @@ Matrix of fourier coeficients $\mathcal{R}^\bullet$ is 3-dimensional:
 \[
 \mathcal{R}^\bullet_{*,j,e} = abs(\mathcal{F}(r_{a_j,e}, ..., r_{b_j,e}))
 \]
+First dimension is related to the frequency domain, second to the time domain (this is the trend of the fourier coeficients over time), and third dimension is related to the endpoint.
 
 
-\subsection{Probability density estimator}
-$\Pr(R_i\mid e)$
-
+\section{Experiments}
 
 \section{Conclusion}
 
+\onecolumn
+%\clearpage
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=150mm]{spect_dst_bdivp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{target}}
+  \label{fig:spect_dst_bdivp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=150mm]{spect_src_bdivp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{source}}
+  \label{fig:spect_src_bdivp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=150mm]{spect_dst_logp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(2)}$ and agregation over \textbf{target}}
+  \label{fig:spect_dst_logp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=150mm]{spect_src_logp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(2)}$ and agregation over \textbf{source}}
+  \label{fig:spect_src_logp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=140mm]{dens_dst_bdivp}
+      \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability $Pr(x|endpoint)$ density estimation (linear scaling ensuring zero global mean and global variance is 1)}
+  \label{fig:dens_dst_bdivp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=140mm]{dens_dst_logp}
+      \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability $Pr(x|endpoint)$ density estimation (linear scaling ensuring zero global mean and global variance is 1)}
+  \label{fig:dens_dst_logp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=140mm]{dens_src_bdivp}
+    \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability $Pr(x|endpoint)$ density estimation (linear scaling ensuring zero global mean and global variance is 1)}
+  \label{fig:dens_src_bdivp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=140mm]{dens_src_logp}
+  \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability $Pr(x|endpoint)$ density estimation (linear scaling ensuring zero global mean and global variance is 1)}
+  \label{fig:dens_src_logp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=140mm]{loglik_src_bdivp}
+  \includegraphics[width=40mm]{legend}
+    \caption{Example of logarithmic likelihood $\log(L)$ (maximum likelihood estimation of the kernel width of the parzen window)}
+  \label{fig:loglik_src_bdivp}
+\end{figure}
 
-\section{Outline}
-\subsection{Current state}
-\begin{itemize}
-	\item data - detailed explanation of the data for the experiment;
-	\item preprocessing - describe the binning process and agregation of particular features; give explanation of what are the features meaning in context of network traffic;
-	\item fourier transform - theory, contrast with wavelet transform;
-	\item clustering methods (k-means, SOM);
-	\item reducing the dimensionality - PCA, frequency filters;
-	\item probabilistic aproach - kernel density estimator.
-\end{itemize}
-\subsection{Ideas}
-\begin{itemize}
-	\item compute probability density more accurately;
-	\item transform the probability density to the fuzzy sets;
-	\item more datasets are needed;
-	\item 
-\end{itemize}
 
 %\begin{figure*}[!h] %
 %  \centering
