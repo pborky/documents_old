@@ -107,11 +107,16 @@ This work provides explanation of the application of the Fourier transformation 
 \section{Introduction}
 Motivation to this work was to distinguish a periodic behavior of 
 potential threats from ordinary network communication. Example dataset
-provided for this purposes contains a samples of communication of the unknown mallware along with the ordinary network communication.
-Mallware has been periodically (in interval of 10 seconds) sending small amount of data to one concrete host.
+provided for this purposes contains a samples of communication of the 
+unknown mallware along with the ordinary network communication.
+Mallware has been periodically (interval of 10 seconds) sending 
+small amount of data to one concrete host.
 
-For the purpose of this work only few of the network communication participants was used as most of the traffic is not known.
-Concretely it is a proxy server, web usage, host attacked with mallware and the destination of the mallware (server).
+For the purpose of this work only few of the network communication 
+participants was analysed as most of the traffic was not known.
+Endpoint token in consideration are proxy server, host attacked by mallware
+the mallware`s target (server) and host with ordinary web usage (it cannot be
+considered as an legitimus).
 
 \section{Definitions}
 \subsection{Network traffic, gathering the data}
@@ -145,20 +150,20 @@ $\mathbb{T}_t = ((t-1)\cdot \delta, t\cdot \delta\rangle $ where
 $t \in \{1, .. h\}$ and $\delta$ is the width of time intervals
 denoted $\delta = \frac{T_{max}}{h}$.
 Denote
-\[
+\begin{equation}
 \mathbb{F}_t = \{f : f \in \mathbb{F} \wedge s(f) \in \mathbb{T}_t \}
-\]
+\end{equation}
 where function $s:\mathbb{F} \rightarrow \mathbb{N} $ 
 outputs starting timestamp of the flow $f\in \mathbb{F}$.
 
 For each interval,
 representative value is calculated. Following formulas have been considered:
-\[
+\begin{equation}
 r_t^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_t}b(f)}{\sum\limits_{f\in \mathbb{F}_t}p(f)}
-\]
-\[
+\end{equation}
+\begin{equation}
 r_t^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_t}p(f))
-\]
+\end{equation}
 where $r_t$ is representative of time interval $t$, $\mathbb{F}_t$ is set of flows captured in time 
 interval $t$, function $b:\mathbb{F} \rightarrow \mathbb{N}$ outputs size of the flow $f$ in bytes and function 
 $p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$.
@@ -190,9 +195,9 @@ while an FFT can compute the same result in only $ O(N \log N)$ operations.
 The sequence of $N$ complex numbers $x_0, ..., x_{N−1}$ is transformed into the
 sequence of $N$ complex numbers $X_0, ..., X_{N−1}$ by the DFT according to the
 formula:
-\[
+\begin{equation}
 X_k = \sum_{n=0}^{N-1} x_n e^{-\frac{2 \pi i}{N} k n} \quad \quad k = 0, \dots, N-1
-\]
+\end{equation}
 where $i$ is imaginary unit and $e^{-\frac{2 \pi i}{N} k n}$ is $N$-th root of
 unity. 
 
@@ -220,9 +225,9 @@ Proper values of $s$ and $w$ are subject to research.
 Let $\mathcal{R}$ be matrix of fourier coeficients where
 $\mathcal{R}_{i,j}$ is $i$-th fourier coeficient of $j$-th slice,
 i.e. 
-\[
+\begin{equation}
 \mathcal{R}_{*,j} = abs(\mathcal{F}(r_{a_j}, ..., r_{b_j}))
-\]
+\end{equation}
 The row $\mathcal{R}_{i,*}$ represents a trend of $i$-th fourier
 coeficient in time.
 
@@ -242,51 +247,126 @@ which are \textbf{initiated} by the endpoint $u \in \mathbb{E}$,
 similarly $\mathbb{F}_{t, \rightarrow u}$ are \textbf{ended} at the
 endpoint $u$. Formaly
 
-\[
+\begin{equation}
 \mathbb{F}_{t,u \rightarrow} = \{f : f \in \mathbb{F} \wedge e_{s}(f) = u \wedge s(f) \in \mathbb{T}_t \}
-\]
-\[
+\end{equation}
+\begin{equation}
 \mathbb{F}_{t, \rightarrow u} = \{f : f \in \mathbb{F} \wedge e_{d}(f) = u \wedge s(f) \in \mathbb{T}_t \}
-\]
+\end{equation}
 where $e_{s}:\mathbb{F}\rightarrow \mathbb{E}$ and
 $e_{d}:\mathbb{F}\rightarrow \mathbb{E}$ 
 are functions returning source and destination endpoint for the 
 flow $f$.
 The representative value of particular bin for particular endpoint is 
 then:
-\[
+\begin{equation}\label{bigrepr1}
 r_{t,e}^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_{t,e}}b(f)}{\sum\limits_{f\in \mathbb{F}_{t,e}}p(f)}
-\]
-\[
+\end{equation}
+\begin{equation}\label{bigrepr2}
 r_{t,e}^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_{t,e}}p(f))
-\]
+\end{equation}
 where index ${}_e$ is replaces symbols ${}_{u\rightarrow}$ or 
 ${}_{\rightarrow u}$ from previous definition. So it is distinguished 
 if the connection is initiated by the endpoint $u$, or ended at the
 endpoint $u$.
 
 Matrix of fourier coeficients $\mathcal{R}^\bullet$ is 3-dimensional:
-\[
+\begin{equation}\label{bigmatrix}
 \mathcal{R}^\bullet_{*,j,e} = abs(\mathcal{F}(r_{a_j,e}, ..., r_{b_j,e}))
-\]
-First dimension is related to the frequency domain, second to the time domain (this is the trend of the fourier coeficients over time), and third dimension is related to the endpoint.
-
+\end{equation}
+First dimension is related to the frequency domain, second to the time domain 
+(this is the trend of the fourier coeficients over time), 
+and third dimension is related to the endpoint.
+We can denote that matrix $\mathcal{R}^{(1)\bullet}$ (resp. $\mathcal{R}^{(2)\bullet}$)
+is using representative $r_{t,*}^{(1)}$ (resp. $r_{t,*}^{(2)}$) based on formulas
+(\ref{bigrepr1}) and (\ref{bigrepr2}).
 
 \section{Experiments}
+Main task is to find an property of the frequency spectrum so that the malicious behavior
+can be distinguished. Matrix $\mathcal{R}^\bullet$ provides trend of the frequency spectrum
+in time domain for particular endpoint.
+Following parameters has been choosen empiricaly:
+
+\begin{center}
+\begin{tabular}{c|rl}
+width of bins & $\delta =$ & $1$ sec \\ \hline
+slice width & $w =$ & $128$ \\ \hline
+slicing step & $s=$ & $40$ \\
+\end{tabular}
+\end{center}
+
+Size of the resulting matrix $\mathcal{R}^\bullet$ is then
+$[w\times g\times \lvert\mathbb{E}\rvert]$, where $w=128$, $g=\lfloor\frac{h-w}{s} \rfloor$, 
+$h = \lfloor\frac{T_{max}}{\delta}\rfloor$ and $\lvert\mathbb{E}\rvert $ is the number of the 
+considered endpoints.
+
+\subsection{Measurements}
+The figures \ref{fig:spect_dst_bdivp},
+\ref{fig:spect_src_bdivp}, \ref{fig:spect_dst_logp} and \ref{fig:spect_src_logp} are 
+showing an mean value of the fourier coeficients along with a standard deviation.
+The blue curves are mean values and red are standard deviations added to respectively 
+subtracted from mean values. 
+The trend of the first momentum in frequency domain has a periodic fluctuations
+for the mallware`s target host. Second momentum is
+very low for the first 4 fourier coeficient. This properties seems to be unique in 
+comparison to other endpoints.
+
+
+The figures \ref{fig:dens_dst_bdivp},
+\ref{fig:dens_src_bdivp}, \ref{fig:dens_dst_logp} and \ref{fig:dens_src_logp} are 
+showing an kernel density estimation of the value of first six coeficients.
+Before the calculation dataset had been put in scale so that the central mean equals to zero
+and standard deviation equals to one. Kernel function is the normal and bandwidth (or smoothing parameter)
+is guessed by maximizing likelihood. Curves on figure \ref{fig:loglik_src_bdivp} are showing
+the dependency of the likelihood on the bandwidth. Likelihood is computed as a sum of the
+logarithms of values of the partial probability density models evaluated on a testing datasets, 
+while the model parameters are trained on a training datasets. Both, the testing and 
+training datasets are obtained by 5-fold crossvalidation process. %TODO: formulas
+
+Both the first momentum and the second mometum ought to be taken in consideration 
+by the anomaly evaluation. The periodic fluctuations as the low are distinct from the
+chaotic behavior of the ordinary endpoints. Very low values of second momentum 
+as its fluctuations in frequency domain are notable too.
+
+\subsection{Implementation}
+Anomaly evaluation based on the values of the second momentum has been implemented 
+as a agent for testing purposes in the Camnep intrusion detection system. The programming 
+language is Java. Agent receives an statistics from the data geathering agents and is called 
+each time the 5-minutes block is received. Matrix $\mathcal{R}^{(1)\bullet}$ is computed. 
+Row $\mathcal{R}^{(1)\bullet}_{i,*,e}$ represents a trend of the coeficient $i$ in time domain 
+for the particular target endpoint $e$. Standard deviation is then calculated and matrix
+$\mathcal{D}^{(1)}_{i,e}$ of the standard deviations is constructed.
+For each coeficient $i$ 10th-percentile $t^{(1)}_i$ is calculated over all target endpoints $e$, 
+where $t^{(1)}_i$ is a threshold.
+Logical matrix $\mathcal{K}^{(1)}_{t,e}$ is then constructed: 
+$\mathcal{K}^{(1)}_{i,e} = \mathcal{D}^{(1)}_{i,e} \le t^{(1)}_i $. 
+So for 10\% endpoints with least value of $\mathcal{K}^{(1)}$
+it contains value 1 otherwise value 0. Weighted average over the sequence $\mathcal{K}^{(1)}_{*,e}$
+then outputs the level of anomaly $a_e$ for each target endpoint. Weights are choosen empiricaly
+and some results were obtained giving weight of $1$ for coeficients $i \in \{1,2,3,4,5\}$, weight of $0.2$
+where $i\in \{6,7,... 20\}$ otherwise weight of $0$.
 
 \section{Conclusion}
+The implementation is still under development. Next research ougth to be aimed on the modeling of the
+frequency spectrums and the fluctuations. More endpoints ought to be taken in consideration. 
 
+Relation between model and different behaviors of the mallware is also important to be investigated.
+
+
+
+\clearpage
 \onecolumn
-%\clearpage
-\begin{figure}[t!]%
+\appendix
+
+\begin{figure}[h!]%
   \centering
-  \includegraphics[width=150mm]{spect_dst_bdivp}
+  \includegraphics[width=140mm]{spect_dst_bdivp}
   \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{target}}
   \label{fig:spect_dst_bdivp}
 \end{figure}
-\begin{figure}[t!]%
+\begin{figure}[h!]%
   \centering
-  \includegraphics[width=150mm]{spect_src_bdivp}
+  \includegraphics[width=140mm]{spect_src_bdivp}
   \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{source}}
   \label{fig:spect_src_bdivp}
 \end{figure}
@@ -318,17 +398,17 @@ First dimension is related to the frequency domain, second to the time domain (t
 \end{figure}
 \begin{figure}[t!]%
   \centering
-  \includegraphics[width=140mm]{dens_src_logp}
-  \includegraphics[width=40mm]{legend}
-  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{source}}
-  \label{fig:dens_src_logp}
-\end{figure}
-\begin{figure}[t!]%
-  \centering
   \includegraphics[width=140mm]{dens_dst_logp}
       \includegraphics[width=40mm]{legend}
   \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{target}}
   \label{fig:dens_dst_logp}
+\end{figure}
+\begin{figure}[t!]%
+  \centering
+  \includegraphics[width=140mm]{dens_src_logp}
+  \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{source}}
+  \label{fig:dens_src_logp}
 \end{figure}
 \begin{figure}[t!]%
   \centering
