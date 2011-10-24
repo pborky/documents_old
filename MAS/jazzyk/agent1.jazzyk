@@ -1,0 +1,19 @@
+define(`GOALS', `
+  goals.add(new Pair (new Pair(2,25), ""));
+  goals.add(new Pair (new Pair(25,25), ""));
+  goals.add(new Pair (new Pair(25,4), ""));
+  goals.add(new Pair (new Pair(2,4), ""));
+')
+
+include(`jazzyk/macros.jazzyk')
+include(`jazzyk/modules.jazzyk')
+include(`jazzyk/init.jazzyk')
+include(`jazzyk/percieve.jazzyk')
+include(`jazzyk/deliberate.jazzyk')
+include(`jazzyk/act.jazzyk')
+
+/* MAIN BODY */
+INIT
+PERCEIVE,
+DELIBERATE,
+ACT

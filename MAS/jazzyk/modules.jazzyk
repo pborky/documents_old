@@ -1,0 +1,5 @@
+
+declare module body as jazzyk.module.JzzJava
+declare module beliefs as jazzyk.module.JzzJava
+declare module goals as jazzyk.module.JzzJava
+

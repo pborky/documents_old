@@ -1,0 +1,53 @@
+define(`INIT_GOALS',`
+  import massim.agent.framework.Pair;
+  import java.util.Vector;
+  import java.util.LinkedList;
+  // simply treat the goal base as an ordered set of goals
+  LinkedList goals = new LinkedList();
+  // add some goals
+  GOALS
+')
+define(`INIT_BODY',`
+  import massim.agent.jazzyk.MASSimAgents;
+  import massim.agent.jazzyk.JazzykAgent;
+  import massim.agent.framework.Perception;
+  import java.util.HashMap;
+  import massim.agent.framework.Pair;
+
+  JazzykAgent self = MASSimAgents.getInstance().getAgent(MYNAME);
+  Perception sensor = null;
+
+  System.out.println(MYNAME + " is alive and ready to roam around.");
+')
+define(`INIT_BELIEFS',`
+  import java.util.HashMap;
+  import massim.agent.framework.Pair;
+
+  // agents current position
+  Pair currPos = null;
+
+  // agents initial position
+  Pair initPos = null;
+
+  // agents role
+  int role = -1;
+
+  // true if my initial position was broadcasted to other agents
+  Boolean myPositionSent = false;
+  
+  Boolean initPosAsLastGoal = false;
+  Boolean escaping = false;
+  
+  // agents field of view
+  HashMap view = null;
+  
+  String recvMsg = null;
+  String sendMsg = null;
+  String lastMsg = null;
+')
+
+define(`INIT', `
+notify body on initialize [{ INIT_BODY(`$1') }]
+notify goals on initialize [{ INIT_GOALS(`$1') }]
+notify beliefs on initialize [{ INIT_BELIEFS(`$1') }]
+')

@@ -1,0 +1,45 @@
+define(`ACT', `
+  {
+    // broadcast my initial position
+    when query beliefs [{ !myPositionSent }] then {
+      when query beliefs (pos) [{ pos = initPos; return true; }] 
+      then {
+        update body (pos) [{
+          msg = pos.getLeft() + "," + pos.getRight();
+          PRINT(`"broadcast "+msg');
+          self.broadcastMessage(new massim.agent.framework.StringContent(msg, self.getSimStep()));
+        }],
+        update beliefs [{ myPositionSent = true; }]
+      }
+    },
+    
+    when query beliefs (msg) [{ msg = sendMsg; msg = (msg==null)?"":msg; return (sendMsg != null); }]
+    then { 
+      update body (msg) [{
+        self.broadcastMessage(new massim.agent.framework.StringContent(msg, self.getSimStep()));
+      }], 
+      update beliefs (msg) [{ lastMsg = msg; sendMsg = null; }]
+    },
+    
+    // we have a goal 
+    when query goals [{ !goals.isEmpty() }] then {
+
+      // retrieve coordination to go
+      when query goals (posG, rule) [{ g = goals.getFirst(); posG = g.getLeft(); rule = g.getRight(); return true; }] 
+      then {      
+        // determine action to do
+        when query beliefs (posG, posC) [{ posC = currPos; return true; }]
+        then
+          when query body (posG, posC, dirX, dirY, ACTIONS) [{
+            int dirY = Integer.signum(posG.getRight()-posC.getRight());
+            int dirX = Integer.signum(posG.getLeft()-posC.getLeft());
+            String[] ACTIONS = new String[] {"north", "", "south", "west", "", "east"};
+            return !((dirX == 0) && (dirY == 0));
+          }]
+          then update body (dirX, dirY, ACTIONS) [{ self.act(ACTIONS[dirY+1] + ACTIONS[dirX+4]); }]
+        }
+      }
+    }
+  }
+')
+

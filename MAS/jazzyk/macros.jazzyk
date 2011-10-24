@@ -1,0 +1,2 @@
+define(`PRINT', `System.out.println(MYNAME+": "+$1)')
+

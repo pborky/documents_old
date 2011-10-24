@@ -1,0 +1,41 @@
+
+define(`PERCEIVE', `
+  {
+    // perceive the position of the agent
+    // and the field of view
+    when query body (X, Y, c) [{ 
+        X = self.sense().posX; 
+        Y = self.sense().posY;
+        c = self.sense().cells.clone();
+        return true;  
+    }]
+    then {
+      update beliefs (X,Y,c) [{ 
+        currPos = new Pair(X, Y);
+        view = new HashMap();
+        for (java.util.Map.Entry entry : c.entrySet()) {
+          k = entry.getKey();
+          v = entry.getValue().toString();
+          view.put(new Pair(k.getLeft(), k.getRight()), v);
+        }
+      }],
+      
+      // remember initial position
+      when query beliefs [{ initPos == null }] then update beliefs (X,Y) [{
+        initPos = currPos;
+        PRINT(`"["+X+", "+Y+"] initialPositionInitialized"');
+      }]
+    },
+      
+    // receive incoming messages
+    when query body [{ !self.isEmptyInbox() }] then {
+      when query body (msg) [{ msg=self.popInboxMessage(); return true; }]
+      then update beliefs (msg) [{
+        // we have received a message
+        PRINT(`"received message "+msg.toString()');
+        recvMsg = msg.toString();
+      }] 
+    }
+  }
+')
+PERCEIVE

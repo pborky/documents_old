@@ -1,0 +1,80 @@
+define(`DELIBERATE', `
+  {
+    // add initial position as last goal
+    when query beliefs [{ !initPosAsLastGoal }] 
+    then {
+      when query beliefs (pos) [{ pos = initPos; return true; }] 
+      then {
+        update goals (pos) [{
+          goals.add(new Pair(pos, "")); 
+          PRINT(`"added initial position as a goal: ["+pos.getLeft()+","+pos.getRight()+"]"');
+        }],
+        update beliefs [{ initPosAsLastGoal = true; }]
+      }
+    },
+    
+    // we have a goal
+    when query goals [{ !goals.isEmpty() }] then {
+      
+      // retrieve coordination to go
+      when query goals (Xg, Yg, rule) [{
+        p = goals.getFirst();
+        Xg = p.getLeft().getLeft();
+        Yg = p.getLeft().getRight();
+        rule = p.getRight();
+        return true;
+      }] then {
+        // get my position from beliefs
+        when query beliefs (Xc, Yc) [{ Xc = currPos.getLeft(); Yc = currPos.getRight(); return true; }]
+        then {
+          // goal coordinates reached
+          when query beliefs (Xc, Yc, Xg, Yg) [{
+            Yg.equals(Yc) && Xg.equals(Xc)
+          }] then {
+            // rule?
+            when query beliefs (rule) [{ rule.isEmpty() }]
+            // if not, remove the goal
+            then {
+              update goals (Xg, Yg) [{
+                PRINT(`"fulfilled goal goto ["+Xg+", "+Yg+"]"');
+                goals.removeFirst();
+              }],
+              when query beliefs [{ escaping }]
+              then update beliefs [{
+                sendMsg = MYNAME;
+                escaping = false;
+                PRINT(`"stop escaping."');
+              }]
+            }
+            else {
+              // if so, is rule fullfiled? 
+              when query beliefs (rule) [{ rule.equals(recvMsg) }] then {
+                update beliefs [{ recvMsg = null; }],
+                update goals (Xg, Yg) [{
+                  PRINT(`"fulfilled goal goto ["+Xg+", "+Yg+"]"');
+                  goals.removeFirst();
+                }] 
+              },
+              // we send instructions to other agents
+              when query beliefs (Xc, Yc, msg) [{
+                int[] x = new int[] {-1, 1, 0, 0};
+                int[] y = new int[] {0, 0, -1, 1};
+                for (int i = 0; i < 4; i++) {
+                  Pair cell0 = new Pair(x[i],y[i]); Pair cell1 = new Pair(2*x[i],2*y[i]);
+                  if ("Switch".equals(view.get(cell0)) && !"Obstacle".equals(view.get(cell1))) {
+                    msg = "go("+(Xc+x[i]*2)+","+(Yc+y[i]*2)+","+MYNAME+")";
+                    return true;
+                  }
+                }
+                msg = ""; return false;
+              }]
+              //but only when same message was not sended
+              then when query beliefs (msg) [{ lastMsg == null || !lastMsg.equals(msg) }]
+              then update beliefs (msg) [{ sendMsg = msg; }]
+            }
+          }
+        }
+      }
+    }  
+')
+
