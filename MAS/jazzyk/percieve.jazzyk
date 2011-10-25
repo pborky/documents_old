@@ -3,10 +3,12 @@ define(`PERCEIVE', `
   {
     // perceive the position of the agent
     // and the field of view
-    when query body (X, Y, c) [{ 
-        X = self.sense().posX; 
-        Y = self.sense().posY;
-        c = self.sense().cells.clone();
+    when query body (X, Y, c) [{
+        synchronized (self.sense()) { 
+         X = self.sense().posX; 
+          Y  = self.sense().posY;
+          c = self.sense().cells.clone();
+        }
         return true;  
     }]
     then {
