@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
+#include <string.h>
 
 #define IN_MATRICES_C
 #include "matrices.h"
-
-#define EPS 1E-4
 
 struct matrix * getMatrix2(int xdim, int ydim, float * flat) {
     if (xdim < 0 || ydim < 0) {
@@ -43,7 +43,7 @@ float getMatrixField(struct matrix * mat, int x, int y) {
     }
     return mat->flat[ x + mat->rows[y] ];
 }
-static struct matrix * getMatrixRow(struct matrix * mat, int y) {
+struct matrix * getMatrixRow(struct matrix * mat, int y) {
     if (y > mat->ydim || y < 0) {
         printf("ERROR; row index out of bounds.\n");
         exit(-1);
@@ -102,5 +102,64 @@ int getMatrixRank(struct matrix * mat, bool augmented) {
     }
     return rank;
 }
-
+void rankMatrix(struct matrix * mat) {
+    mat->rka = getMatrixRank(mat, true);
+    mat->rks = getMatrixRank(mat, false);
+}
+struct matrix * cloneMatrix(struct matrix * mat) {
+    struct matrix * mat2 = getMatrix(mat->xdim, mat->ydim);
+    mat2->rka = mat->rka;
+    mat2->rks = mat->rks;
+    mat2->orig = mat->orig;
+    mat2->sol = mat->sol;
+    memcpy(mat2->flat, mat->flat, mat2->xdim*mat2->ydim*sizeof(float));
+    memcpy(mat2->rows, mat->rows, mat2->ydim*sizeof(int));
+    return mat2;
+}
+void getMatrixEchelon(struct matrix * mat) {
+    mat->orig = cloneMatrix(mat);
+    for(int i = 0; i < mat->ydim-1; i ++) {
+        for (int y = mat->ydim-1; y > i; y--) {
+            float f0 = getMatrixField(mat, i, y-1);
+            float f1 = getMatrixField(mat, i, y);
+            if (f1 == 0) continue;
+            if (f0 == 0) {
+                swapMatrixRows(mat, y, y-1);
+                continue;
+            }
+            addMatrixRowFactor(mat, y-1, y, -f1, f0);
+        }
+    }
+}
+void getMatrixDiagonal(struct matrix * mat) {
+    mat->orig = cloneMatrix(mat);
+    for(int i = mat->xdim-2, j = mat->ydim-1; i > 0 && j > 0; i--, j--) {
+            float f0 = getMatrixField(mat, i, j);
+            if (fabs(f0) == 0) {
+                printf("WARNING; foooka!!\n");
+                return;
+            }
+            for(int y = j-1; y >= 0; y--) {
+                float f1 = getMatrixField(mat, i, y);
+                addMatrixRowFactor(mat, i, y, -f1, f0);
+            }
+            multMatrixRow(mat, j, 1, f0);
+    }
+    multMatrixRow(mat, 0, 1, getMatrixField(mat, 0, 0));
+    mat->sol = getMatrixCol(mat, mat->xdim-1);
+}
+void printMatrix(struct matrix * mat, char * name, char * desc) {
+    printf("%s = [ %% %s\n", name, desc);
+    for (int i = 0; i < mat->ydim; i++) {
+        for (int j = 0; j < mat->xdim; j++) {
+            float f =  getMatrixField(mat, j, i);
+            if (j == mat->xdim-1) {
+                printf("%f;\n", f);
+            } else {
+                printf("%f, ", f);
+            }
+        }
+    }
+    printf("];\n");
+}
 

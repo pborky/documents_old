@@ -4,6 +4,10 @@ struct matrix {
     int *rows;
     int xdim;
     int ydim;
+    int rka;
+    int rks;
+    struct matrix * orig;
+    struct matrix * sol;    
 };
 
 #ifndef IN_MATRICES_C
@@ -18,4 +22,8 @@ void swapMatrixRows(struct matrix * mat, int y0, int y1);
 void addMatrixRowFactor(struct matrix * mat, int from, int to, float factor, float divisor);
 void multMatrixRow(struct matrix * mat, int y, float factor, float divisor);
 int getMatrixRank(struct matrix * mat, bool augmented);
+void rankMatrix(struct matrix * mat);
+void getMatrixEchelon(struct matrix * mat);
+void getMatrixDiagonal(struct matrix * mat);
+void printMatrix(struct matrix * mat, char * name, char * desc);
 #endif
