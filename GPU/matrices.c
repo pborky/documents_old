@@ -16,6 +16,8 @@ struct matrix * getMatrix2(int xdim, int ydim, float * flat) {
     mat->xdim = xdim;
     mat->ydim = ydim;
     mat->flat = flat;
+    mat->orig = NULL;
+    mat->sol = NULL;
     mat->rows = malloc(sizeof(int)*ydim);
     
     for (int i = 0, r = 0; i < mat->ydim; i++, r += mat->xdim) {
@@ -148,18 +150,28 @@ void getMatrixDiagonal(struct matrix * mat) {
     multMatrixRow(mat, 0, 1, getMatrixField(mat, 0, 0));
     mat->sol = getMatrixCol(mat, mat->xdim-1);
 }
-void printMatrix(struct matrix * mat, char * name, char * desc) {
-    printf("%s = [ %% %s\n", name, desc);
+void printMatrix(FILE * f, struct matrix * mat, char * name, char * desc) {
+    fprintf(f, "%s = [ %% %s\n", name, desc);
     for (int i = 0; i < mat->ydim; i++) {
         for (int j = 0; j < mat->xdim; j++) {
-            float f =  getMatrixField(mat, j, i);
+            float fl =  getMatrixField(mat, j, i);
             if (j == mat->xdim-1) {
-                printf("%f;\n", f);
+                fprintf(f, "%f;\n", fl);
             } else {
-                printf("%f, ", f);
+                fprintf(f, "%f, ", fl);
             }
         }
     }
-    printf("];\n");
+    fprintf(f, "];\n");
 }
-
+void freeMatrix(struct matrix * mat) {
+    if (mat->sol != NULL) {
+        freeMatrix(mat->sol);
+    }
+    if (mat->orig != NULL) {
+        freeMatrix(mat->orig);
+    }
+    free(mat->rows);
+    free(mat->flat);
+    free(mat);
+}

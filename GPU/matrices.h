@@ -25,5 +25,6 @@ int getMatrixRank(struct matrix * mat, bool augmented);
 void rankMatrix(struct matrix * mat);
 void getMatrixEchelon(struct matrix * mat);
 void getMatrixDiagonal(struct matrix * mat);
-void printMatrix(struct matrix * mat, char * name, char * desc);
+void printMatrix(FILE * f, struct matrix * mat, char * name, char * desc);
+void freeMatrix(struct matrix * mat);
 #endif

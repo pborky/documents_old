@@ -7,9 +7,10 @@
 
 struct payload * payloadinit(void) {
     struct payload * pay = malloc(sizeof(struct payload));
+    pay->isempty = true;
     pthread_mutex_init(&pay->mutex, NULL);
-    pay->isempty = false;
     pthread_cond_init(&pay->cond, NULL);
+    return pay;
 }
 void payloadput(struct payload * pay, void* data) {
     pthread_mutex_lock( &pay->mutex );
@@ -55,6 +56,10 @@ struct fifo * fifoinit (int size) {
 int fifoempty(struct fifo * f) {
    return(f->avl==0);
 }
+/*    full queue = 1 else 0*/
+int fifofull(struct fifo * f) {
+   return(f->avl==f->N-1);
+}
 /*free memmory*/
 void fifodestroy(struct fifo * f) {
    int i;
@@ -87,22 +92,43 @@ void* fifoget(struct fifo * f) {
    }   
 }
 /* ************************************************************************************** */
-/*
-int main(int argc,char* argv[]) {
-    struct fifo * f = fifoinit(10);
-    char * p = "Fooka"; fifoenter(f, (void*) p);
-    p = "Fooka2"; fifoenter(f, (void*) p);
-    p = "Fooka3"; fifoenter(f, (void*) p);
-    p = "Fooka4"; fifoenter(f, (void*) p);
 
-    for (int i = 0; i < 10; i++) {
-        if (!fifoempty(f)) {
-            printf("%s\n", (char*)fifoget(f));
-        } else {
-            printf("*** no data\n");
-        }
+struct payload * queueinit(void) {
+    struct payload * pay = malloc(sizeof(struct payload));
+    //pay->isempty = true;
+    pay->payload = (void*) fifoinit(50);
+    pthread_mutex_init(&pay->mutex, NULL);
+    pthread_cond_init(&pay->cond, NULL);
+    return pay;
+}
+void queueput(struct payload * pay, void* data) {
+    pthread_mutex_lock( &pay->mutex );
+    while (fifofull((struct fifo *)pay->payload)) {
+        pthread_cond_wait( &pay->cond, &pay->mutex );
+    }
+    fifoenter((struct fifo *)pay->payload, data);
+    
+    pthread_cond_signal( &pay->cond );
+    pthread_mutex_unlock( &pay->mutex );
+}
+
+void * queueget(struct payload * pay) {
+    pthread_mutex_lock( &pay->mutex );
+    while (fifoempty((struct fifo *)pay->payload)) {
+        pthread_cond_wait( &pay->cond, &pay->mutex );
     }
 
-    fifodestroy(f);
+    void* data = fifoget((struct fifo *)pay->payload);
+
+    pthread_cond_signal( &pay->cond );
+    pthread_mutex_unlock( &pay->mutex );
+    return data;
 }
-*/
+void createThread(pthread_t * thread, void *(*start_routine)(void*), struct threadarg * arg) {
+    int rc;
+    rc = pthread_create(thread, NULL, start_routine, arg);
+    if (rc) {
+        printf("ERROR; return code from pthread_create() is %d\n", rc);
+        exit(-1);
+    }
+}

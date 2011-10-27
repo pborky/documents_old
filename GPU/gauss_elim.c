@@ -6,8 +6,9 @@
 #include "matrices.h"
 #include "threading.h"
 
-#define NUM_THREADS 1 // počet vytvářených vláken
-#define MATRIX_DIM 3 
+#define NUM_THREADS 5 // počet vytvářených vláken
+#define MATRIX_DIM 10
+#define FILE_NAME "data.log"
 
 void generateRandLinEquations(struct matrix * mat) {
     if (mat->xdim != mat->ydim+1) {
@@ -27,40 +28,6 @@ void generateIncLinEquations(struct matrix * mat) {
         mat->flat[i] = abs(i-5);
     }
 }
-
-void print(void) {
-    
-    char name[20];
-    struct matrix * mat = getMatrix(MATRIX_DIM+1, MATRIX_DIM);
-
-    printf("%% script in GNU Octave/Matlab format.\n");
-    srand (time (0));
-    generateRandLinEquations(mat);   
-    getMatrixEchelon(mat);
-    rankMatrix(mat);
-    
-    if (mat->rka <= mat->rks) {
-        if (mat->rka < MATRIX_DIM) {
-            printMatrix(mat->orig, "M", "original");
-            printMatrix(mat, "Mt", "triangular form of matrix M");
-            printf("rk = %d; %% rank of the matrix M\n", mat->rks );
-            printf("%% rank < dimension => too many solutions.\n");
-        } else {
-            getMatrixDiagonal(mat);
-            printMatrix(mat->orig->orig, "M", "original");
-            printMatrix(mat->orig, "Mt", "triangular form of matrix M");
-            printf("rk = %d; %% rank of the matrix M\n", mat->rks );
-            printMatrix(mat->sol, "X", "solution vector");
-        }
-    } else {
-        printMatrix(mat->orig, "M", "original");
-        printMatrix(mat, "Mt", "triangular form of matrix M");
-        printf("rka = %d; %% rank of the augmented matrix M\n", mat->rka );
-        printf("rks = %d; %% rank of the square matrix M\n", mat->rks );
-        printf("%% rank of augmented matrix != rank of square matrix => no solution.\n");
-    }
-}
-
 void *GenMatricesThread(void * arg) {
     struct threadarg * targ = (struct threadarg *)arg;
     printf("%% Thread %ld: start.\n", targ->tid);
@@ -81,9 +48,9 @@ void *EchelonMatricesThread(void * arg) {
     printf("%% Thread %ld: start.\n", targ->tid);
     
     while (1) {
-        struct matrix * mat = (struct matrix *)payloadget(targ->in);
-        getMatrixEchelon(mat);
-        payloadput(targ->out, (void*)mat);
+        void* m = queueget(targ->in);
+        getMatrixEchelon((struct matrix *)m);
+        queueput(targ->out, m);
     }
     
     printf("%% Thread %ld: stop.\n", targ->tid);
@@ -95,22 +62,26 @@ void *RankMatricesThread(void * arg) {
     printf("%% Thread %ld: start.\n", targ->tid);
         
     while (1) {
-        struct matrix * mat = (struct matrix *)payloadget(targ->in);
-
-        int rka = getMatrixRank(mat, true);     //augmented rank
-        int rks = getMatrixRank(mat, false);    //square rank
+        void* m = queueget(targ->in);
+        struct matrix * mat = (struct matrix *)m;
+        rankMatrix(mat);
+        
+        int rka = mat->rka; //getMatrixRank(mat, true);     //augmented rank
+        int rks = mat->rks; //getMatrixRank(mat, false);    //square rank
         
         if (rka <= rks) {
-            printf("rk = %d; %% rank of the matrix M\n", rks );
+            //printf("rk = %d; %% rank of the matrix M\n", rks );
             if (rka < MATRIX_DIM) {
-                printf("%% rank < dimension => too many solutions.\n");
+                freeMatrix(mat);
+                //printf("%% rank < dimension => too many solutions.\n");
             } else {
-                payloadput(targ->out, (void*)mat);
+                payloadput(targ->out, m);
             }
         } else {
-            printf("rka = %d; %% rank of the augmented matrix M\n", rka );
+            freeMatrix(mat);
+            /*printf("rka = %d; %% rank of the augmented matrix M\n", rka );
             printf("rks = %d; %% rank of the square matrix M\n", rks );
-            printf("%% rank of augmented matrix != rank of square matrix => no solution.\n");
+            printf("%% rank of augmented matrix != rank of square matrix => no solution.\n");*/
         }
     }
     
@@ -121,58 +92,63 @@ void *RankMatricesThread(void * arg) {
 void *SolveMatricesThread(void * arg) {
     struct threadarg * targ = (struct threadarg *)arg;
     printf("%% Thread %ld: start.\n", targ->tid);
-        
+    int i = 0;
+    FILE * f = fopen(FILE_NAME, "w");
     while (1) {
-        struct matrix * mat = (struct matrix *)payloadget(targ->in);
-        getMatrixDiagonal(mat);
-        printMatrix(getMatrixCol(mat, mat->xdim-1), "X", "solution vector");
+        void* m = payloadget(targ->in);
+        struct matrix * mat = (struct matrix *)m;
+        getMatrixDiagonal((struct matrix *)mat);
+        fprintf(f, "%%%%\n\n%%%% Solution %d.\n", i++);
+        char name [100];
+        sprintf(name, "M%d", i);
+        printMatrix(f, mat->orig->orig, name, "Original matrix");
+        sprintf(name, "X%d", i);
+        printMatrix(f, getMatrixCol(mat, mat->xdim-1), name, "solution vector");
+        freeMatrix(mat);
     }
     
     printf("%% Thread %ld: stop.\n", targ->tid);
     pthread_exit(NULL); 
 }
 
-int main (int argc, char *argv[]) {
-    pthread_t * threads = malloc(sizeof(pthread_t)*4);
-
-    struct threadarg * arg = malloc(sizeof(struct threadarg)*4);
-    arg[0].tid = 0;
-    arg[0].in = NULL;
-    arg[0].out = payloadinit();
-    arg[1].tid = 1;
-    arg[1].in = arg[0].out;
-    arg[1].out = payloadinit();
-    arg[2].tid = 2;
-    arg[2].in = arg[1].out;
-    arg[2].out = payloadinit();
-    arg[3].tid = 3;
-    arg[3].in = arg[2].out;
-    arg[3].out = NULL;
-
-    int rc;
-
-    rc = pthread_create(& threads[0], NULL, GenMatricesThread, (void*) & arg[0]);
-    if (rc) {
-        printf("ERROR; return code from pthread_create() is %d\n", rc);
-        exit(-1);
-    }
-    rc = pthread_create(&threads[1], NULL, EchelonMatricesThread, (void*)&arg[1]);
-    if (rc) {
-        printf("ERROR; return code from pthread_create() is %d\n", rc);
-        exit(-1);
-    }
-    rc = pthread_create(&threads[2], NULL, RankMatricesThread, (void*)&arg[2]);
-    if (rc) {
-        printf("ERROR; return code from pthread_create() is %d\n", rc);
-        exit(-1);
-    }
-    rc = pthread_create(&threads[3], NULL, SolveMatricesThread, (void*)&arg[3]);
-    if (rc) {
-        printf("ERROR; return code from pthread_create() is %d\n", rc);
-        exit(-1);
-    }
+void *MasterMatricesThread(void * arg) {
+    struct threadarg * targ = (struct threadarg *)arg;
+    printf("%% Thread %ld: start.\n", targ->tid);
     
-    for (int i = 0; i < 4; i++) pthread_join(threads[i], NULL);
+    while (1) {
+        queueput(targ->out, payloadget(targ->in));
+    }
+   
+    printf("%% Thread %ld: stop.\n", targ->tid);
+    pthread_exit(NULL); 
+}
+
+int main (int argc, char *argv[]) {
+    struct threadarg * arg = malloc(sizeof(struct threadarg)*5);
+    for (int i = 0; i < 4; i++) arg[i].tid = i;
+    arg[0].in = NULL;
+    arg[3].out = NULL;
+    arg[0].out = arg[4].in = payloadinit();
+    arg[4].out = arg[1].in = queueinit();
+    arg[1].out = arg[2].in = queueinit();
+    arg[2].out = arg[3].in = payloadinit();
+    
+    pthread_t * threads = malloc(sizeof(pthread_t)*(5+NUM_THREADS));
+    createThread(& threads[0], GenMatricesThread, & arg[0]);
+    createThread(& threads[2], RankMatricesThread, & arg[2]);
+    createThread(& threads[3], SolveMatricesThread, & arg[3]);
+    // producer
+    createThread(& threads[4], MasterMatricesThread, & arg[4]);
+    // one default consumer
+    createThread(& threads[1], EchelonMatricesThread, & arg[1]);
+    //generate more consumer threads
+    for (int i = 0; i < NUM_THREADS; i++) createThread(& threads[5+i], EchelonMatricesThread, & arg[1]);
+    
+    // wait for threads stop
+    for (int i = 0; i < (5+NUM_THREADS); i++) pthread_join(threads[i], NULL);
+    
+    free(threads);
+    free(arg);
     
     pthread_exit(NULL);
 }
