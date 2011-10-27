@@ -66,22 +66,18 @@ void *RankMatricesThread(void * arg) {
         struct matrix * mat = (struct matrix *)m;
         rankMatrix(mat);
         
-        int rka = mat->rka; //getMatrixRank(mat, true);     //augmented rank
-        int rks = mat->rks; //getMatrixRank(mat, false);    //square rank
+        int rka = mat->rka; 
+        int rks = mat->rks; 
         
         if (rka <= rks) {
-            //printf("rk = %d; %% rank of the matrix M\n", rks );
             if (rka < MATRIX_DIM) {
                 freeMatrix(mat);
-                //printf("%% rank < dimension => too many solutions.\n");
             } else {
+                getMatrixDiagonal(mat);
                 payloadput(targ->out, m);
             }
         } else {
             freeMatrix(mat);
-            /*printf("rka = %d; %% rank of the augmented matrix M\n", rka );
-            printf("rks = %d; %% rank of the square matrix M\n", rks );
-            printf("%% rank of augmented matrix != rank of square matrix => no solution.\n");*/
         }
     }
     
@@ -97,7 +93,6 @@ void *SolveMatricesThread(void * arg) {
     while (1) {
         void* m = payloadget(targ->in);
         struct matrix * mat = (struct matrix *)m;
-        getMatrixDiagonal((struct matrix *)mat);
         fprintf(f, "%%%%\n\n%%%% Solution %d.\n", i++);
         char name [100];
         sprintf(name, "M%d", i);
