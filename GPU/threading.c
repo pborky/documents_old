@@ -8,22 +8,32 @@
 struct payload * payloadinit(void) {
     struct payload * pay = malloc(sizeof(struct payload));
     pthread_mutex_init(&pay->mutex, NULL);
-    pthread_cond_init(&pay->isempty, NULL);
-    pthread_cond_init(&pay->isfull, NULL);
+    pay->isempty = false;
+    pthread_cond_init(&pay->cond, NULL);
 }
 void payloadput(struct payload * pay, void* data) {
     pthread_mutex_lock( &pay->mutex );
-    pthread_cond_wait( &pay->isempty, &pay->mutex );
+    while (!pay->isempty) {
+        pthread_cond_wait( &pay->cond, &pay->mutex );
+    }
+
     pay->payload = data;
-    pthread_cond_signal( &pay->isfull );
+    pay->isempty = false;
+
+    pthread_cond_signal( &pay->cond );
     pthread_mutex_unlock( &pay->mutex );
 }
 
 void * payloadget(struct payload * pay) {
     pthread_mutex_lock( &pay->mutex );
-    pthread_cond_wait( &pay->isfull, &pay->mutex );
+    while (pay->isempty) {
+        pthread_cond_wait( &pay->cond, &pay->mutex );
+    }
+
     void* data = pay->payload;
-    pthread_cond_signal( &pay->isempty );
+    pay->isempty = true;
+
+    pthread_cond_signal( &pay->cond );
     pthread_mutex_unlock( &pay->mutex );
     return data;
 }

@@ -1,4 +1,11 @@
 #include <pthread.h>
+#include <stdbool.h>
+
+struct threadarg {
+    long tid;
+    struct payload * in;
+    struct payload * out;
+};
 
 struct fifo {
     void** table;
@@ -7,8 +14,8 @@ struct fifo {
 
 struct payload {
     void* payload;
-    pthread_cond_t isempty;
-    pthread_cond_t isfull;
+    bool isempty;
+    pthread_cond_t cond;
     pthread_mutex_t mutex;
 };
 
