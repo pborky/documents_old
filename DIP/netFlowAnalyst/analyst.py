@@ -32,7 +32,9 @@ class Main(object):
                 logger.debug('Loading filters..')
                 self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
             else:
+                logger.debug('Loading data..')
                 self.data = flows['data'][:]
+                logger.debug('Still loading data..')
                 self.dataLong = flows['dataLong'][:]
                 self.dataFields = dict([(k,flows['FIELDS'][k].value) for k in flows['FIELDS'].keys()])
                 self.dataFieldsLong = dict([(k,flows['FIELDS_LONG'][k].value) for k in flows['FIELDS_LONG'].keys()])
@@ -79,11 +81,12 @@ class Main(object):
             file2.close()
     
     def doFiltering(self):
-        if self.filtering is not None or self.filterData is not None: return
+        if self.filtering is not None and self.filterData is not None: return
         
         from numpy import array,ndarray,logical_and
         self.filtering = ndarray(shape=(len(self.data), len(self.filters)),dtype=bool)
         self.filtering[:] = False
+        logger.debug('Applying %d filters..' % len(self.filters))
         for f in range(len(self.filters)):
             results  = True
             for r in [
@@ -155,6 +158,7 @@ class Main(object):
         logger.debug( '** time = (%d, %d)' % (time.min(), time.max()))
         data = self.data[i,:]
         filtering = self.filtering[i,:]
+        logger.debug('Binning..')
         self.bins = self.binrecurse(time, lowBounds, upBounds, data, filtering, (time.min(), time.max()),0)
         return self.bins
 
