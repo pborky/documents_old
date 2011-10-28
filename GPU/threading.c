@@ -95,7 +95,7 @@ void* fifoget(struct fifo * f) {
 
 struct payload * queueinit(void) {
     struct payload * pay = malloc(sizeof(struct payload));
-    //pay->isempty = true;
+    pay->isempty = false;
     pay->payload = (void*) fifoinit(50);
     pthread_mutex_init(&pay->mutex, NULL);
     pthread_cond_init(&pay->cond, NULL);
