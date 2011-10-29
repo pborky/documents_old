@@ -38,7 +38,6 @@ class Main(object):
             self.filterData = None
 
             flows = file1['flows']            
-            self.protocols = dict([(k,flows['PROTOCOLS'][k].value) for k in flows['PROTOCOLS'].keys()])
             if 'bins' in flows.keys():
                 logger.info('Loading bins..')
                 self.bins = flows['bins']['data'][:]
@@ -47,6 +46,7 @@ class Main(object):
             else:
                 logger.info('Loading data..')
                 self.ipmap = flows['ipmap'][:]
+                self.protocols = dict([(k,flows['PROTOCOLS'][k].value) for k in flows['PROTOCOLS'].keys()])
                 self.data = flows['data'][:]
                 logger.info('Still loading data..')
                 self.dataLong = flows['dataLong'][:]
