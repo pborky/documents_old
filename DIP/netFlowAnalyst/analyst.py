@@ -178,7 +178,7 @@ class Main(object):
         self.bins = self.binrecurse(time, lowBounds, upBounds, data, filtering, (time.min(), time.max()),0)
         return self.bins
     
-    def saveBins(self, file)
+    def saveBins(self, file):
         import h5py
         
         f = h5py.File(name)
