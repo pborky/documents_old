@@ -265,12 +265,8 @@ if __name__ == '__main__':
     scheduler = Scheduler('SchedulerThread', [ 
                                   Do('LoadThread', main.load),
                                   Do('FilterThread', main.doFiltering),
-                                  Do('BinnerThread0', main.binning), #, Do('BinnerThread1', main.binning, fnc = lambda b,p: log(1+p))]
+                                  Do('BinnerThread0', main.binning), 
                                   Do('PloterThread0', main.plot) 
                               ])
     #scheduler.start()
 
-    from numpy import hanning
-    #from matplotlib.pyplot import figure
-    #main.spect()
-    #main.plot()
