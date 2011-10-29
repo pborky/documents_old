@@ -271,6 +271,6 @@ if __name__ == '__main__':
     #scheduler.start()
 
     from numpy import hanning
-    from matplotlib.pyplot import figure
+    #from matplotlib.pyplot import figure
     #main.spect()
     #main.plot()
