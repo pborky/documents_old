@@ -246,7 +246,7 @@ class Main(object):
         
 if __name__ == '__main__':
     import sys
-    logging.basicConfig(stream = sys.stderr, level ='DEBUG', format='%(asctime)s [%(levelname)s] %(threadName)s: %(message)s')
+    logging.basicConfig(stream = sys.stderr, level ='INFO', format='%(asctime)s [%(levelname)s] %(threadName)s: %(message)s')
     
     main = Main(sys.argv)
 
