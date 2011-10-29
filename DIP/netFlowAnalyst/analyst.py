@@ -182,7 +182,7 @@ class Main(object):
         import h5py
         f1 = h5py.File(name, 'w')
         try:
-            flows = f.create_group('flows')
+            flows = f1.create_group('flows')
             
             filters = flows.create_group('filters')
             filters.create_dataset('filterName', data = [ str(f['fileName']) for f in self.filters ] )
