@@ -177,8 +177,26 @@ class Main(object):
         logger.debug('Binning..')
         self.bins = self.binrecurse(time, lowBounds, upBounds, data, filtering, (time.min(), time.max()),0)
         return self.bins
-
-
+    
+    def saveBins(self, file)
+        import h5py
+        
+        f = h5py.File(name)
+        flows = f.create_group('flows')
+        
+        filters = flows.create_group('filters')
+        filters.create_dataset('filterName', data = [ str(f['fileName']) for f in self.filters ] )
+        filters.create_dataset('type', data = [ str(f['type']) for f in self.filters ] )
+        filters.create_dataset('annotations', data = [ str(f['annotations']) for f in self.filters ] )
+        
+        bins = flows.create_group('bins')
+        bins.create_dataset('lowBounds', data = self.binsBounds[:-1])
+        bins.create_dataset('upBounds', data = self.binsBounds[1:])
+        bins.create_dataset('bins', data = self.bins)
+        bins.create_dataset('time', data = self.time)
+        
+        f.close()
+    
     def spect(self, nfft = 8, overlap = 0, feature = 0):
         #specgram(main.bins[:,4,0], NFFT=128, noverlap=32)
         #[ (i, main.filterData['type'][i], int(main.bins[:,i,1].sum(0)), main.filterData['annotation'][i][:15], main.filterData['filterName'][i][:15]) for i in range(50) if main.bins[:,i,1].sum(0)>0 ]
