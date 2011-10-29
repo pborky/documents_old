@@ -13,6 +13,18 @@ class Main(object):
         self.filtering = None
         self.filterData = None
         self.bins = None
+        logger.debug('args: '+ str(argv))
+        for i in range(1,len(argv),2):
+            if argv[i] == 'binWidth':
+                self.binWidth = int(argv[i+1])
+            if argv[i] == 'flowsFile':
+                self.flowsFile = argv[i+1]
+            if argv[i] == 'filterFile':
+                self.filterFile = argv[i+1]
+        logger.info('binWidth = %d' % self.binWidth)
+        logger.info('flowsFile = %s' % self.flowsFile)
+        logger.info('filterFile = %s' % self.filterFile)
+
     
     def load(self):
         import json
@@ -23,26 +35,31 @@ class Main(object):
         file1 = h5py.File(self.flowsFile)
         file2 = io.open(self.filterFile)
         try:
+            self.filters = None
+
             flows = file1['flows']
             self.ipmap = flows['ipmap'][:]
             self.protocols = dict([(k,flows['PROTOCOLS'][k].value) for k in flows['PROTOCOLS'].keys()])
             if 'bins' in flows.keys():
-                logger.debug('Loading bins..')
+                logger.info('Loading bins..')
                 self.bins = flows['bins']['data'][:]
-                logger.debug('Loading filters..')
+                logger.info('Loading filters..')
+                self.filters = flows['filters'][:]
                 self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
             else:
-                logger.debug('Loading data..')
+                logger.info('Loading data..')
                 self.data = flows['data'][:]
-                logger.debug('Still loading data..')
+                logger.info('Still loading data..')
                 self.dataLong = flows['dataLong'][:]
                 self.dataFields = dict([(k,flows['FIELDS'][k].value) for k in flows['FIELDS'].keys()])
                 self.dataFieldsLong = dict([(k,flows['FIELDS_LONG'][k].value) for k in flows['FIELDS_LONG'].keys()])
                 if 'filtering' in flows.keys():
+                    logger.info('Loading filters..')
                     self.filtering = flows['filtering'][:]
+                    self.filters = flows['filters'][:]
                     self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
              
-            if self.filtering is not None: return
+            if self.filters is not None: return
             
             self.filters = json.load(file2)
             for k in range(len(self.filters)):
@@ -212,9 +229,10 @@ class Main(object):
         
 if __name__ == '__main__':
     import sys
-    main = Main(sys.argv)
-    logging.basicConfig(stream = sys.stderr, level ='INFO', format='%(asctime)s [%(levelname)s] %(threadName)s: %(message)s')
+    logging.basicConfig(stream = sys.stderr, level ='DEBUG', format='%(asctime)s [%(levelname)s] %(threadName)s: %(message)s')
     
+    main = Main(sys.argv)
+
     from threading import Thread,currentThread
     class Scheduler(Thread):
         def __init__(self, name, actions):
@@ -245,12 +263,13 @@ if __name__ == '__main__':
             try: self._target()
             finally: logger.info( "*** Done. ***")
     from numpy import log
-    Scheduler('SchedulerThread', [ 
+    scheduler = Scheduler('SchedulerThread', [ 
                                   Do('LoadThread', main.load),
                                   Do('FilterThread', main.doFiltering),
                                   Do('BinnerThread0', main.binning), #, Do('BinnerThread1', main.binning, fnc = lambda b,p: log(1+p))]
                                   Do('PloterThread0', main.plot) 
-                              ]).start()
+                              ])
+    #scheduler.start()
 
     from numpy import hanning
     from matplotlib.pyplot import figure
