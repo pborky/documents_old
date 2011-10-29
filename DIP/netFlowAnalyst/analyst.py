@@ -1,4 +1,3 @@
-
 import logging
 logger = logging.getLogger()
 
@@ -165,7 +164,7 @@ class Main(object):
         if self.bins is not None: return
         from numpy import ndarray,array,log,log2,power
         time = self.dataLong[:,0]
-        self.binsBounds = array(range(time.min(),time.max(),Main.BIN_WIDTH))
+        self.binsBounds = array(range(time.min(),time.max(),self.binWidth))
         n = int(power(2,int(log2(len(self.binsBounds))))) # ensure power-of-2
         self.binsBounds = self.binsBounds[:n+1]
         lowBounds = self.binsBounds[:-1]
