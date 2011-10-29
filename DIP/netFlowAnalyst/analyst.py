@@ -180,22 +180,22 @@ class Main(object):
     
     def saveBins(self, name):
         import h5py
-        
-        f = h5py.File(name, 'w')
-        flows = f.create_group('flows')
-        
-        filters = flows.create_group('filters')
-        filters.create_dataset('filterName', data = [ str(f['fileName']) for f in self.filters ] )
-        filters.create_dataset('type', data = [ str(f['type']) for f in self.filters ] )
-        filters.create_dataset('annotation', data = [ str(f['annotation']) for f in self.filters ] )
-        
-        bins = flows.create_group('bins')
-        bins.create_dataset('lowBounds', data = self.binsBounds[:-1])
-        bins.create_dataset('upBounds', data = self.binsBounds[1:])
-        bins.create_dataset('bins', data = self.bins)
-        bins.create_dataset('time', data = self.time)
-        
-        f.close()
+        f1 = h5py.File(name, 'w')
+        try:
+            flows = f.create_group('flows')
+            
+            filters = flows.create_group('filters')
+            filters.create_dataset('filterName', data = [ str(f['fileName']) for f in self.filters ] )
+            filters.create_dataset('type', data = [ str(f['type']) for f in self.filters ] )
+            filters.create_dataset('annotation', data = [ str(f['annotation']) for f in self.filters ] )
+            
+            bins = flows.create_group('bins')
+            bins.create_dataset('lowBounds', data = self.binsBounds[:-1])
+            bins.create_dataset('upBounds', data = self.binsBounds[1:])
+            bins.create_dataset('bins', data = self.bins)
+            bins.create_dataset('time', data = self.time)
+        finally:
+            f1.close()
     
     def spect(self, nfft = 8, overlap = 0, feature = 0):
         #specgram(main.bins[:,4,0], NFFT=128, noverlap=32)
