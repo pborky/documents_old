@@ -170,7 +170,7 @@ class Main(object):
         lowBounds = self.binsBounds[:-1]
         upBounds = self.binsBounds[1:]
         i = time<=upBounds.max()
-        self.time = time[i]
+        self.time = time = time[i]
         logger.debug( '** time = (%d, %d)' % (time.min(), time.max()))
         data = self.data[i,:]
         filtering = self.filtering[i,:]
@@ -178,16 +178,16 @@ class Main(object):
         self.bins = self.binrecurse(time, lowBounds, upBounds, data, filtering, (time.min(), time.max()),0)
         return self.bins
     
-    def saveBins(self, file):
+    def saveBins(self, name):
         import h5py
         
-        f = h5py.File(name)
+        f = h5py.File(name, 'w')
         flows = f.create_group('flows')
         
         filters = flows.create_group('filters')
         filters.create_dataset('filterName', data = [ str(f['fileName']) for f in self.filters ] )
         filters.create_dataset('type', data = [ str(f['type']) for f in self.filters ] )
-        filters.create_dataset('annotations', data = [ str(f['annotations']) for f in self.filters ] )
+        filters.create_dataset('annotation', data = [ str(f['annotation']) for f in self.filters ] )
         
         bins = flows.create_group('bins')
         bins.create_dataset('lowBounds', data = self.binsBounds[:-1])
