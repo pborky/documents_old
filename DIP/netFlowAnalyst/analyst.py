@@ -170,7 +170,7 @@ class Main(object):
         lowBounds = self.binsBounds[:-1]
         upBounds = self.binsBounds[1:]
         i = time<=upBounds.max()
-        time = time[i]
+        self.time = time[i]
         logger.debug( '** time = (%d, %d)' % (time.min(), time.max()))
         data = self.data[i,:]
         filtering = self.filtering[i,:]
