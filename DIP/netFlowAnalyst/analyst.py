@@ -192,7 +192,7 @@ class Main(object):
             bins = flows.create_group('bins')
             bins.create_dataset('lowBounds', data = self.binsBounds[:-1])
             bins.create_dataset('upBounds', data = self.binsBounds[1:])
-            bins.create_dataset('bins', data = self.bins)
+            bins.create_dataset('data', data = self.bins)
             bins.create_dataset('time', data = self.time)
         finally:
             f1.close()
