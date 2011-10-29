@@ -35,6 +35,7 @@ class Main(object):
         file2 = io.open(self.filterFile)
         try:
             self.filters = None
+            self.filterData = None
 
             flows = file1['flows']
             self.ipmap = flows['ipmap'][:]
@@ -43,7 +44,6 @@ class Main(object):
                 logger.info('Loading bins..')
                 self.bins = flows['bins']['data'][:]
                 logger.info('Loading filters..')
-                self.filters = flows['filters'][:]
                 self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
             else:
                 logger.info('Loading data..')
@@ -58,7 +58,7 @@ class Main(object):
                     self.filters = flows['filters'][:]
                     self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
              
-            if self.filters is not None: return
+            if self.filters is not None or self.filterData is not None: return
             
             self.filters = json.load(file2)
             for k in range(len(self.filters)):
