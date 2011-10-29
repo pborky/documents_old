@@ -8,10 +8,18 @@ define(`PERCEIVE', `
         X = sensor.posX; 
         Y = sensor.posY;
         c = sensor.cells.clone();
-        return true;  
+        return true;
     }]
     then {
-      update beliefs (X,Y,c) [{ 
+      update beliefs (X,Y,c) [{
+        if (lastX == null || lastY == null) {
+          lastX = X; lastY = Y;
+        } else {
+          if (lastX != X || lastY != Y) {
+            PRINT(`"my position: [" + (X) + ", " + (Y) + "]" ');
+            lastX = X; lastY = Y;
+          } 
+        }
         currPos = new Pair(X, Y);
         view = new HashMap();
         for (java.util.Map.Entry entry : c.entrySet()) {

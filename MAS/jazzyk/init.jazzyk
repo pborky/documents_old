@@ -44,6 +44,12 @@ define(`INIT_BELIEFS',`
   String recvMsg = null;
   String sendMsg = null;
   String lastMsg = null;
+  
+  lastX = null;
+  lastY = null;
+  lastGoal = null;
+  lastGoalAcurate = 0;
+  moved = false;
 ')
 
 define(`INIT', `

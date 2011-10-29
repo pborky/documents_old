@@ -1,5 +1,21 @@
 define(`DELIBERATE', `
   {
+    // if we moved after last goal reached, fix it
+    when query beliefs [{ lastGoal != null }]
+    then {      
+      when query beliefs [{ !currPos.equals(lastGoal) }]
+      then {
+        when query beliefs (goal) [{ goal = lastGoal; }]
+        then {
+          update goals (goal) [{
+            PRINT(`"adding again a goal: ["+goal.getLeft()+","+goal.getRight()+"]"');
+            goals.add(new Pair(goal,""));
+          }],
+          update beliefs [{ lastGoal = null; lastGoalAcurate = 0; }]
+        }
+      }
+    },
+    
     // add initial position as last goal
     when query beliefs [{ !initPosAsLastGoal }] 
     then {
@@ -35,6 +51,11 @@ define(`DELIBERATE', `
             when query beliefs (rule) [{ rule.isEmpty() }]
             // if not, remove the goal
             then {
+              when query goals [{ goals.size() == 1 }]
+              then update beliefs (Xg, Yg) [{
+                PRINT(`"last goal!!"');
+                lastGoal = new Pair(Xg, Yg);
+              }],
               update goals (Xg, Yg) [{
                 PRINT(`"fulfilled goal goto ["+Xg+", "+Yg+"]"');
                 goals.removeFirst();
