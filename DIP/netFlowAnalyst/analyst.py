@@ -35,18 +35,18 @@ class Main(object):
         file2 = io.open(self.filterFile)
         try:
             self.filters = None
+            self.filterData = None
 
-            flows = file1['flows']
-            self.ipmap = flows['ipmap'][:]
-            self.protocols = dict([(k,flows['PROTOCOLS'][k].value) for k in flows['PROTOCOLS'].keys()])
+            flows = file1['flows']            
             if 'bins' in flows.keys():
                 logger.info('Loading bins..')
                 self.bins = flows['bins']['data'][:]
                 logger.info('Loading filters..')
-                self.filters = flows['filters'][:]
                 self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
             else:
                 logger.info('Loading data..')
+                self.ipmap = flows['ipmap'][:]
+                self.protocols = dict([(k,flows['PROTOCOLS'][k].value) for k in flows['PROTOCOLS'].keys()])
                 self.data = flows['data'][:]
                 logger.info('Still loading data..')
                 self.dataLong = flows['dataLong'][:]
@@ -58,7 +58,7 @@ class Main(object):
                     self.filters = flows['filters'][:]
                     self.filterData = dict((k,flows['filters'][k][:]) for k in flows['filters'].keys())
              
-            if self.filters is not None: return
+            if self.filters is not None or self.filterData is not None: return
             
             self.filters = json.load(file2)
             for k in range(len(self.filters)):
@@ -170,15 +170,33 @@ class Main(object):
         lowBounds = self.binsBounds[:-1]
         upBounds = self.binsBounds[1:]
         i = time<=upBounds.max()
-        time = time[i]
+        self.time = time[i]
         logger.debug( '** time = (%d, %d)' % (time.min(), time.max()))
         data = self.data[i,:]
         filtering = self.filtering[i,:]
         logger.debug('Binning..')
         self.bins = self.binrecurse(time, lowBounds, upBounds, data, filtering, (time.min(), time.max()),0)
         return self.bins
-
-
+    
+    def saveBins(self, file):
+        import h5py
+        
+        f = h5py.File(name)
+        flows = f.create_group('flows')
+        
+        filters = flows.create_group('filters')
+        filters.create_dataset('filterName', data = [ str(f['fileName']) for f in self.filters ] )
+        filters.create_dataset('type', data = [ str(f['type']) for f in self.filters ] )
+        filters.create_dataset('annotations', data = [ str(f['annotations']) for f in self.filters ] )
+        
+        bins = flows.create_group('bins')
+        bins.create_dataset('lowBounds', data = self.binsBounds[:-1])
+        bins.create_dataset('upBounds', data = self.binsBounds[1:])
+        bins.create_dataset('bins', data = self.bins)
+        bins.create_dataset('time', data = self.time)
+        
+        f.close()
+    
     def spect(self, nfft = 8, overlap = 0, feature = 0):
         #specgram(main.bins[:,4,0], NFFT=128, noverlap=32)
         #[ (i, main.filterData['type'][i], int(main.bins[:,i,1].sum(0)), main.filterData['annotation'][i][:15], main.filterData['filterName'][i][:15]) for i in range(50) if main.bins[:,i,1].sum(0)>0 ]
@@ -228,7 +246,7 @@ class Main(object):
         
 if __name__ == '__main__':
     import sys
-    logging.basicConfig(stream = sys.stderr, level ='DEBUG', format='%(asctime)s [%(levelname)s] %(threadName)s: %(message)s')
+    logging.basicConfig(stream = sys.stderr, level ='INFO', format='%(asctime)s [%(levelname)s] %(threadName)s: %(message)s')
     
     main = Main(sys.argv)
 
@@ -265,12 +283,8 @@ if __name__ == '__main__':
     scheduler = Scheduler('SchedulerThread', [ 
                                   Do('LoadThread', main.load),
                                   Do('FilterThread', main.doFiltering),
-                                  Do('BinnerThread0', main.binning), #, Do('BinnerThread1', main.binning, fnc = lambda b,p: log(1+p))]
+                                  Do('BinnerThread0', main.binning), 
                                   Do('PloterThread0', main.plot) 
                               ])
     #scheduler.start()
 
-    from numpy import hanning
-    #from matplotlib.pyplot import figure
-    #main.spect()
-    #main.plot()
