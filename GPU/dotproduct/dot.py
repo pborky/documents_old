@@ -43,15 +43,16 @@ kernel void dot_prod (
     local %(TYPE)s prod_l[%(LOCAL_SIZE)d];
     /*global %(TYPE)s test [%(CACHE_SIZE)d];*/
     
-    size_t l, reduced_size;
-    for (l = reduced_size = bcount;; l /= bsize) {
-        if (l > 0 && bid >= l) break;
-        if (l == 0 && bid > 0) break;
+    for (size_t l =  bcount, bcont_reduced = bcount;; l /= bsize) {
+        if ((l > 0) && (bid >= l)) return;
+        if ((l == 0) && (bid > 0)) return;
         
         if (l == bcount) {
             prod_l[lid] = ((lid+bid*bsize) >= n) ? 0 : (a[lid+bid*bsize] * b[lid+bid*bsize]);
+        } else if (l == 0) {
+            prod_l[lid] = (lid >= bcont_reduced) ? 0 : cache[lid+bid*bsize];
         } else {
-            prod_l[lid] = (l == 0 && lid >= reduced_size) ? 0 : cache[lid+bid*bsize];
+            prod_l[lid] = cache[lid+bid*bsize];
         }
         for (uint k = bsize>>1; k > 0; k >>=1) {
             barrier(CLK_LOCAL_MEM_FENCE);
@@ -62,13 +63,14 @@ kernel void dot_prod (
         if (lid == 0) {
             if (l > 1) {
                 cache[bid] = prod_l[0];
-                barrier(CLK_GLOBAL_MEM_FENCE);
             } else {
-                *(c) = prod_l[0];
+                *c = prod_l[0];
             }
         }
-        if (l <= 1) break;
-        reduced_size = l;
+        return;
+        if (l <= 1) return;
+        bcont_reduced = l;
+        barrier(CLK_GLOBAL_MEM_FENCE);
     }
 }
 """ % {
@@ -82,10 +84,13 @@ print SRC
 prg = cl.Program(ctx, SRC).build()
 kernel = prg.dot_prod
 
+cache = cl.Buffer(ctx, mf.WRITE_ONLY, x.nbytes)
+
+
 kernel.set_args(a_buf, b_buf, c_buf, np.uint32(NDATA), cache)
 e = cl.enqueue_nd_range_kernel(queue, kernel, GLOBAL_SIZE, LOCAL_SIZE)
-cl.enqueue_copy(queue, c, c_buf, wait_for=(e,))
-cl.enqueue_copy(queue, x, cache, wait_for=(e,))
+cl.enqueue_copy(queue, c, c_buf, wait_for=(e,), is_blocking= True)
+cl.enqueue_copy(queue, x, cache, wait_for=(e,), is_blocking= True)
 
 print (c - np.dot(a,b)) / c
 print (x[0]-np.dot(a,b))/x[0]
