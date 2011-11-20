@@ -20,7 +20,7 @@ class PrefixSum:
     def get_global(self, grid):
         return (grid[0]*self.localDims[0], grid[1]*self.localDims[1], grid[2]*self.localDims[2])
     
-    def __init__(self, fileName, localDims, listFile = False ):
+    def __init__(self, fileName, localDims, listFile = False, ctx = None ):
         import pyopencl as cl
         import numpy as np
         import io
@@ -30,8 +30,10 @@ class PrefixSum:
         
         mf = cl.mem_flags
         
-        self.ctx = cl.create_some_context(interactive=False, answers=0)
-        #self.ctx = cl.Context(devices=cl.get_platforms()[1].get_devices())
+        if ctx is None:
+            self.ctx = cl.create_some_context(interactive=False, answers=0)
+        else:
+            self.ctx = ctx
         self.queue = cl.CommandQueue(self.ctx, properties = cl.command_queue_properties.PROFILING_ENABLE)
         
         f = io.open(fileName)
@@ -46,7 +48,7 @@ class PrefixSum:
         src += lines
         src = ''.join(src)
         
-        print src
+        if listFile: print src
         self.prg = cl.Program(self.ctx, src).build()
 
     def filterPrepare(self, e, data, keys, ndata, events):
@@ -257,11 +259,11 @@ class PrefixSum:
 def listFile(FILE_NAME):
     ps = PrefixSum(fileName = FILE_NAME, localDims = (1,1,1), listFile = True)
 
-def test(FILE_NAME, NDATA,LOCAL_DIMS):
+def test(FILE_NAME,LOCAL_DIMS, DEVICE, NDATA):
     import numpy as np
     import pyopencl as cl
     
-    ps = PrefixSum(fileName = FILE_NAME, localDims = LOCAL_DIMS)
+    ps = PrefixSum(fileName = FILE_NAME, localDims = LOCAL_DIMS, ctx = DEVICE)
     
     data = np.random.rand(NDATA).astype(PrefixSum.HOST_TYPE_DATA)
     keys = (np.random.rand(NDATA)*100).astype(PrefixSum.HOST_TYPE_KEYS)
@@ -273,6 +275,7 @@ def test(FILE_NAME, NDATA,LOCAL_DIMS):
     
     # tests #
     print "\n\n*** NDATA = %d ***" % NDATA
+    print "*** FILE_NAME = %s ***" % FILE_NAME
     print "*** LOCAL_SIZE = %d ***" % ps.localSize
     print "*** TEST ***"
     if PrefixSum.RETURN_FILTER == 1:
@@ -354,11 +357,18 @@ if __name__ == '__main__':
         if sys.argv[2] == 'list': 
             listFile(sys.argv[1])
             sys.exit(0)
-        else: args += int(sys.argv[2]) ,
-    else: args += int(np.exp2(23)) + 101 ,
-        
-    if len(sys.argv) > 3: args += (int(sys.argv[3]), 1, 1) ,
+        else: args += (int(sys.argv[2]), 1, 1) ,
     else: args += (64,1,1) ,
         
+    if len(sys.argv) > 3: 
+        if sys.argv[3] == 'man':
+            import pyopencl as cl
+            args += cl.create_some_context(),
+        else: args += None ,
+    else: args += None ,
+
+    if len(sys.argv) > 4: args += int(sys.argv[4]) ,
+    else: args += 8388709 ,
+    
     test(*args)
 
