@@ -304,7 +304,6 @@ class Main(object):
                 edges += Edge(last, v),
                 last = v
             self.solutionsA += Graph(edges, verticles, self.g.attributes),
-        sol2tuple = lambda sol: [ tuple( (v.row, v.col) for v in s) for s in sol ]
         self.solutionsB = self.permutations(self.g.filter(VertexKind.DANGER), self.g.attributes['thiefs'])
         print 'AGENT:'
         i = 1
@@ -342,10 +341,13 @@ class Main(object):
         for b in self.solutionsB:
             print 'B%d: %s' % (i, '<no data, i`m so sorry>')
             i += 1
-        print 'SOLUTION_VALUE: %s' % '<no data, i`m so sorry>'
+        print '\nSOLUTION_VALUE: %s' % '<no data, i`m so sorry>'
 if __name__ == '__main__':
     import sys
-    argv = [None, '-f', 'example.in' ] #sys.argv
+    if len(sys.argv) > 1: 
+        argv = [None, '-f',  sys.argv[1] ]
+    else:
+        argv = [None, '-f', '-' ]
     main = Main(argv)
     main.run()
     
