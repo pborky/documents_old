@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 class VertexKind(object):
     GOLD    = 0x01
     BARRIER = 0x02
@@ -8,26 +9,26 @@ class VertexKind(object):
     DANGER  = 0x20
     
     @classmethod
-    def to_string(cls, val):
-        if not isinstance(val, int):
+    def to_string(cls, value):
+        if not isinstance(value, int):
             raise TypeError('Expecting integer argument')
-        ret = [ k for (k,v) in cls.__dict__.iteritems() if v == val ]
-        if len(ret) == 0: return None
-        else: return ret[0]
+        result = [ k for (k,v) in cls.__dict__.iteritems() if v == value ]
+        if len(result) == 0: return None
+        else: return result[0]
     
-    def __init__(self, val):
-        if VertexKind.to_string(val) is None:
+    def __init__(self, value):
+        if VertexKind.to_string(value) is None:
             raise TypeError('Unknown token kind')
-        self.val = val
+        self.value = value
     def __str__(self):
-        return '%s' % VertexKind.to_string(self.val)
+        return '%s' % VertexKind.to_string(self.value)
     def __repr__(self):
         return '<VertexKind %s>' % str(self)
     def __eq__(self, other):
         if isinstance(other, int):
-            return self.val == other
+            return self.value == other
         elif isinstance(other, VertexKind):
-            return self.val == other.val
+            return self.value == other.value
         else:
             raise TypeError('Wrong comparison')
 
@@ -257,11 +258,29 @@ class Main(object):
         for v in ( e.other(vertex) for e in vertex.edges ):
             result |= self.dfs(graph, v, visited, solutions)
         return result
-    def combinations(self, verticles, select):
-        pass
+    def permutations(self, universe, select):
+        # verticles - universe to select from
+        # select - number of elements in each subset
+        if len(universe) < select or select == 0:
+            return ([],)
+        if len(universe) == select:
+            return (universe[:],)
+        solutions = []
+        for i in xrange(len(universe)-select+1):
+             for s in self.permutations(universe[i+1:], select-1):
+                s.insert(0, universe[i])
+                solutions += (s,)
+        return solutions
+    def util(self, accuracy, attackers, gems):
+        import math
+        return math.pow((1-accuracy), attackers)*gems
     def run(self):
         import io
-        f = io.open(self.kwargs['fileName'][0], 'r')
+        if self.kwargs['fileName'][0] == '-':
+            import sys
+            f = sys.stdin
+        else:
+            f = io.open(self.kwargs['fileName'][0], 'r')
         try:
             p = Parser(f)
             self.g = p.graph()
@@ -271,7 +290,7 @@ class Main(object):
             self.g.drop(v)
         self.g.attributes['ignore'] = VertexKind.EMPTY,
         start = self.g.filter(VertexKind.START, Vertex)
-        self.solutions = []
+        self.solutionsA = []
         solutions = []
         for v in start:
             self.dfs(self.g, v, [], solutions)
@@ -284,12 +303,50 @@ class Main(object):
                 v = iterate.pop(0)
                 edges += Edge(last, v),
                 last = v
-            self.solutions += Graph(edges, verticles, self.g.attributes),
-        self.a = [ tuple( (v.row, v.col) for v in s.verticles ) for s in self.solutions ]
-        self.b = self.combinations(self.g.filter(VertexKind.DANGER), self.g.attributes['thiefs'])
-        
+            self.solutionsA += Graph(edges, verticles, self.g.attributes),
+        sol2tuple = lambda sol: [ tuple( (v.row, v.col) for v in s) for s in sol ]
+        self.solutionsB = self.permutations(self.g.filter(VertexKind.DANGER), self.g.attributes['thiefs'])
+        print 'AGENT:'
+        i = 1
+        for a in self.solutionsA:
+            print 'A%d: %s' % (i, str(tuple( (v.row, v.col) for v in a.verticles) ))
+            i += 1
+        print '\nATTACKER:'
+        i = 1
+        for b in self.solutionsB:
+            print 'B%d: %s' % (i, str(tuple( (v.row, v.col) for v in b)))
+            i += 1
+        accuracy = self.g.attributes['accuracy']
+        s = '\nAGENT\ATTACKER |'
+        for i in range(len(self.solutionsB)):
+            s += ' B%-7d |' % (i+1)
+        print s
+        print '----------------' + ('-----------'*(len(self.solutionsB)))
+        i = 1
+        for a in self.solutionsA:
+            s = 'A%-13d |' % i
+            for b in self.solutionsB:
+                attackers = [v for v in a.filter(kind=VertexKind.DANGER) if v in b]
+                gems = a.filter(kind=VertexKind.GOLD)
+                s += ' %*.4f |' % (8, self.util(accuracy, len(attackers), 10+len(gems)))
+            i += 1
+            print s
+        print '----------------' + ('-----------'*(len(self.solutionsB)))
+        print '\nSOLUTION_AGENT:'
+        i = 1
+        for a in self.solutionsA:
+            print 'A%d: %s' % (i, '<no data, i`m so sorry>')
+            i += 1
+        print '\nSOLUTION_ATTACKER:'
+        i = 1
+        for b in self.solutionsB:
+            print 'B%d: %s' % (i, '<no data, i`m so sorry>')
+            i += 1
+        print 'SOLUTION_VALUE: %s' % '<no data, i`m so sorry>'
 if __name__ == '__main__':
     import sys
-    main = Main(sys.argv)
+    argv = [None, '-f', 'example.in' ] #sys.argv
+    main = Main(argv)
     main.run()
+    
 
