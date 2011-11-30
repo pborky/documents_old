@@ -307,7 +307,6 @@ class Main(object):
                 edges += Edge(last, v),
                 last = v
             self.solutionsA += Graph(edges, verticles, self.g.attributes),
-        sol2tuple = lambda sol: [ tuple( (v.row, v.col) for v in s) for s in sol ]
         self.solutionsB = self.permutations(self.g.filter(VertexKind.DANGER), self.g.attributes['thiefs'])
         
         u = {};

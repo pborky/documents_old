@@ -1,0 +1,31 @@
+1. Pure stratégia Ai hráča A je sekvencia vrcholov, ktorými sa dostane do cieľa. 
+2. Pure stratégia Bi hráča B je podmnožia z množiny všetkých vrcholov v kde platí
+Danger(v). Kardinalita tejto podmnožiny je datá na predposledom riadku vstupu. 
+Všetky stratégie hráča sú kombinácie bez opakovania množniny vrcholov Danger(v). 
+
+axiom: [ \forall v : Danger(v) <=> HasCharacterOnMap(v,'E') ]
+
+Utilita hráča A u(Ai,Bi) je stredná hodnota bodového zisku pri súčasnej voľbe 
+stratégie Ai a Bi oboma hráčmi. Utilita hráča B je -u(Ai,Bi). Maximálny bodový zisk 
+hráča A je rovný g=10+|{ v : \forall v : Gem(v) & v \in Ai }|, minimálny zisk je 0. 
+Počet útočníkov na trase Ai je k=|{ v : \forall v : Danger(v) & v \in (Ai \intersect Bi)}|.
+Pravdepodobnosť, že agent A získa max bodov je Pz(Ai,Bi) = ((1-P)^k), minimum 
+získa s pravdepodobnosťou 1-Pz(Ai,Bi), kde pravdepodobnosť úspešného útoku - P.
+
+axiom: [ \forall v : Gem(v) <=> HasCharacterOnMap(v,'G') ]
+
+Jedná sa o alternatívne rozdelenie a teda utilita je 
+
+u(Ai,Bi) = gi * Pz(Ai,Bi) = gi * (1-P)^ki
+
+Ai - množina vrcholov po ktorých pôjde hráč A do cieľa v danej stratégii i,
+Bi - množina vrcholov kde bude umiestnený kriminálnik v danej stratégii i,
+gi - počet gemov na ceste + body za dosiahnutie cieľa v danej stratégii i,
+P - úspešnosť kriminálnika,
+ki - počet kriminálnikov umiestnených na ceste Ai v danej stratégii i.
+
+K výpočtu mixovanej stratégie bude potrebné doimplementovať solver a vygenerovať správne rovnice.
+Hráč A bude svoje stratégie randomizovať tak, aby utility hráča B boli rovné pre všetky 
+stratégie hráča B. T.j. bude potrebné určiť pravdepodobnosti voľby jednotlivých stratégií Ai - 
+Pa(Ai).  Obdobne bude ťahať hráč B. Hodnota hry bude stredná hodnota utility u - 
+tj pravdepodobne k = mean( Pa(Ai)Pb(Bi)u(Ai,Bi) ) ?
