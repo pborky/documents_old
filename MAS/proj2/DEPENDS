@@ -1,0 +1,34 @@
+dependencies:
+
+ * GLPK, GLPK headers (glpk-dev)
+ * pyMatProg 
+    - http://pymprog.sourceforge.net/
+    - encasulates of glpk provides easy interface
+    - http://kent.dl.sourceforge.net/project/pymprog/pymprog-0.4/pympl.4.2.tgz
+    - it includes pyglpk
+    - how to setup:
+      mkdir /tmp/pympl/;  tar xvpf Downloads/pympl.4.2.tgz -C /tmp/pympl/
+      cd /tmp/pympl/
+      sudo python setup.py install
+      cd ~/; rm /tmp/pympl/ -rf
+    - in case of problems I`ll rewrite it and use only pyglpk
+
+examle of usage:
+        import pymprog as mp
+        # start model and define variables
+        mp.beginModel('game')
+        v = mp.var(name='game_value', bounds=(None,None)) #free
+        p = mp.var(range(len(self.solutionsB)), 'probab')
+        
+        # minimze v
+        mp.minimize(v)
+        
+        # subject to ..
+        mp.st( sum(p[i] for i in p) == 1) # prob sums to 1
+        r = [ mp.st(v >= sum(util[row,col]*p[col] 
+                    for col in p)) for row in xrange(len(self.solutionsA)) 
+            ]
+        
+        # solve
+        mp.solve()
+

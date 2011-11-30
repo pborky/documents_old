@@ -340,19 +340,13 @@ class Main(object):
         import pymprog as mp
 
         mp.beginModel('game')
-        # the gain of player A
         v = mp.var(name='game_value', bounds=(None,None)) #free
-        # mixed strategy of player B
-        p = mp.var([i for i in xrange(len(self.solutionsB))], 'prob')
-        # player B wants to minimize v
+        p = mp.var(range(len(self.solutionsB)), 'prob')
         mp.minimize(v)
-        # probability sums to 1
         mp.st( sum(p[i] for i in p) == 1)
-        # player A plays the best strat.
-        r = []
-        for row in xrange(len(self.solutionsA)):
-            r += mp.st(v >= sum(u[row,col]*p[col] for col in p)),
-        self.var = { 'v':v, 'r':r, 'p':p }
+        r = [ mp.st(v >= sum(u[row,col]*p[col] 
+                    for col in p)) for row in xrange(len(self.solutionsA)) 
+            ]
         mp.solve()
         print '\nSOLUTION_AGENT:'
         for i in xrange(len(r)):
