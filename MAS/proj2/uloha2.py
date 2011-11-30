@@ -204,10 +204,10 @@ class Parser:
         return Graph(edges, verticles, self.attributes)
 
 class Main(object):
-    ARGS = [('fileName', str), ('test', )]
-    KW_ARGS = {'--file': 0, '-f': 0, }
-    FLAG_ARGS = { '--test': 1, }
-    MANDATORY_ARGS = [0]
+    ARGS = [('inFile', str), ('outFile', str), ('test', )]
+    KW_ARGS = {'-i': 0, '-o': 1, }
+    FLAG_ARGS = { '--test': 2, }
+    MANDATORY_ARGS = [0,1]
     MULTISET_ARGS = [1]
     def __init__(self, argv):
         self.kwargs, self.args = self.parseArgs(argv)
@@ -271,16 +271,19 @@ class Main(object):
                 s.insert(0, universe[i])
                 solutions += (s,)
         return solutions
-    def util(self, accuracy, attackers, gems):
+    def util(self, accuracy, a, b): #attackers, gems):
+        attackers = len([v for v in a.filter(kind=VertexKind.DANGER) if v in b])
+        gems = len(a.filter(kind=VertexKind.GOLD))
         import math
-        return math.pow((1-accuracy), attackers)*gems
+        return math.pow((1-accuracy), attackers)*(gems+10)
     def run(self):
         import io
-        if self.kwargs['fileName'][0] == '-':
+        if self.kwargs['inFile'][0] == '-':
             import sys
             f = sys.stdin
         else:
-            f = io.open(self.kwargs['fileName'][0], 'r')
+            f = io.open(self.kwargs['inFile'][0], 'r')
+        outFile = self.kwargs['outFile'][0]
         try:
             p = Parser(f)
             self.g = p.graph()
@@ -306,6 +309,12 @@ class Main(object):
             self.solutionsA += Graph(edges, verticles, self.g.attributes),
         sol2tuple = lambda sol: [ tuple( (v.row, v.col) for v in s) for s in sol ]
         self.solutionsB = self.permutations(self.g.filter(VertexKind.DANGER), self.g.attributes['thiefs'])
+        
+        u = {};
+        accuracy = self.g.attributes['accuracy']
+        for row in xrange(len(self.solutionsA)):
+            for col in xrange(len(self.solutionsB)):
+                u[row,col] = self.util(accuracy, self.solutionsA[row], self.solutionsB[col])
         print 'AGENT:'
         i = 1
         for a in self.solutionsA:
@@ -316,36 +325,52 @@ class Main(object):
         for b in self.solutionsB:
             print 'B%d: %s' % (i, str(tuple( (v.row, v.col) for v in b)))
             i += 1
-        accuracy = self.g.attributes['accuracy']
         s = '\nAGENT\ATTACKER |'
         for i in range(len(self.solutionsB)):
             s += ' B%-7d |' % (i+1)
         print s
         print '----------------' + ('-----------'*(len(self.solutionsB)))
-        i = 1
-        for a in self.solutionsA:
-            s = 'A%-13d |' % i
-            for b in self.solutionsB:
-                attackers = [v for v in a.filter(kind=VertexKind.DANGER) if v in b]
-                gems = a.filter(kind=VertexKind.GOLD)
-                s += ' %*.4f |' % (8, self.util(accuracy, len(attackers), 10+len(gems)))
-            i += 1
+        for row in xrange(len(self.solutionsA)):
+            s = 'A%-13d |' % (row+1)
+            for col in xrange(len(self.solutionsB)):
+                s += ' %*.4f |' % (8, u[row,col])
             print s
         print '----------------' + ('-----------'*(len(self.solutionsB)))
+
+        import pymprog as mp
+
+        mp.beginModel('game')
+        # the gain of player A
+        v = mp.var(name='game_value', bounds=(None,None)) #free
+        # mixed strategy of player B
+        p = mp.var([i for i in xrange(len(self.solutionsB))], 'prob')
+        # player B wants to minimize v
+        mp.minimize(v)
+        # probability sums to 1
+        mp.st( sum(p[i] for i in p) == 1)
+        # player A plays the best strat.
+        r = []
+        for row in xrange(len(self.solutionsA)):
+            r += mp.st(v >= sum(u[row,col]*p[col] for col in p)),
+        self.var = { 'v':v, 'r':r, 'p':p }
+        mp.solve()
         print '\nSOLUTION_AGENT:'
-        i = 1
-        for a in self.solutionsA:
-            print 'A%d: %s' % (i, '<no data, i`m so sorry>')
-            i += 1
+        for i in xrange(len(r)):
+            print 'A%d: %s' % (i+1, r[i].dual)
         print '\nSOLUTION_ATTACKER:'
-        i = 1
-        for b in self.solutionsB:
-            print 'B%d: %s' % (i, '<no data, i`m so sorry>')
-            i += 1
-        print 'SOLUTION_VALUE: %s' % '<no data, i`m so sorry>'
+        for i in xrange(len(self.solutionsB)):
+            print 'B%d: %s' % (i+1, p[i].primal)
+        print '\nSOLUTION_VALUE: %f' % v.primal
+        mp._models[0].write(cpxlp=outFile)
+        mp.endModel()
+
+
 if __name__ == '__main__':
     import sys
-    argv = [None, '-f', 'example.in' ] #sys.argv
+    if len(sys.argv) > 1:
+        argv = [None, '-i', sys.argv[1], '-o', 'borarpet.log' ]
+    else:
+        argv = [None, '-i', 'example.in', '-o', 'borarpet.log' ] #sys.argv
     main = Main(argv)
     main.run()
     
