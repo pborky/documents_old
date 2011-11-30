@@ -69,6 +69,7 @@ class Vertex(object):
         else: return False
 
 
+
 class Edge(object):
     def __init__(self, node1, node2):
         if not isinstance(node1, Vertex) or not isinstance(node2, Vertex):
@@ -359,7 +360,7 @@ class Main(object):
         print '\nSOLUTION_ATTACKER:'
         for i in xrange(len(self.solutionsB)):
             print 'B%d: %s' % (i+1, p[i].primal)
-        print '\nSOLUTION_VALUE: %f' % v.primal
+        print '\nSOLUTION_VALUE: %f\n' % v.primal
         mp._models[0].write(cpxlp=outFile)
         mp.endModel()
 
