@@ -315,6 +315,7 @@ class Main(object):
         for row in xrange(len(self.solutionsA)):
             for col in xrange(len(self.solutionsB)):
                 u[row,col] = self.util(accuracy, self.solutionsA[row], self.solutionsB[col])
+        self.util = u
         print 'AGENT:'
         i = 1
         for a in self.solutionsA:
@@ -337,27 +338,46 @@ class Main(object):
             print s
         print '----------------' + ('-----------'*(len(self.solutionsB)))
 
-        import pymprog as mp
-
-        mp.beginModel('game')
-        v = mp.var(name='game_value', bounds=(None,None)) #free
-        p = mp.var(range(len(self.solutionsB)), 'prob')
-        mp.minimize(v)
-        mp.st( sum(p[i] for i in p) == 1)
-        r = [ mp.st(v >= sum(u[row,col]*p[col] 
-                    for col in p)) for row in xrange(len(self.solutionsA)) 
-            ]
-        mp.solve()
+        import glpk
+        
+        lp = glpk.LPX()
+        lp.name = 'game'
+        lp.obj.maximize = False
+        #lp.obj.name = 'value'
+        lp.rows.add(len(self.solutionsA)+1)
+        lp.cols.add(len(self.solutionsB)+1)
+        for r in lp.rows:
+            r.name = 'R%d'%r.index
+            if r.index == 0:
+                r.bounds = 1, 1
+            else:
+                r.bounds = 0.0, None
+        for c in lp.cols:
+            if c.index == 0:
+                c.name = 'value'
+                c.bounds = None, None
+            else:
+                c.name = 'P%d'%c.index
+                c.bounds = 0.0, 1.0
+        lp.obj[0] = 1
+        matrix = dict(((k[0]+1,k[1]+1),-v) for k,v in self.util.iteritems())
+        matrix[0,0] = 0
+        for i in xrange(1,len(lp.cols)):
+            matrix[0,i] = 1
+        for i in xrange(1,len(lp.rows)):
+            matrix[i,0] = 1
+        lp.matrix = [ matrix[r,c]  for r in xrange(len(lp.rows)) for c in xrange(len(lp.cols)) ]
+        lp.simplex()
         print '\nSOLUTION_AGENT:'
-        for i in xrange(len(r)):
-            print 'A%d: %s' % (i+1, r[i].dual)
+        for r in lp.rows:
+            if r.index>0:
+                print 'A%d: %s' % (r.index+1, r.dual)
         print '\nSOLUTION_ATTACKER:'
-        for i in xrange(len(self.solutionsB)):
-            print 'B%d: %s' % (i+1, p[i].primal)
-        print '\nSOLUTION_VALUE: %f\n' % v.primal
-        mp._models[0].write(cpxlp=outFile)
-        mp.endModel()
-
+        for c in lp.cols:
+            if c.index>0:
+                print 'B%d: %s' % (c.index, c.primal)
+        print '\nSOLUTION_VALUE: %f\n' % lp.obj.value
+        lp.write(cpxlp=outFile)
 
 if __name__ == '__main__':
     import sys
