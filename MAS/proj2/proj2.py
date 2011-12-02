@@ -337,7 +337,82 @@ class Main(object):
                 s += ' %*.4f |' % (8, u[row,col])
             print s
         print '----------------' + ('-----------'*(len(self.solutionsB)))
+        #self.cpxlp(outFile)
+        self.write(outFile)
+    
+    def write(self, outFile):
+        rows = len(self.solutionsA)+1;
+        cols = len(self.solutionsB)+1;
+        matrix = dict(((k[0]+1,k[1]+1),-v) for k,v in self.util.iteritems())
+        matrix[0,0] = 0
+        for i in xrange(1,rows):
+            matrix[i,0] = 1
+        for i in xrange(1,cols):
+            matrix[0,i] = 1
+        
+        lines = []
+        lines += u'Minimize',
+        lines += u' obj: +B0',
+        lines += u'Subject To',
+        for r in xrange(rows):
+            s = u' A%d: ' % r
+            for c in xrange(cols):
+                if matrix[r,c] == 1:
+                    s += u'+ B%d ' % (c,)
+                elif matrix[r,c] == -1:
+                    s += u'- B%d ' % (c,)
+                elif matrix[r,c] > 0:
+                    s += u'+%f B%d ' % (matrix[r,c], c)
+                elif matrix[r,c] < 0:
+                    s += u'%f B%d ' % (matrix[r,c], c)
+            if r == 0:
+                s += u' = 1'
+            else:
+                s += u' >= 0'
+            lines += s,
+        lines +=  u'Bounds',
+        for c in xrange(cols):
+            if c == 0:
+                lines +=  (u' B%d free' % c),
+            else:
+                lines +=  (u' 0 <= B%d <= 1' % c),
+        lines +=  u'End','\n',
 
+        import io
+        import os
+        import re
+        fo = io.open(outFile, 'w')
+        try: fo.write('\n'.join(lines))
+        finally: fo.close()
+        solFile = 'borarpet.out'
+        os.system('glpsol --interior --lp %s -w %s > /dev/null' % (outFile, solFile, ))
+        fi  = io.open(solFile, 'r')
+        try:
+            m = re.match(r'([0-9]+)\s+([0-9]+)', fi.readline())
+            rows = int(m.group(1))
+            cols = int(m.group(2))
+            m = re.match(r'^([0-9.\-eE]+)\s+([0-9.\-eE]+)', fi.readline())
+            value = float(m.group(2))
+            A = []
+            for i in xrange(rows):
+                m = re.match(r'^([0-9.\-eE]+)\s+([0-9.\-eE]+)', fi.readline())
+                if m is not None:
+                    A += float(m.group(2)),
+            B = []
+            for i in xrange(cols):
+                m = re.match(r'^([0-9.\-eE]+)\s+([0-9.\-eE]+)', fi.readline())
+                if m is not None:
+                    B += float(m.group(1)),
+        finally: fi.close()
+        print '\nSOLUTION_AGENT:'
+        for r in xrange(1,rows):
+            print 'A%d: %s' % (r, A[r])
+        print '\nSOLUTION_ATTACKER:'
+        for c in xrange(1,cols):
+            print 'B%d: %s' % (c, B[c])
+        print '\nSOLUTION_VALUE: %f\n' % value
+
+    def cpxlp(self, outFile):
         import glpk
         
         lp = glpk.LPX()
@@ -347,7 +422,7 @@ class Main(object):
         lp.rows.add(len(self.solutionsA)+1)
         lp.cols.add(len(self.solutionsB)+1)
         for r in lp.rows:
-            r.name = 'R%d'%r.index
+            r.name = 'A%d'%r.index
             if r.index == 0:
                 r.bounds = 1, 1
             else:
@@ -357,7 +432,7 @@ class Main(object):
                 c.name = 'value'
                 c.bounds = None, None
             else:
-                c.name = 'P%d'%c.index
+                c.name = 'B%d'%c.index
                 c.bounds = 0.0, 1.0
         lp.obj[0] = 1
         matrix = dict(((k[0]+1,k[1]+1),-v) for k,v in self.util.iteritems())
@@ -367,11 +442,12 @@ class Main(object):
         for i in xrange(1,len(lp.rows)):
             matrix[i,0] = 1
         lp.matrix = [ matrix[r,c]  for r in xrange(len(lp.rows)) for c in xrange(len(lp.cols)) ]
-        lp.simplex()
+        lp.interior()
+        #lp.simplex()
         print '\nSOLUTION_AGENT:'
         for r in lp.rows:
             if r.index>0:
-                print 'A%d: %s' % (r.index+1, r.dual)
+                print 'A%d: %s' % (r.index, r.dual)
         print '\nSOLUTION_ATTACKER:'
         for c in lp.cols:
             if c.index>0:
