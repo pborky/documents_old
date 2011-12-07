@@ -15,7 +15,7 @@ class PrefixSum:
     
     def get_grid_dims(self, ndata):
         import numpy as np
-        return (int(np.ceil(1.0*ndata/self.localSize)), 1, 1)
+        return (int(np.ceil(1.0*ndata/(2*self.localSize))), 1, 1)
     
     def get_global(self, grid):
         return (grid[0]*self.localDims[0], grid[1]*self.localDims[1], grid[2]*self.localDims[2])
@@ -77,6 +77,7 @@ class PrefixSum:
         kernel.set_args(data_buf, keys_buf, np.uint64(ndata), np.uint8(33), np.uint8(66), filt_buf)
         global_dims = self.get_global(self.get_grid_dims(ndata))
         
+        print "filterPrepare"
         if e is None:
             e  = [ cl.enqueue_nd_range_kernel(self.queue, kernel, global_dims, self.localDims), ]
         else:
@@ -100,8 +101,9 @@ class PrefixSum:
         else:
             keys_buf = keys
         
+        grid_dims = self.get_grid_dims(ndata)
         psumbytes = ndata * np.uint64(0).nbytes
-        bsumbytes = int(np.ceil(1.0*ndata/self.localSize)) * np.uint64(0).nbytes
+        bsumbytes =  int(np.prod(grid_dims) * np.uint64(0).nbytes)
         nbsumbytes =  np.uint64(0).nbytes
         
         psum_buf = cl.Buffer(self.ctx, mf.READ_WRITE, psumbytes)
@@ -114,8 +116,9 @@ class PrefixSum:
         kernel = self.prg.prefixSumDown
         kernel.set_args(data_buf, keys_buf, np.uint64(ndata), low, hi, psum_buf, bsum_buf, nbsum_buf)
         
-        global_dims = self.get_global(self.get_grid_dims(ndata))
+        global_dims = self.get_global(grid_dims)
         
+        print "prefixSumDown %s %s" % (str(global_dims), str(self.localDims))
         if e is None:
             e  = ( cl.enqueue_nd_range_kernel(self.queue, kernel, global_dims, self.localDims, wait_for=e), )
         else:
@@ -131,6 +134,7 @@ class PrefixSum:
             ndata2 = np.zeros(1, dtype = np.uint64)
             events += (cl.enqueue_copy(self.queue, ndata2, bsum_buf, wait_for=e),)
             ndata2 = ndata2.item()
+            print ndata2
         
         self.prefixSumUp(e, psum_buf, ndata, bsum_buf, nbsum, events)
         
@@ -146,7 +150,8 @@ class PrefixSum:
         else:
             data_buf = data
         
-        psumbytes = int(np.ceil(1.0*ndata/self.localSize)) * np.uint64(0).nbytes
+        grid_dims = self.get_grid_dims(ndata)
+        psumbytes = int(np.prod(grid_dims) * np.uint64(0).nbytes)
         npsumbytes =  np.uint64(0).nbytes
         
         psum_buf = cl.Buffer(self.ctx, mf.READ_WRITE, psumbytes)
@@ -155,8 +160,9 @@ class PrefixSum:
         kernel = self.prg.prefixSumDownInplace
         kernel.set_args(data_buf, np.uint64(ndata), psum_buf, npsum_buf)
         
-        global_dims = self.get_global(self.get_grid_dims(ndata))
+        global_dims = self.get_global(grid_dims)
         
+        print "prefixSumDownInplace %s %s %d %d" % (str(global_dims), str(self.localDims), ndata, psumbytes)
         if e is None:
             e  = ( cl.enqueue_nd_range_kernel(self.queue, kernel, global_dims, self.localDims, wait_for=e), )
         else:
@@ -172,6 +178,7 @@ class PrefixSum:
             ndata2 = np.zeros(1, dtype = np.uint64)
             events += (cl.enqueue_copy(self.queue, ndata2, psum_buf, wait_for=e),)
             ndata2 = ndata2.item()
+            print ndata2
         
         self.prefixSumUp(e, data_buf, ndata, psum_buf, npsum, events)
         
@@ -197,6 +204,7 @@ class PrefixSum:
         
         global_dims = self.get_global(self.get_grid_dims(ndata))
         
+        print "prefixSumUp"
         if e is None:
             e  = ( cl.enqueue_nd_range_kernel(self.queue, kernel, global_dims, self.localDims, wait_for=e), )
         else:
@@ -223,6 +231,7 @@ class PrefixSum:
         
         if PrefixSum.RETURN_FILTER == 1:
             filt_buf = cl.Buffer(self.ctx, mf.READ_WRITE, filt.nbytes)
+        print data2.nbytes
         data2_buf = cl.Buffer(self.ctx, mf.READ_WRITE, data2.nbytes)
         keys2_buf = cl.Buffer(self.ctx, mf.READ_WRITE, keys2.nbytes)
         ndata2_buf = cl.Buffer(self.ctx, mf.READ_WRITE, ndata2bytes)
@@ -238,6 +247,7 @@ class PrefixSum:
         
         global_dims = self.get_global(self.get_grid_dims(ndata))
         
+        print "filter"
         if e is None:
             e  = ( cl.enqueue_nd_range_kernel(self.queue, kernel, global_dims, self.localDims, wait_for=e), )
         else:
@@ -258,6 +268,24 @@ class PrefixSum:
 
 def listFile(FILE_NAME):
     ps = PrefixSum(fileName = FILE_NAME, localDims = (1,1,1), listFile = True)
+
+def test2(FILE_NAME,LOCAL_DIMS, DEVICE, NDATA):
+    import numpy as np
+    import pyopencl as cl
+    
+    ps = PrefixSum(fileName = FILE_NAME, localDims = LOCAL_DIMS, ctx = DEVICE)
+    
+    data = np.random.rand(NDATA).astype(PrefixSum.HOST_TYPE_DATA)
+    keys = (np.random.rand(NDATA)*100).astype(PrefixSum.HOST_TYPE_KEYS)
+    low = 33
+    hi = 66
+    
+    events = []
+    
+    (e, data_buf,keys_buf,indices_buf,bsum_buf,nbsum_buf,ndata2) = ps.prefixSum(None, data, keys, NDATA, low, hi, events)
+    indices = np.zeros(NDATA, dtype = np.uint64)
+    cl.enqueue_copy(ps.queue, indices, indices_buf, wait_for=e)
+    return (data, keys, ((keys>=low) & (keys < hi)), indices)
 
 def test(FILE_NAME,LOCAL_DIMS, DEVICE, NDATA):
     import numpy as np
@@ -370,5 +398,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 4: args += int(sys.argv[4]) ,
     else: args += 8388709 ,
     
-    test(*args)
+    (data, keys, keysf, indices) = test2(*args)
+
 
