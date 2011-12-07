@@ -412,49 +412,6 @@ class Main(object):
             print 'B%d: %s' % (c, B[c])
         print '\nSOLUTION_VALUE: %f\n' % value
 
-    def cpxlp(self, outFile):
-        import glpk
-        
-        lp = glpk.LPX()
-        lp.name = 'game'
-        lp.obj.maximize = False
-        #lp.obj.name = 'value'
-        lp.rows.add(len(self.solutionsA)+1)
-        lp.cols.add(len(self.solutionsB)+1)
-        for r in lp.rows:
-            r.name = 'A%d'%r.index
-            if r.index == 0:
-                r.bounds = 1, 1
-            else:
-                r.bounds = 0.0, None
-        for c in lp.cols:
-            if c.index == 0:
-                c.name = 'value'
-                c.bounds = None, None
-            else:
-                c.name = 'B%d'%c.index
-                c.bounds = 0.0, 1.0
-        lp.obj[0] = 1
-        matrix = dict(((k[0]+1,k[1]+1),-v) for k,v in self.util.iteritems())
-        matrix[0,0] = 0
-        for i in xrange(1,len(lp.cols)):
-            matrix[0,i] = 1
-        for i in xrange(1,len(lp.rows)):
-            matrix[i,0] = 1
-        lp.matrix = [ matrix[r,c]  for r in xrange(len(lp.rows)) for c in xrange(len(lp.cols)) ]
-        lp.interior()
-        #lp.simplex()
-        print '\nSOLUTION_AGENT:'
-        for r in lp.rows:
-            if r.index>0:
-                print 'A%d: %s' % (r.index, r.dual)
-        print '\nSOLUTION_ATTACKER:'
-        for c in lp.cols:
-            if c.index>0:
-                print 'B%d: %s' % (c.index, c.primal)
-        print '\nSOLUTION_VALUE: %f\n' % lp.obj.value
-        lp.write(cpxlp=outFile)
-
 if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:

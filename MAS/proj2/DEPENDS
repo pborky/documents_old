@@ -1,4 +1,4 @@
 dependencies:
 
- * glpk, pyglpk 
+ * glpk (call glpsol and parsing plaintext output..)
 
