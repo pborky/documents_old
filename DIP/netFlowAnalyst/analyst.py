@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import logging
 logger = logging.getLogger()
 
@@ -229,11 +231,13 @@ class Main(object):
             data = w*data
         return abs(fft(ndim*data,ndim,1))
     
-    def plot(self, nfft = 8, overlap = 0, feature = 0):
+    def plot(self, nfft = 8, overlap = 0, feature = 0,filt = None, sel = (6,7,8,20,4,5,13,14,15)):
         from numpy import hanning,tile
         from matplotlib.pyplot import figure
-        sel = (6,7,8,20,4,5,13,14,15)
-        data = self.bins[:,sel,feature]
+        if filt is None:
+            data = self.bins[:,sel,feature]
+        else:
+            data = main.bins[filt,...][:,sel,:]
         spect = self.transform(data, nfft, overlap, hanning)
         for i in range(len(sel)):
             f = figure()
@@ -287,4 +291,55 @@ if __name__ == '__main__':
                                   Do('PloterThread0', main.plot) 
                               ])
     #scheduler.start()
+    main.load()
+    import numpy as np
+    from matplotlib.pyplot import figure
+    
+    filt = np.zeros(shape=(main.bins.shape[0],), dtype = np.bool)
+    hr2bin = lambda h, binWidth:h*3600*1000 / binWidth    
+    filt[hr2bin(9,main.binWidth):hr2bin(13,main.binWidth)]= True
+    sel = (6,7,13,14)
+    data = main.bins[filt,...][:,sel,:]
 
+    #kw = {'NFFT': 32, 'noverlap': 0, 'sides': 'onesided', 'window': lambda X: np.hanning(len(X))*X}
+    kw = {'NFFT': 32, 'noverlap': 0, 'sides': 'onesided', 'window': lambda X: np.hamming(len(X))*X}
+    fig = [ figure() for i in xrange(4) ]
+    short = 40
+    feat = 0
+    a = np.zeros((data.shape[0]/(short*kw['NFFT'])-5,len(sel)))
+    for i in xrange(len(sel)):
+        sub = [ f.add_subplot(len(sel),1,i+1) for f in fig ]
+        for s in sub:  s.set_title('%d: %s'% (sel[i], main.filterData['filterName'][sel[i]]))
+        Pxx,freqs,bins,im  = sub[0].specgram(data[:,i,feat], **kw)
+        v =  Pxx[1:,...].var(0)
+        x = np.zeros((len(v),2))
+        x[:,0] = Pxx[1:,...].mean(0)
+        x[:,1] = v
+        sub[1].plot(x)
+        x = np.zeros((len(v)/short-5,3))
+        for k in xrange(x.shape[0]):
+            j = short*k; jj = (k+1)*short; jjj = (k+5)*short
+            x[k,0] = v[j:jj].var()
+            x[k,1] = v[j:jjj].var()
+        x[:,2] = np.abs(x[:,0] - x[:,1])
+        a[:,i] = x[:,2]/x[:,0]
+        sub[2].plot(x)
+        x = np.zeros((len(v)/short-5,3))
+        for k in xrange(x.shape[0]):
+            j = short*k; jj = (k+1)*short; jjj = (k+5)*short
+            x[k,0] = v[j:jj].mean()
+            x[k,1] = v[j:jjj].mean()
+        x[:,2] = np.abs(x[:,0] - x[:,1])
+        sub[3].plot(x)
+
+    fig += figure(),
+    
+    a = ((a - a.min()) / (a.max() - a.min()))
+    for i in range(len(sel)):
+        sub = fig[-1].add_subplot(len(sel),1,i+1)
+        sub.set_title('%d: %s'% (sel[i], main.filterData['filterName'][sel[i]]))
+        sub.plot(a[:,i])
+        sub.set_ylim((0,1))
+    
+    for f in fig: f.show()
+         

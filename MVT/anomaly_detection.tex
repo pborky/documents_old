@@ -1,0 +1,444 @@
+%%*************************************************************************
+%%
+%% Anomaly Detection by Means of Statistical Analysis of the Frequency Spectrum
+%% V1.1
+%% 2011/12/22
+%% by Peter Boraros
+%% See http://www.pborky.sk/contact for current contact information.
+%%
+%%*************************************************************************
+%%
+%% Legal Notice:
+%%
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%%
+%% This work by Peter Boraros is licensed under a 
+%% Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+%% http://creativecommons.org/licenses/by-nc-sa/3.0/
+%%
+%%*************************************************************************
+
+\documentclass[a4paper,journal]{IEEEtran}
+
+\usepackage{cite}
+% \usepackage[nocompress]{cite}
+\usepackage{ifpdf}
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.pdf}
+\else
+\usepackage[dvips]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.eps}
+\fi
+
+\usepackage[cmex10]{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\interdisplaylinepenalty=2500
+
+\usepackage{algorithmic}
+
+\usepackage{array}
+
+\usepackage{mdwmath}
+\usepackage{mdwtab}
+
+\usepackage{eqparbox}
+
+\usepackage[hang,small,center,bf]{caption}
+% \usepackage[tight,normalsize,sf,SF]{subfigure}
+%\usepackage[tight,footnotesize]{subfigure}
+\usepackage{subfig}
+% \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+% \usepackage[caption=false,font=footnotesize]{subfig}
+
+\usepackage[utf8x]{inputenc}
+\usepackage{url}
+\usepackage{fixltx2e}
+\usepackage{stfloats}
+\usepackage{ucs}
+\usepackage{multirow}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\circ$}
+\renewcommand{\labelitemiii}{$\ast$}
+
+\setlength{\textheight}{260mm}
+
+\begin{document}
+\title{Anomaly Detection by Means of Statistical Analysis of the Frequency Spectrum}
+\date{July 25, 2011}
+\author{Peter~Boráros %
+\thanks{{Peter Boráros}, Czech technical university, Faculty of Electrical Engineering,
+see~\texttt{http://www.pborky.sk/contact} for a contact infomation}}%
+
+% The paper headers
+%\markboth{Peter Boráros, Czech technical university, Faculty of Electrical Engineering, Prague, Czech Republic}{}
+
+\IEEEcompsoctitleabstractindextext{%
+\begin{abstract}
+This paper provides information about statistical analysis of the frequency spectrum of a computer network traffic.
+The computer network traffic can be seen as an sequence of events occuring in time domain. This ought to be 
+transformed to the frequency domain and then a statistical model of particular behaviors ought to be found. 
+The model is then usable to statistical inference and recognition of some security problems in computer network.
+\end{abstract}}
+
+\maketitle
+\IEEEdisplaynotcompsoctitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+Motivation for this work is to enable ability to distinguish a periodic behavior of potential threats from ordinary
+network communication. Dataset that has been provided for purposes of this work contains an agregate information of 
+about one day of the network communication as well as the information of malignancy of particular communication 
+participants. The crucial moment of this research is to differentiate an malicious peer-to-peer communication from
+other not-malicous classes (especially www proxy servers or DNS servers).
+
+Next section provides formal information about data capturing, and process of extracting features involving fourier
+tranformation. 
+Then an usage of the statistical methods is described Especially the method of the construction and verification 
+of the statistical models.
+
+\section{Data preparation}
+\subsection{Network traffic, gathering the data}
+It is possible to represent a network traffic by set of flows distributed in time. The flow is a sequence of packets having  similar attributes. Packets are exchanged usually among network endpoints. Attributes taken under consideration are at least: source and destination endpoint address, port and protocol. Mentioned attributes usualy delimitate flows.
+
+In order to evaluate anomaly rate of paticular flow other properties ought to be taken in account. Especially number of packets and bytes, starting and ending time (time-stamp of the first or the last packet in the flow).
+
+%TODO mention the features 
+The time distribution of flows can be determined by considering the starting timestamp of each flow. This approach provides generalized view on the flow, as it has been occured in network channel with unlimited throughput.
+
+Experimental dataset provided for purposes of this work has been extended with classification information, a knowledge if particular endpoint is harmfull or not or even if it is suspicious.
+
+\subsection{Data binning}
+In order to reduce minor observation errors binning technique ought to be used. The time axis is divided into disjoint intervals - bins. Let $h$ be number of bins and $\mathbb{F}$ be the set of all flows captured in time interval $\mathbb{T} = (0, T_{max}\rangle $. The $t$-th bin is known as  set of flows $\mathbb{F}_t$ that occurs in time interval $\mathbb{T}_t = ((t-1)\cdot \delta, t\cdot \delta\rangle $ where $t \in \{1, .. h\}$ and $\delta$ is the width of time intervals denoted $\delta = \frac{T_{max}}{h}$. Denote
+\begin{equation}
+\mathbb{F}_t = \{f : f \in \mathbb{F} \wedge s(f) \in \mathbb{T}_t \}
+\end{equation}
+where function $s:\mathbb{F} \rightarrow \mathbb{N} $ 
+returns starting timestamp of the flow $f\in \mathbb{F}$.
+
+For each interval,
+representative value is calculated. Following formulas have been considered:
+\begin{equation}
+r_t^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_t}b(f)}{\sum\limits_{f\in \mathbb{F}_t}p(f)}
+\end{equation}
+\begin{equation}
+r_t^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_t}p(f))
+\end{equation}
+where $r_t$ is representative of time interval $t$, $\mathbb{F}_t$ is set of flows captured in time 
+interval $t$, function $b:\mathbb{F} \rightarrow \mathbb{N}$ outputs size of the flow $f$ in bytes and function 
+$p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$.
+
+%TODO further description of representatives and features
+
+\subsection{Fourier transformation}
+Representatives $r_t$ are subject to transformation from the time domain to the
+frequency domain.
+This can be achieved by fourier-related
+tranforms, e.g. by a fourier or a wavelet transform.
+The wavelet transform, unlike the fourier transform, captures
+not only a notion of the frequency content of the input, by
+examining it at different scales, but also temporal content.
+
+To achieve fast computation, a fast fourier transform (FFT) algorithm 
+has been involved.
+It is an efficient algorithm to compute the discrete fourier tranform (DFT) and
+its inverse.
+A DFT decomposes a sequence of values into components of
+different frequencies. 
+This operation is useful in many fields but computing it directly from the
+definition is often too slow to be practical.
+An FFT is a way to compute the same result more quickly: 
+computing a DFT of N points in the naive way, using the definition, takes
+$O(N^2$) arithmetical operations, 
+while an FFT can compute the same result in only $ O(N \log N)$ operations.
+
+The sequence of $N$ complex numbers $x_0, ..., x_{N−1}$ is transformed into the
+sequence of $N$ complex numbers $X_0, ..., X_{N−1}$ by the DFT according to the
+formula:
+\begin{equation}
+X_k = \sum_{n=0}^{N-1} x_n e^{-\frac{2 \pi i}{N} k n} \quad \quad k = 0, \dots, N-1
+\end{equation}
+where $i$ is imaginary unit and $e^{-\frac{2 \pi i}{N} k n}$ is $N$-th root of
+unity. 
+
+The transform is sometimes denoted as 
+$\mathcal{F}\colon\mathbb{C}^N \to \mathbb{C}^N$, e.g.
+$\mathbf{X} = \mathcal{F} \left ( \mathbf{x} \right )$.
+
+Before processing the fourier transform, the sequence of representatives 
+$r_1, ...,r_h$ is choped into overlaping slices.
+Each slice (sequence $r_a, ..., r_b$, where $a$ and $b$ are boundaries
+of particular slice) is then transformed by means of fourier transformation,
+resulting in sequence of complex coeficients for each slice.
+By discarding phase information real coeficients ${R}_i$ are obtained,
+where $i = 0, ..., b-a-1$.
+
+Slices are ordered as they are occuring in time and they ought to be numbered
+$j = 1,..., g $. The count of slices  depends on the number of elements 
+in input sequence $h$, on the slice size $w$ and the step size $s$; one of the
+$g=\lfloor\frac{h-w}{s} \rfloor$ or $g=\lceil\frac{h-w}{s} \rceil$.
+For the sake of convenience the slice size $w$ is power of two.
+Let $a_j$ and $b_j$ be the boundaries of the $j$-th slice. Then
+$a_1 = 1$, $b_j = a_j + w$ and $a_{j+1} = a_j + s$.
+For the overlaping slices inequality $s < w$ is valid.
+Proper values of $s$ and $w$ are subject to research.
+
+Let $\mathcal{R}$ be matrix of fourier coeficients where
+$\mathcal{R}_{i,j}$ is $i$-th fourier coeficient of $j$-th slice,
+i.e. 
+\begin{equation}
+\mathcal{R}_{*,j} = abs(\mathcal{F}(r_{a_j}, ..., r_{b_j}))
+\end{equation}
+The row $\mathcal{R}_{i,*}$ represents a trend of $i$-th fourier
+coeficient in time.
+
+\subsection{Distinguishing the endpoints}
+As mentioned above experimental dataset contains also
+classification information pointing out an level of anomaly of 
+particular endpoints. Endpoint is determined by its address.
+We now extend the definitions mentioned
+former in order to be able to distinct the fourier coeficients for
+particular endpoint.
+
+Let $\mathbb{E}$ be a set of all endpoints that
+participate in coummunication within time interval $\mathbb{T}$.
+Let $\mathbb{F}_{t,u \rightarrow}$ be the set of flows captured in
+time interval $\mathbb{T}_{t}$ %TODO: refer
+which are \textbf{initiated} by the endpoint $u \in \mathbb{E}$,
+similarly $\mathbb{F}_{t, \rightarrow u}$ are \textbf{ended} at the
+endpoint $u$. Formaly
+
+\begin{equation}
+\mathbb{F}_{t,u \rightarrow} = \{f : f \in \mathbb{F} \wedge e_{s}(f) = u \wedge s(f) \in \mathbb{T}_t \}
+\end{equation}
+\begin{equation}
+\mathbb{F}_{t, \rightarrow u} = \{f : f \in \mathbb{F} \wedge e_{d}(f) = u \wedge s(f) \in \mathbb{T}_t \}
+\end{equation}
+where $e_{s}:\mathbb{F}\rightarrow \mathbb{E}$ and
+$e_{d}:\mathbb{F}\rightarrow \mathbb{E}$ 
+are functions returning source and destination endpoint for the 
+flow $f$.
+The representative value of particular bin for particular endpoint is 
+then:
+\begin{equation}\label{bigrepr1}
+r_{t,e}^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_{t,e}}b(f)}{\sum\limits_{f\in \mathbb{F}_{t,e}}p(f)}
+\end{equation}
+\begin{equation}\label{bigrepr2}
+r_{t,e}^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_{t,e}}p(f))
+\end{equation}
+where index ${}_e$ is replaces symbols ${}_{u\rightarrow}$ or 
+${}_{\rightarrow u}$ from previous definition. So it is distinguished 
+if the connection is initiated by the endpoint $u$, or ended at the
+endpoint $u$.
+
+Matrix of fourier coeficients $\mathcal{R}^\bullet$ is 3-dimensional:
+\begin{equation}\label{bigmatrix}
+\mathcal{R}^\bullet_{*,j,e} = abs(\mathcal{F}(r_{a_j,e}, ..., r_{b_j,e}))
+\end{equation}
+First dimension is related to the frequency domain, second to the time domain 
+(this is the trend of the fourier coeficients over time), 
+and third dimension is related to the endpoint.
+We can denote that matrix $\mathcal{R}^{(1)\bullet}$ (resp. $\mathcal{R}^{(2)\bullet}$)
+is using representative $r_{t,*}^{(1)}$ (resp. $r_{t,*}^{(2)}$) based on formulas
+(\ref{bigrepr1}) and (\ref{bigrepr2}).
+
+\section{Experiments}
+Main task is to find an property of the frequency spectrum so that the malicious behavior
+can be distinguished. Matrix $\mathcal{R}^\bullet$ provides trend of the frequency spectrum
+in time domain for particular endpoint.
+Following parameters has been choosen empiricaly:
+
+\begin{center}
+\begin{tabular}{c|rl}
+width of bins & $\delta =$ & $1000$ ms \\ \hline
+slice width & $w =$ & $128$ \\ \hline
+slicing step & $s=$ & $40$ \\
+\end{tabular}
+\end{center}
+
+Size of the resulting matrix $\mathcal{R}^\bullet$ is then
+$[w\times g\times \lvert\mathbb{E}\rvert]$, where $w=128$, $g=\lfloor\frac{h-w}{s} \rfloor$, 
+$h = \lfloor\frac{T_{max}}{\delta}\rfloor$ and $\lvert\mathbb{E}\rvert $ is the number of the 
+considered endpoints.
+
+\subsection{Measurements}
+The figures \ref{fig:spect_dst_bdivp},
+\ref{fig:spect_src_bdivp}, \ref{fig:spect_dst_logp} and \ref{fig:spect_src_logp} are 
+showing an mean value of the fourier coeficients along with a standard deviation.
+The blue curves are mean values and red are standard deviations added to respectively 
+subtracted from mean values. 
+The trend of the first momentum in frequency domain has a periodic fluctuations
+for the mallware`s target host. Second momentum is
+very low for the first 4 fourier coeficient. This properties seems to be unique in 
+comparison to other endpoints.
+
+
+The figures \ref{fig:dens_dst_bdivp}, \ref{fig:dens_src_bdivp},
+\ref{fig:dens_dst_logp} and \ref{fig:dens_src_logp} are showing
+an kernel density estimation of the value of first six coeficients.
+Before the calculation dataset had been put in scale so that the
+central mean equals to zero and standard deviation equals to one.
+Kernel function is the normal and bandwidth (or smoothing parameter)
+is guessed by maximizing likelihood. 
+Curves on figure \ref{fig:loglik_src_bdivp} are showing
+the dependency of the likelihood on the bandwidth. 
+Likelihood is computed as a sum of the logarithms of values of the
+partial probability density models evaluated on a testing datasets,
+while the model parameters are trained on a training datasets. 
+Both, the testing and training datasets are obtained by 5-fold
+crossvalidation.
+%TODO: formulas
+
+Both the first momentum and the second mometum ought to be taken in
+consideration in the process of the anomaly evaluation.
+The periodic fluctuations are distinct from the
+chaotic behavior of the ordinary endpoints. Low values of second
+momentum and the fluctuations in frequency domain are notable too.
+
+\subsection{Implementation}
+Anomaly evaluation based on the values of the second momentum has
+been implemented as a agent for testing purposes in the Camnep
+intrusion detection system. The programming language is Java.
+Agent receives an statistics from the data geathering agents and
+is called each time the 5-minutes block is received. Matrix
+$\mathcal{R}^{(1)\bullet}$ is computed. Row
+$\mathcal{R}^{(1)\bullet}_{i,*,e}$ represents a trend of the
+coeficient $i$ in time domain for the particular target endpoint $e$.
+Standard deviation is then calculated and matrix 
+$\mathcal{D}^{(1)}_{i,e}$ of the standard deviations is constructed.
+For each coeficient $i$ 10th-percentile $t^{(1)}_i$ is calculated
+over all target endpoints $e$, where $t^{(1)}_i$ is a threshold.
+Logical matrix $\mathcal{K}^{(1)}_{t,e}$ is then constructed:
+$\mathcal{K}^{(1)}_{i,e} = \mathcal{D}^{(1)}_{i,e} \le t^{(1)}_i $.
+So for 10\% endpoints with least value of $\mathcal{K}^{(1)}$
+it contains value 1 otherwise value 0. Weighted average over the
+sequence $\mathcal{K}^{(1)}_{*,e}$ then outputs the level of anomaly
+$a_e$ for each target endpoint. 
+Weights are choosen empiricaly and some results were obtained giving
+weight of $1$ for coeficients $i \in \{1,2,3,4,5\}$, weight of $0.2$
+where $i\in \{6,7,... 20\}$ otherwise weight of $0$.
+
+\section{Conclusion}
+The implementation is still under development. Next research ougth to be aimed on the modeling of the
+frequency spectrums and the fluctuations. More endpoints ought to be taken in consideration. 
+
+Relation between model and different behaviors of the mallware is also important to be investigated.
+
+
+\begin{thebibliography}{1}
+
+\bibitem{netflows}
+  \emph{Network Flows}, \url{http://en.wikipedia.org/wiki/Netflow#Network_Flows}
+  
+\bibitem{gawiki}
+  \emph{Genetic algorithm}, \url{http://en.wikipedia.org/wiki/Genetic_algorithms}
+
+\bibitem{pcm}
+\emph{Pulse-code modulation}, \url{http://en.wikipedia.org/wiki/PCM}
+
+\bibitem{pca}
+\emph{Principal component analysis}, \url{http://en.wikipedia.org/wiki/Principal_component_analysis}
+
+\bibitem{sammon}
+\emph{Sammon projection}, \url{http://en.wikipedia.org/wiki/Sammon_projection}
+
+\bibitem{fourier}
+\emph{Fourier transform}, \url{http://en.wikipedia.org/wiki/Fast_Fourier_transform}
+
+\bibitem{wavelet}
+\emph{Wavelet transform}, \url{http://en.wikipedia.org/wiki/Wavelet_transform}
+
+\bibitem{hist}
+\emph{Histogram equalization}, \url{http://en.wikipedia.org/wiki/Histogram_equalization}
+
+\bibitem{biosiglab}
+\emph{Biosiglab}, \url{https://github.com/pborky/biosiglab}
+\end{thebibliography}
+
+\clearpage
+\onecolumn
+\appendix
+
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{spect_dst_bdivp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{target}}
+  \label{fig:spect_dst_bdivp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{spect_src_bdivp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{source}}
+  \label{fig:spect_src_bdivp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{spect_dst_logp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(2)}$ and agregation over \textbf{target}}
+  \label{fig:spect_dst_logp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{spect_src_logp}
+  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(2)}$ and agregation over \textbf{source}}
+  \label{fig:spect_src_logp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{dens_dst_bdivp}
+      \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(1)}_{*,j}|_e ) $ using feature $r_t^{(1)}$ and agregation over \textbf{target}}
+  \label{fig:dens_dst_bdivp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{dens_src_bdivp}
+    \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(1)}_{*,j}|_e ) $ using feature $r_t^{(1)}$ and agregation over \textbf{source}}
+  \label{fig:dens_src_bdivp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{dens_dst_logp}
+      \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{target}}
+  \label{fig:dens_dst_logp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{dens_src_logp}
+  \includegraphics[width=40mm]{legend}
+  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{source}}
+  \label{fig:dens_src_logp}
+\end{figure}
+\begin{figure}[h!]%
+  \centering
+  \includegraphics[width=140mm]{loglik_src_bdivp}
+  \includegraphics[width=40mm]{legend}
+  \caption{Example of log-likelihood functions $\log(L)$ used to estimate maximum likelihood}
+  \label{fig:loglik_src_bdivp}
+\end{figure}
+
+
+%\begin{figure*}[!h] %
+%  \centering
+%  \subfloat[PCA projection]{\label{fig:som_topol_proj_7}\includegraphics[width=55mm]{som_topol_proj_7}}
+%  \subfloat[Sammon projection]{\label{fig:som_samon_proj_7}\includegraphics[width=55mm]{som_samon_proj_7}}
+%  \subfloat[U-matrix and classification]{\label{fig:som_umat_7}\includegraphics[width=55mm]{som_umat_7}}
+%  \caption{configuration \#7 (see \textit{tbl. \ref{tbl:somresults}})}
+%  \label{fig:som_config_7}
+%\end{figure*}
+
+% that's all folks
+\end{document}
