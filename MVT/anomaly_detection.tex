@@ -97,7 +97,7 @@ The model is then usable to statistical inference and recognition of some securi
 \IEEEdisplaynotcompsoctitleabstractindextext
 \IEEEpeerreviewmaketitle
 
-\section{Introduction}\label{sec1}
+\section{Introduction}\label{intro}
 Motivation for this work is to enable ability to distinguish a periodic behavior of potential threats from ordinary
 network communication. Dataset that has been provided for purposes of this work contains an agregate information of 
 about one day of the network communication as well as the information of malignancy of particular communication 
@@ -131,40 +131,38 @@ where function $s:\mathbb{F} \rightarrow \mathbb{N} $
 returns starting timestamp of the flow $f\in \mathbb{F}$.
 
 For each interval,
-representative value is calculated. Following formulas have been considered:
+representative value is calculated. Following formula have been considered:
 \begin{equation}
-r_t^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_t}b(f)}{\sum\limits_{f\in \mathbb{F}_t}p(f)}
-\end{equation}
-\begin{equation}
-r_t^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_t}p(f))
+r_t = \frac{\sum\limits_{f\in \mathbb{F}_t}b(f)}{\sum\limits_{f\in \mathbb{F}_t}p(f)}
 \end{equation}
 where $r_t$ is representative of time interval $t$, $\mathbb{F}_t$ is set of flows captured in time 
 interval $t$, function $b:\mathbb{F} \rightarrow \mathbb{N}$ outputs size of the flow $f$ in bytes and function 
-$p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$.
+$p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$. 
+In the other words, value $r_t$ is an average packet size. 
+
+Tuples $s_i = (r_a, \ldots, r_b)$ are ordered lists of representatives for
+$a = (i-1)\cdot w +1 $, $b = i\cdot w $ and $ i = 1, \ldots, \lfloor \frac{h-w}{w} \rfloor$,
+where $w$ is size of each tuple and $h$ is number of bins. In other words, sequence $r_1,\ldots,r_h$
+is chopped into non-overlapping subsequences $s_i$.
+
 
 %TODO further description of representatives and features
 
 \subsection{Fourier transformation}
-Representatives $r_t$ are subject to transformation from the time domain to the
-frequency domain.
-This can be achieved by fourier-related
-tranforms, e.g. by a fourier or a wavelet transform.
+Tuples $s_i$ are to be transformed from the time domain to the frequency domain.
+This can be achieved by fourier-related tranforms, e.g. by a fourier or a wavelet transform.
 The wavelet transform, unlike the fourier transform, captures
 not only a notion of the frequency content of the input, by
 examining it at different scales, but also temporal content.
 
-To achieve fast computation, a fast fourier transform (FFT) algorithm 
-has been involved.
-It is an efficient algorithm to compute the discrete fourier tranform (DFT) and
-its inverse.
-A DFT decomposes a sequence of values into components of
-different frequencies. 
-This operation is useful in many fields but computing it directly from the
-definition is often too slow to be practical.
+To achieve fast computation, a fast fourier transform (FFT) algorithm has been involved.
+It is an efficient algorithm to compute the discrete fourier tranform (DFT) and its inverse.
+A DFT decomposes a sequence of values into components of different frequencies. 
+This operation is useful in many fields but computing it directly from the definition is often 
+too slow to be practical.
 An FFT is a way to compute the same result more quickly: 
-computing a DFT of N points in the naive way, using the definition, takes
-$O(N^2$) arithmetical operations, 
-while an FFT can compute the same result in only $ O(N \log N)$ operations.
+computing a DFT of N points in the naive way, using the definition, takes $O(N^2$) arithmetical 
+operations, while an FFT can compute the same result in only $ O(N \log N)$ operations.
 
 The sequence of $N$ complex numbers $x_0, ..., x_{N−1}$ is transformed into the
 sequence of $N$ complex numbers $X_0, ..., X_{N−1}$ by the DFT according to the
@@ -172,92 +170,26 @@ formula:
 \begin{equation}
 X_k = \sum_{n=0}^{N-1} x_n e^{-\frac{2 \pi i}{N} k n} \quad \quad k = 0, \dots, N-1
 \end{equation}
-where $i$ is imaginary unit and $e^{-\frac{2 \pi i}{N} k n}$ is $N$-th root of
-unity. 
+where $i$ is imaginary unit and $e^{-\frac{2 \pi i}{N} k n}$ is $N$-th root of unity.
 
 The transform is sometimes denoted as 
 $\mathcal{F}\colon\mathbb{C}^N \to \mathbb{C}^N$, e.g.
 $\mathbf{X} = \mathcal{F} \left ( \mathbf{x} \right )$.
 
-Before processing the fourier transform, the sequence of representatives 
-$r_1, ...,r_h$ is choped into overlaping slices.
-Each slice (sequence $r_a, ..., r_b$, where $a$ and $b$ are boundaries
-of particular slice) is then transformed by means of fourier transformation,
-resulting in sequence of complex coeficients for each slice.
-By discarding phase information real coeficients ${R}_i$ are obtained,
-where $i = 0, ..., b-a-1$.
-
-Slices are ordered as they are occuring in time and they ought to be numbered
-$j = 1,..., g $. The count of slices  depends on the number of elements 
-in input sequence $h$, on the slice size $w$ and the step size $s$; one of the
-$g=\lfloor\frac{h-w}{s} \rfloor$ or $g=\lceil\frac{h-w}{s} \rceil$.
-For the sake of convenience the slice size $w$ is power of two.
-Let $a_j$ and $b_j$ be the boundaries of the $j$-th slice. Then
-$a_1 = 1$, $b_j = a_j + w$ and $a_{j+1} = a_j + s +1$.
-For the overlaping slices inequality $s < w$ is valid.
-
-Let $\mathcal{R}$ be matrix of fourier coeficients where
-$\mathcal{R}_{i,j}$ is $i$-th fourier coeficient of $j$-th slice,
-i.e. 
-\begin{equation}
-\mathcal{R}_{*,j} = abs(\mathcal{F}(r_{a_j}, ..., r_{b_j}))
-\end{equation}
-The column vector $\vec R_j = \mathcal{R}_{*,j}$ represents one sample. 
-Assuming that the components $r_i$ are independent and identically distributed (i.i.d.) random variables
-and declaring $ s \ge w $ (so the slices are not overlaping) also vectors $\vec{R}_j$ are i.i.d.
-
-\subsection{Distinguishing the endpoints}
-As mentioned above experimental dataset contains also
-classification information pointing out an level of anomaly of 
-particular endpoints. Endpoint is determined by its address.
-We now extend the definitions mentioned
-former in order to be able to distinct the fourier coeficients for
-particular endpoint.
-
-Let $\mathbb{E}$ be a set of all endpoints that
-participate in coummunication within time interval $\mathbb{T}$.
-Let $\mathbb{F}_{t,u \rightarrow}$ be the set of flows captured in
-time interval $\mathbb{T}_{t}$ %TODO: refer
-which are \textbf{initiated} by the endpoint $u \in \mathbb{E}$,
-similarly $\mathbb{F}_{t, \rightarrow u}$ are \textbf{ended} at the
-endpoint $u$. Formaly
+Fourier transform is appliend on sequences $s_i$ resulting in sequences of complex coeficients.
+By discarding phase information real coeficients are obtained.
+Coeficients are organised in matrix $\mathcal{S}$. Columns of matrix $\mathcal{S}$ are denoted:
 
 \begin{equation}
-\mathbb{F}_{t,u \rightarrow} = \{f : f \in \mathbb{F} \wedge e_{s}(f) = u \wedge s(f) \in \mathbb{T}_t \}
+\mathcal{S}_{*,j} = \mid\mathcal{F}(s_{j})\mid
 \end{equation}
-\begin{equation}
-\mathbb{F}_{t, \rightarrow u} = \{f : f \in \mathbb{F} \wedge e_{d}(f) = u \wedge s(f) \in \mathbb{T}_t \}
-\end{equation}
-where $e_{s}:\mathbb{F}\rightarrow \mathbb{E}$ and
-$e_{d}:\mathbb{F}\rightarrow \mathbb{E}$ 
-are functions returning source and destination endpoint for the 
-flow $f$.
-The representative value of particular bin for particular endpoint is 
-then:
-\begin{equation}\label{bigrepr1}
-r_{t,e}^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_{t,e}}b(f)}{\sum\limits_{f\in \mathbb{F}_{t,e}}p(f)}
-\end{equation}
-\begin{equation}\label{bigrepr2}
-r_{t,e}^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_{t,e}}p(f))
-\end{equation}
-where index ${}_e$ is replaces symbols ${}_{u\rightarrow}$ or 
-${}_{\rightarrow u}$ from previous definition. So it is distinguished 
-if the connection is initiated by the endpoint $u$, or ended at the
-endpoint $u$.
 
-Matrix of fourier coeficients $\mathcal{R}^\bullet$ is 3-dimensional:
-\begin{equation}\label{bigmatrix}
-\mathcal{R}^\bullet_{*,j,e} = abs(\mathcal{F}(r_{a_j,e}, ..., r_{b_j,e}))
-\end{equation}
-First dimension is related to the frequency domain, second to the time domain 
-(this is the trend of the fourier coeficients over time), 
-and third dimension is related to the endpoint.
-We can denote that matrix $\mathcal{R}^{(1)\bullet}$ (resp. $\mathcal{R}^{(2)\bullet}$)
-is using representative $r_{t,*}^{(1)}$ (resp. $r_{t,*}^{(2)}$) based on formulas
-(\ref{bigrepr1}) and (\ref{bigrepr2}).
+An experimental dataset contains also classification information. For particular classes,
+different matrices ought to be constructed, specifying the class information in upper index, 
+e.g.: $\mathcal{S}^{(c)}$.
 
 \section{Statistical analysis}\label{sec:stats}
-In previous section an matrix $\mathcal{R}$, that represents sample set, has been introduced.
+In previous section an matrix $\mathcal{S}$, that represents feature set, has been introduced.
 Columns of the matrix are $N$-dimensional random vectors that have to undergo further analysis.
 
 At first step, the model (along with the model`s parameters $\theta$) ought to be found.
@@ -279,11 +211,10 @@ for the univariate case ($N=1$).
 In last subsection the process of fittng the model`s parameters have been outlined without any closer look at the model.
 Hence, nearer look on the model have to be taken.
 
-Generally, the sample set represented by matrix  $\mathcal{R}$ is the set of $N$-dimensional real vectors.
-Denote the $i$-th sample as $\vec{R}_i = (r_{i,1},\ldots,r_{i,N})^T \in  \mathbb{R}^N$.
-For $N=1$ it reduces to scalar value $R_i = r_{i} \in  \mathbb{R} $.
+Generally, the sample set represented by matrix  $\mathcal{S}$ is the set of $N$-dimensional real vectors $\vec{R}_i $.
+For $N=1$ it reduces to scalar value.
 
-Vector $\vec{R}$ can be seen as random vector with unknown probability distribution
+Vector $\vec{R}_i$ can be seen as random vector with unknown probability distribution
 $F_R: \mathbb{R}^N \rightarrow \langle 0, 1 \rangle $. Distribution $F_R$ represents the supected model.
 
 There can be doubts about normality of the distribution, but for the sake of convenience a plausible assumption of 
@@ -389,18 +320,18 @@ In \cite{Nar03} multivariate clustering method is introduced.
 Multivariate goodness-of-fit tests are out of scope of this article.%, although ..
 
 \section{Experiments}\label{sec:exp}
-A set of three matrices  $\{\mathcal{R}^{(1)},\mathcal{R}^{(2)},\mathcal{R}^{(3)}\}$ has been captured and
-have to undergo model finding and checking procedure. The upper index $^{(i)}$ distinguishes between three matrices.
+A set of three matrices  $\{\mathcal{S}^{(1)},\mathcal{S}^{(2)},\mathcal{S}^{(3)}\}$ has been captured and
+have to undergo model finding and checking procedure. The upper index $^{(i)}$ distinguishes between classes.
 An upper index has been omitted, if there is no need to distinguish.
 
 Size of each matrix is $[N \times m]$.
 Columns of this matrices contain independent and identically distributed $N$-dimesional random vectors.
 For the purposes of this article we \emph{choose} only first dimesion of all \emph{column vectors} to undergo analysis.
-Hence we select first row of each of the \emph{matrice} $\mathcal{R}^{(i)}$.
+Hence we select first row of the \emph{matrices} $\mathcal{S}^{(i)}$.
 Each component of selected \emph{row} vector is independent and identically distributed random sample.
 Analysis of the other dimensions is out of scope of this article.
 
-Denote vectors that undergo analysis as ${\vec R^{(i)}}=( r^{(i)}_1,\ldots,r^{(i)}_{m})$, 
+Denote the vectors as ${\vec k^{(i)}}=( k^{(i)}_1,\ldots,k^{(i)}_{m})$, 
 where $i=1,2,3$, and  size of each vector is $m$.
 
 Each of the vectors captures different type of computer network traffic, as shown in the
@@ -411,9 +342,9 @@ Each of the vectors captures different type of computer network traffic, as show
 \begin{center}
 \begin{tabular}{|c|c|c|}\hline
 \textbf{No.} & \textbf{Class} & \textbf{Data} \\ \hline
-1 & proxy server & $\vec{R}^{(1)}$ \\ \hline
-2 & dns server & $\vec{R}^{(2)}$ \\ \hline
-3 & p2p network & $\vec{R}^{(3)}$ \\ \hline
+1 & proxy server & $\vec{k}^{(1)}$ \\ \hline
+2 & dns server & $\vec{k}^{(2)}$ \\ \hline
+3 & p2p network & $\vec{k}^{(3)}$ \\ \hline
 \end{tabular}
 \end{center}
 \label{tbl:data}
@@ -427,13 +358,13 @@ the appropiate model have to be found.
 This can be achieved by already introduced EM algorithm, but for normal distribution, 
 parameters can be estimated using formulae:
 \begin{equation}
-\mu = \hat\mu_m = \frac{1}{m}\sum^m_{i=1}r_{i},
+\mu = \bar\mu_m = \frac{1}{m}\sum^m_{i=1}k_{i},
 \end{equation}
 \begin{equation}
-\sigma = S_m = \sqrt{\frac{1}{m-1}\sum^m_{i=1}(r_{i}-\hat\mu)^2},
+\sigma = S_m = \sqrt{\frac{1}{m-1}\sum^m_{i=1}(k_{i}-\bar\mu_m)^2},
 \end{equation}
-where $\hat\mu_m$ is mean value of samples, $ S_m$ is sample standard deviation.
-\emph{Note} that $\hat\mu_m$ and  $ S_m$ are unbiased estimators of the parameters $\mu$, $\sigma$.
+where $\bar\mu_m$ is mean value of samples, $ S_m$ is sample standard deviation.
+\emph{Note} that $\bar\mu_m$ and  $ S_m$ are unbiased estimators of the parameters $\mu$, $\sigma$.
 Results are in shown in the \textsc{table \ref{tbl:params}}. The number $m$ is sample set size.
 The EM algorithm lead to absolutely same results, even if random initialization has been performed, 
 so for simple cases is its usage obsolete.
@@ -451,7 +382,7 @@ Cumulative distribution fuctions along with histograms are shown on \textbf{fig.
 \caption{Estimated parameters of models}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}\hline
-\textbf{No.} & \textbf{Class}  & $\mathbf{\mu_m}$ & $\mathbf{\sigma_m}$ & \textbf{m} \\ \hline
+\textbf{No.} & \textbf{Class}  & $\mathbf{\bar\mu_m}$ & $\mathbf{S_m}$ & \textbf{m} \\ \hline
 1 & proxy server & 1788.89 & 531.03 & 1870 \\ \hline
 2 & dns server & 459.51 & 144.53 & 1867 \\ \hline
 3 & p2p network & 812.43 & 212.81  & 1871 \\ \hline
