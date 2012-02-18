@@ -77,12 +77,12 @@ class Graph:
         return s
 
     def tp(self):
-        fmt = u'% Train movement axioms \n{}\n\
-            \n% Collision axioms \n{}\n\
-            \n% Signaling control \n{}\n\
-            \n% Train on input \n{}\n\
-            \n% Conjectures \n{}\n\
-            \n% Negated conjectures \n{}';
+        fmt = u'% Train movement axioms \n{0}\n\
+            \n% Collision axioms \n{1}\n\
+            \n% Signaling control \n{2}\n\
+            \n% Train on input \n{3}\n\
+            \n% Conjectures \n{4}\n\
+            \n% Negated conjectures \n{5}';
         return fmt.format(
             self.getTPTPfof('axiom', self.getBehaviorAxioms()),
             self.getTPTPfof('axiom', self.getCollisionAxioms()),
@@ -94,33 +94,33 @@ class Graph:
     def getTimeTerm(self,time, s=None, literal=u'T'):
         if time == 0:
             if s == None:
-                return u'{}'.format(literal)
+                return u'{0}'.format(literal)
             else:
                 return s
         elif time > 0:
             if s == None:
-                return self.getTimeTerm(time-1, u'succ({})'.format(literal))
+                return self.getTimeTerm(time-1, u'succ({0})'.format(literal))
             else:
-                return self.getTimeTerm(time-1, u'succ({})'.format(s))
+                return self.getTimeTerm(time-1, u'succ({0})'.format(s))
         elif time < 0:
             if s == None:
-                return self.getTimeTerm(time+1, u'pred({})'.format(literal))
+                return self.getTimeTerm(time+1, u'pred({0})'.format(literal))
             else:
-                return self.getTimeTerm(time+1, u'pred({})'.format(s))
+                return self.getTimeTerm(time+1, u'pred({0})'.format(s))
 
     def getIsHereClause(self, edge, time, neg=False, target=u'X'):
         if neg:
-            return u'~{}'.format(self.getIsHereClause(edge, time))
+            return u'~{0}'.format(self.getIsHereClause(edge, time))
         return u'ishere_{1}({0},{2})'.format(self.getTimeTerm(time),edge.name, target)
 
     def getCollisionClause(self, edge, time, neg=False):
         if neg:
-            return u'~{}'.format(self.getCollisionClause(edge, time))
+            return u'~{0}'.format(self.getCollisionClause(edge, time))
         return u'collision_{1}({0})'.format(self.getTimeTerm(time),edge.name)
 
     def getCanPassClause(self, vertex, time, neg=False):
         if neg:
-            return u'~{}'.format(self.getCanPassClause(vertex, time))
+            return u'~{0}'.format(self.getCanPassClause(vertex, time))
         return u'signal_{1}({0})'.format(self.getTimeTerm(time), vertex.name)
 
     def getEnterClause(self, e):
@@ -128,27 +128,27 @@ class Graph:
         if e.start.kind == 'SIGNAL':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             a.append(self.getCanPassClause(e.start, 0))
-            return u'{} & {}'.format(*a)
+            return u'{0} & {1}'.format(*a)
         elif e.start.kind == 'INPUT':
             a.append(self.getIsHereClause(e.start, 0))
             a.append(self.getCanPassClause(e.start, 0))
-            return u'{} & {}'.format(*a)
+            return u'{0} & {1}'.format(*a)
         elif e.start.kind == 'DIRECT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
-            return u'{}'.format(*a)
+            return u'{0}'.format(*a)
         elif e.start.kind == 'CONVERGENT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             a.append(self.getCanPassClause(e.start, 0))
             a.append(self.getIsHereClause(e.start.edgesIn[1], 0))
             a.append(self.getCanPassClause(e.start, 0, True))
-            return u'({} & {}) | ({} & {})'.format(*a)
+            return u'({0} & {1}) | ({2} & {3})'.format(*a)
         elif e.start.kind == 'DIVERGENT':
             a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
             if e.start.edgesOut[0] == e:
                 a.append(self.getCanPassClause(e.start, 0))
             elif e.start.edgesOut[1] == e:
                 a.append(self.getCanPassClause(e.start, 0, True))
-            return u'{} & {}'.format(*a)
+            return u'{0} & {1}'.format(*a)
         else:
             raise Exception('fooka')
 
@@ -166,27 +166,27 @@ class Graph:
         else:
             return None
 
-        return u'{} & {}'.format(*a)
+        return u'{0} & {1}'.format(*a)
 
     def getBehaviorAxioms(self):
         ax = {}
         for e in self.edges.values():
-            n = u'ishere_{}'.format(e.name)
+            n = u'ishere_{0}'.format(e.name)
             a = []
             a.append(self.getIsHereClause(e, 1))
             a.append(self.getEnterClause(e))
             c = self.getLeaveClause(e)
             if c == None:
-                ax[n] = u'![T,X]:( {} <=> ( {} ) )'.format(*a)
+                ax[n] = u'![T,X]:( {0} <=> ( {1} ) )'.format(*a)
             else:
                 a.append(c)
-                ax[n] = u'![T,X]:( {} <=> ( ({}) | ({}) ) )'.format(*a)
+                ax[n] = u'![T,X]:( {0} <=> ( ({1}) | ({1}) ) )'.format(*a)
         return ax 
 
     def getCollisionAxioms(self):
         ax = {}
         for e in self.edges.values():
-            n = u'collision_{}'.format(e.name)
+            n = u'collision_{0}'.format(e.name)
 
             a = []
             a.append(self.getCollisionClause(e, 1))
@@ -196,7 +196,7 @@ class Graph:
                 continue
             else:
                 a.append(c)
-                ax[n] = u'![T]:(?[X,Y]:( {} <=> ( ({}) & ({}) ) ))'.format(*a)
+                ax[n] = u'![T]:(?[X,Y]:( {0} <=> ( ({1}) & ({2}) ) ))'.format(*a)
         return ax
 
     def getTPTPfof(self, kind, ax):
@@ -209,9 +209,9 @@ class Graph:
             for i in k:
                 a = ax[i]
                 if s == None:
-                    s = u'fof( {}, {}, ( {} )).'.format(i,kind,a)
+                    s = u'fof( {0}, {1}, ( {2} )).'.format(i,kind,a)
                 else:
-                    s = u'{}\nfof( {}, {}, ( {} )).'.format(s, i, kind, a)
+                    s = u'{0}\nfof( {1}, {2}, ( {3} )).'.format(s, i, kind, a)
         return s
     
     def getTrainOnInput(self):
@@ -229,25 +229,25 @@ class Graph:
             fmt = []
             fmt2 = []
             for o in overticles:
-                c.append(u'ishere_{}(T,{})'.format(v.name, o.name))
-                fmt.append(u'{} | ')
+                c.append(u'ishere_{0}(T,{1})'.format(v.name, o.name))
+                fmt.append(u'{0} | ')
             l = len(overticles)
-            fmt[l-1] = u'{}'
+            fmt[l-1] = u'{%d}' % (l-1)
             f =  ''.join(fmt)
             s = f.format(*c)
-            n = u'input_{}'.format(v.name)
-            ax[n] = u'?[T]:({})'.format(s)
-            n = u'input_{}_ex'.format(v.name)
+            n = u'input_{0}'.format(v.name)
+            ax[n] = u'?[T]:({0})'.format(s)
+            n = u'input_{0}_ex'.format(v.name)
             ax[n] = u'![T,X]:( ishere_{0}(T,X) => (~ ?[Y]:( (X != Y) & ishere_{0}(T,Y) ) ) )'.format(v.name)
 
         #ax[u'zzz0'] = u'ishere(t,06,o1) & ishere(t,07,o3) & ishere(t,11,o3) '
         s = None
         for v in self.edges.values():
             if s == None:
-                s = u'~ ?[Y]:ishere_{}(T,Y)'.format(v.name)
+                s = u'~ ?[Y]:ishere_{0}(T,Y)'.format(v.name)
             else:
-                s = u'{} & ~ ?[Y]:ishere_{}(T,Y)'.format(s,v.name)
-        ax[u'empty'] = u'?[T]:({})'.format(s)
+                s = u'{0} & ~ ?[Y]:ishere_{1}(T,Y)'.format(s,v.name)
+        ax[u'empty'] = u'?[T]:({0})'.format(s)
         return ax
 
 
@@ -273,21 +273,21 @@ class Graph:
         q = None
         for e in edges:
             if s == None:
-                s = u'![Y]:ishere_{}(T,Y)'.format(e.name)
+                s = u'![Y]:ishere_{0}(T,Y)'.format(e.name)
             else:
-                s = u'{} | ![Y]:ishere_{}(T,Y)'.format(s,e.name)
+                s = u'{0} | ![Y]:ishere_{1}(T,Y)'.format(s,e.name)
         if s <> None:
-            return u'![T]:( ({}) => ~signal_{}(T) )'.format(s,node.name)
+            return u'![T]:( ({0}) => ~signal_{1}(T) )'.format(s,node.name)
 
     def getSignalingByNodes(self, node, nodes):
         s = None
         for n in nodes:
             if s == None:
-                s = u'~signal_{}(T)'.format(n.name)
+                s = u'~signal_{0}(T)'.format(n.name)
             else:
-                s = u'{} & ~signal_{}(T)'.format(s,n.name)
+                s = u'{0} & ~signal_{1}(T)'.format(s,n.name)
         if s <> None:
-            return u'![T]:( signal_{}(T) => ({}) )'.format(node.name,s)
+            return u'![T]:( signal_{0}(T) => ({1}) )'.format(node.name,s)
 
     def getSubgraph(self, node):
         edgeset = set()
@@ -308,7 +308,7 @@ class Graph:
             if node.kind in ['CONVERGENT']:
                 s = u'![T,X]:((ishere_{0}(T,X) => signal_{2}(T)) & ((~ishere_{0}(T,X) & ishere_{1}(T,X)) => ~signal_{2}(T)))'.format(
                         node.edgesIn[0].name, node.edgesIn[1].name, node.name)
-                n = u'signal_{}'.format(node.name)
+                n = u'signal_{0}'.format(node.name)
                 ax[n] = s
             elif node.kind in ['DIVERGENT']:
                 nodeset0 = set()
@@ -319,25 +319,25 @@ class Graph:
                 diff0 = nodeset0 - nodeset1
                 diff1 = nodeset1 - nodeset0
                 for n in same | diff0: 
-                    s = u'![T]:(ishere_{}(T,{}) => signal_{}(T))'.format(node.edgesIn[0].name, n.name, node.name)
-                    n = u'signal_{}_{}'.format(node.name,n.name)
+                    s = u'![T]:(ishere_{0}(T,{1}) => signal_{2}(T))'.format(node.edgesIn[0].name, n.name, node.name)
+                    n = u'signal_{0}_{1}'.format(node.name,n.name)
                     ax[n] = s
                 for n in diff1:
-                    s = u'![T]:(ishere_{}(T,{}) => ~signal_{}(T))'.format(node.edgesIn[0].name, n.name, node.name)
-                    n = u'signal_{}_{}'.format(node.name,n.name)
+                    s = u'![T]:(ishere_{0}(T,{1}) => ~signal_{2}(T))'.format(node.edgesIn[0].name, n.name, node.name)
+                    n = u'signal_{0}_{1}'.format(node.name,n.name)
                     ax[n] = s
             elif node.kind in ['INPUT','SIGNAL']:
                 (nodeset, edgeset) = self.getSubgraph(node)
-                n = u'signal_{}_exclusive'.format(node.name)
+                n = u'signal_{0}_exclusive'.format(node.name)
                 s = self.getSignalingByNodes(node, nodeset)
                 if s <> None:
                     ax[n] = s
-                n = u'signal_{}'.format(node.name)
+                n = u'signal_{0}'.format(node.name)
                 s = self.getSignalingByEdges(node, edgeset)
                 if s <> None:
                     ax[n] = s
                 else:
-                    ax[n] = u'![T]:( signal_{}(T) )'.format(node.name)
+                    ax[n] = u'![T]:( signal_{0}(T) )'.format(node.name)
         return ax
 
     def getConjectures(self):
