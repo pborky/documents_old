@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 
 class VertexKind(object):
     GOLD    = 0x01
@@ -326,17 +327,18 @@ class Main(object):
         for b in self.solutionsB:
             print 'B%d: %s' % (i, str(tuple( (v.row, v.col) for v in b)))
             i += 1
-        s = '\nAGENT\ATTACKER |'
+        print '\n╭───────────────' + ('┬──────────'*(len(self.solutionsB))) + '╮'
+        s = '│AGENT\ATTACKER │'
         for i in range(len(self.solutionsB)):
-            s += ' B%-7d |' % (i+1)
+            s += ' B%-7d │' % (i+1)
         print s
-        print '----------------' + ('-----------'*(len(self.solutionsB)))
+        print '├───────────────' + ('┼──────────'*(len(self.solutionsB))) + '┤'
         for row in xrange(len(self.solutionsA)):
-            s = 'A%-13d |' % (row+1)
+            s = '│A%-13d │' % (row+1)
             for col in xrange(len(self.solutionsB)):
-                s += ' %*.4f |' % (8, u[row,col])
+                s += ' %*.4f │' % (8, u[row,col])
             print s
-        print '----------------' + ('-----------'*(len(self.solutionsB)))
+        print '╰───────────────' + ('┴──────────'*(len(self.solutionsB))) + '╯'
         #self.cpxlp(outFile)
         self.write(outFile)
     
