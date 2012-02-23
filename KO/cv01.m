@@ -1,4 +1,4 @@
-addpath(genpath('scheduling'));
+addpath(genpath('/home/pborky/workspace/school/KO/scheduling'));
 
 blockSize = 3;
 blockCount = 3;
@@ -6,8 +6,7 @@ mapSize = blockSize*blockCount;
 
 indices = reshape(1:mapSize^2, mapSize, mapSize);
 
-edgecount = 2*mapSize*size(combnk(1:mapSize,2),1)+blockCount*blockCount*size(combnk(1:blockSize*blockSize,2),1);
-edgelist = zeros(edgecount,2);
+edgelist = [];
 
 for col = 1:mapSize,
     i = indices(1:mapSize,col); 

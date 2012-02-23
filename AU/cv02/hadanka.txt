@@ -1,0 +1,37 @@
+A. podobizna je je v jednej skrinke
+1.strieborna
+	* zde podobizna neni (~z)
+	* podobizna je z Benatek (n)
+2. zlata
+	* podobizna neni ve zlate skrinke (~z)
+	* podobizna je z Florencie (f)
+3. bronzova
+	* zde podobizna neni (~b)
+	* podobizna je ve stribornej skrinke (s)
+
+na zadnej skrinke neni vic nez 1 nepravdivy vyrok
+
+B. podobizna je je v jednej skrinke
+1. strieborna 
+	* podobizna tu neni 		~s
+	* podobizna je v striebornej	s
+2. zlata
+	* podobizna neni v zlatej	~z
+	* podobizna je v olovenej	~s & ~z
+3. olovena
+	* podobizna tu neni		s | z
+	* podobizna je vzlatej		z
+
+na jednej skrinke su oba vyroky pravdive, na jednej je jeden pravdivy a na jednej su oba nepravdive
+
+(~s | s) 
+z 
+(s | z) 
+(s | z) 
+z
+
+~s | s 
+~z 
+~s
+s | z
+z

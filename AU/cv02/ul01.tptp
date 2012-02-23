@@ -1,0 +1,7 @@
+cnf( 1, axiom, ~z | b).
+cnf( 2, axiom, ~z | f).
+cnf( 3, axiom, z | s).
+cnf( 4, axiom, ~z | ~s).
+cnf( 5, axiom, ~b | ~f).
+cnf( 6, negated_conjecture, s).
+
