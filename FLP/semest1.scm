@@ -136,7 +136,7 @@
               (get-procedure ; return procedure body
                (lambda (expr prg)
                  (cond
-                   ((null? expr) '())
+                   ((null? prg) false)
                    ((and (eq? (at 0 (car prg)) 'procedure) (eq? (at 1 (car prg)) expr)) (at 2 (car prg)))
                    (else (get-procedure expr (cdr prg))) )) )
               
@@ -145,6 +145,8 @@
                     (cond 
                       ; nothing to do
                       ((null? expr)  state)
+                      ; unknown procedure has been called
+                      ((false? expr)  (set-failed state 'unknown-procedure-call))
                       ; procedure recursion limit exceeded
                       ((< lim 0) (set-failed state 'recursion-limit-exceeded))
                       ; if execution subtree failed
@@ -170,11 +172,7 @@
                            (else (do nextstate (cdr expr) prg lim)) )))
                       ; handle procedure calls
                       (else 
-                       (let 
-                           ((prc (get-procedure (car expr) prg))) ; choose procedure body
-                         (cond 
-                           ((null? prc) (set-failed state 'unknown-procedure)) ; nonexisting procedure
-                           (else (do (do state prc prg (- lim 1)) (cdr expr) prg lim)) )))
+                       (do (do state (get-procedure (car expr) prg) prg (- lim 1)) (cdr expr) prg lim))
                       ; that`s all
                       )) )  )
           ; exec entry point
@@ -218,7 +216,7 @@
     (procedure test ( turn-left (if wall? () step)))
     (procedure turn-right (turn-left turn-left turn-left turn-left turn-left))
     (procedure do ( (if mark? () ((if wall? (turn-left) (put-mark step))  do) ) ) )
-    (procedure fok ())
+    (procedure fok (turn-left))
     )
   )
 
