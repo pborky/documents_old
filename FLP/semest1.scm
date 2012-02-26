@@ -47,7 +47,7 @@
                (lambda (x y l) (apply-at-xy (lambda (a) (+ a 1)) x y l)))
               (dec-at-xy ; decrement x-th element of y-th sublist of list l
                (lambda (x y l) (apply-at-xy (lambda (a) (- a 1)) x y l)))
-              (trunc-list ; keep first i elements of the list
+              (trunc-list ; keep first i elements of the list l
                (lambda (i l)
                  (cond 
                    ((null? l) l)
@@ -67,9 +67,9 @@
                (lambda (state) (at 3 state)))
               (set-orientation ; set robot`s orientation
                (lambda (state o) (apply-at (lambda (k) o) 3 state)))
-              (push-sequence ; put somthing to action-sequence list
-               ;(lambda (state a) (apply-at (lambda (o) (cons a o)) 0 state )))
-               (lambda (state a) (apply-at (lambda (o) (cons (cons a (get-coords state)) o)) 0 state )))
+              (push-sequence ; put something to action-sequence list
+               (lambda (state a) (apply-at (lambda (o) (cons a o)) 0 state )))
+               ;(lambda (state a) (apply-at (lambda (o) (cons (list a (get-orientation state) (get-coords state)) o)) 0 state )))
               (inc-coord-x ; increment x-coordinate of robot
                (lambda (state) (apply-at (lambda (k) (inc-at 0 k)) 2 state)))
               (dec-coord-x ; decrement x-coordinate of robot
@@ -83,8 +83,8 @@
                  (not (null? (at 4 state))) ))
               (set-failed ; execution subtree failed
                (lambda (state reason)
-                 ;(append state (list true)) ))
-                 (push-sequence (append state (list true)) reason) ))
+                 (append state (list true)) ))
+                 ;(push-sequence (append state (list true)) reason) ))
               (next-orientation ; rotate left helper function
                (lambda (o l)
                  (cond
@@ -93,27 +93,25 @@
                    (else (next-orientation o (cdr l))) ) ))
               (put-mark ; put mark 
                (lambda (state)
-                 (apply-at (lambda (l) (inc-at-xy (get-coord-x state) (get-coord-y state) l)) 1 (push-sequence state 'put-mark))) )
+                 (apply-at (lambda (l) (inc-at-xy (get-coord-x state) (get-coord-y state) l)) 1 state)) )
               (turn-left ; rotate left 
                (lambda (state) 
-                 (set-orientation (push-sequence state 'turn-left) (next-orientation (get-orientation state) orientations)) )) ; apply rotation helper
+                 (set-orientation state (next-orientation (get-orientation state) orientations)) )) ; apply rotation helper
               (step ; make step without check
-               (lambda (state) 
-                 (push-sequence 
-                  (cond 
-                    ((eq? (get-orientation state) 'west) (dec-coord-x state))
-                    ((eq? (get-orientation state) 'east) (inc-coord-x state))
-                    ((even? (get-coord-y state))
-                     (cond ((eq? (get-orientation state) 'northwest) (dec-coord-y (inc-coord-x state)))
-                           ((eq? (get-orientation state) 'southwest) (inc-coord-y (inc-coord-x state)))
-                           ((eq? (get-orientation state) 'northeast) (dec-coord-y state))
-                           ((eq? (get-orientation state) 'southeast) (inc-coord-y state)) ) )
-                    (else
-                     (cond ((eq? (get-orientation state) 'northwest) (dec-coord-y state))
-                           ((eq? (get-orientation state) 'southwest) (inc-coord-y state))
-                           ((eq? (get-orientation state) 'northeast) (dec-coord-y (dec-coord-x state)))
-                           ((eq? (get-orientation state) 'southeast) (inc-coord-y (dec-coord-x state))) ) ) )
-                  'step ) ))
+               (lambda (state)
+                 (cond 
+                   ((eq? (get-orientation state) 'west) (dec-coord-x state))
+                   ((eq? (get-orientation state) 'east) (inc-coord-x state))
+                   ((even? (get-coord-y state))
+                    (cond ((eq? (get-orientation state) 'northwest) (dec-coord-y (dec-coord-x state)))
+                          ((eq? (get-orientation state) 'southwest) (inc-coord-y (dec-coord-x state)))
+                          ((eq? (get-orientation state) 'northeast) (dec-coord-y state))
+                          ((eq? (get-orientation state) 'southeast) (inc-coord-y state)) ) )
+                   (else
+                    (cond ((eq? (get-orientation state) 'northwest) (dec-coord-y state))
+                          ((eq? (get-orientation state) 'southwest) (inc-coord-y state))
+                          ((eq? (get-orientation state) 'northeast) (dec-coord-y (inc-coord-x state)))
+                          ((eq? (get-orientation state) 'southeast) (inc-coord-y (inc-coord-x state))) ) ) ) ))
               (west? ; true if looking to the west
                (lambda (state)
                  (eq? (get-orientation state) 'west) ))
@@ -126,22 +124,14 @@
               (eval-if ; return branch body based on predicate
                (lambda (predicate? state expr)
                  (cond
-                      ((predicate? (step state)) (cons (at 1 expr) '()))
-                      (else (cons (at 2 expr) '()) ) ) ))
-              (eval-if ; return branch body based on predicate
+                      ((predicate? state) (cons (at 2 expr) '()))
+                      (else (cons (at 3 expr) '()) ) ) ))
+              (eval-predicate ; return branch body based on predicate
                (lambda (state expr)
                  (cond 
-                   ((eq? (at 0 expr) 'wall?) (lambda (state) (wall? (step state))))
-                   ((eq? (at 0 expr) 'west?) west?)
-                   ((eq? (at 0 expr) 'mark?) mark?)
-                   ((eq? (car expr) 'mark?) 
-                    (cond 
-                      ((mark? state) (cons (at 1 expr) '()))
-                      (else (cons (at 2 expr) '()) ) ))
-                   ((eq? (car expr) 'west?)
-                    (cond 
-                      ((west? state) (cons (at 1 expr) '()))
-                      (else (cons (at 2 expr) '()) ) ))
+                   ((eq? (at 1 expr) 'wall?) (lambda (state) (wall? (step state))))
+                   ((eq? (at 1 expr) 'west?) west?)
+                   ((eq? (at 1 expr) 'mark?) mark?)
                    (else '()) ) ))
               (get-procedure ; return procedure body
                (lambda (expr prg)
@@ -164,17 +154,17 @@
                        (do (do state (car expr) prg lim) (cdr expr) prg lim))
                       ; if 
                       ((eq? (car expr) 'if)
-                       (do state (eval-if state (cdr expr)) prg lim))
+                       (do state (eval-if (eval-predicate state expr) state expr) prg lim))
                       ; turn left
                       ((eq? (car expr) 'turn-left)
-                       (do (turn-left state) (cdr expr) prg lim))
+                       (do (turn-left (push-sequence state 'turn-left)) (cdr expr) prg lim))
                       ; put mark
                       ((eq? (car expr) 'put-mark)
-                       (do (put-mark state) (cdr expr) prg lim))
+                       (do (put-mark (push-sequence state 'put-mark)) (cdr expr) prg lim))
                       ; step
                       ((eq? (car expr) 'step)
                        (let 
-                           ((nextstate (step state)))
+                           ((nextstate (step (push-sequence state 'step ))))
                          (cond 
                            ((wall? nextstate) (set-failed state 'stepped-to-wall))
                            (else (do nextstate (cdr expr) prg lim)) )))
@@ -187,17 +177,20 @@
                            (else (do (do state prc prg (- lim 1)) (cdr expr) prg lim)) )))
                       ; that`s all
                       )) )  )
-          ; exec entry
-          (trunc-list 4 (apply-at reverse 0 (do (cons '() state) expr prg lim))) ))
+          ; exec entry point
+          (trunc-list  4  (apply-at reverse  0 (do (cons '() state) (cond ((list? expr) expr) (else (list expr))) prg lim))) ))
 
-(define get-maze
-  '(
-    (w   w   w   w   w   w)
-      (w   0   w   0   w   w)
-    (w   0   w   0   0   w)
-      (w   0   0   0   w   w)
-    (w   w   w   w   w   w)
-    )
+(define get-initial-state
+  '( ;maze
+    ((w   w   w   w   w   w)
+       (w   0   w   0   w   w)
+     (w   0   w   0   0   w)
+       (w   0   0   0   w   w)
+     (w   w   w   w   w   w))
+    ; startpoint
+     (1 1)
+     ; orientation
+     west)
   )
 
 (define right-hand-rule-prg
@@ -224,9 +217,10 @@
                )
     (procedure test ( turn-left (if wall? () step)))
     (procedure turn-right (turn-left turn-left turn-left turn-left turn-left))
-    (procedure do ( (if mark? () ((if wall? (turn-left) (put-mark step))) ) do ) )
+    (procedure do ( (if mark? () ((if wall? (turn-left) (put-mark step))  do) ) ) )
+    (procedure fok ())
     )
   )
 
 ;(simulate (list get-maze '(1 1) 'west) 'start (list right-hand-rule-prg) 3)
-(simulate (list get-maze '(1 1) 'west) '(do) right-hand-rule-prg 50)
+(simulate get-initial-state 'start right-hand-rule-prg 3)
