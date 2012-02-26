@@ -124,18 +124,18 @@
               (wall? ; true if there is a wall
                (lambda (state)
                  (eq? (at-xy (get-coord-x state) (get-coord-y state) (get-maze state)) 'w) ))
-              (eval-if ; return branch body based on predicate
-               (lambda (predicate? state expr)
-                 (cond
-                      ((predicate? state) (cons (at 2 expr) '()))
-                      (else (cons (at 3 expr) '()) ) ) ))
-              (eval-predicate ; return branch body based on predicate
+              (get-predicate ; return proper predicate
                (lambda (expr)
                  (cond 
                    ((eq? (at 1 expr) 'wall?) (lambda (state) (wall? (step state))))
                    ((eq? (at 1 expr) 'west?) west?)
                    ((eq? (at 1 expr) 'mark?) mark?)
                    (else '()) ) ))
+              (get-if ; return branch body based on predicate
+               (lambda (state expr)
+                 (cond
+                      (((get-predicate expr) state) (cons (at 2 expr) '()))
+                      (else (cons (at 3 expr) '()) ) ) ))
               (get-procedure ; return procedure body
                (lambda (expr prg)
                  (cond
@@ -159,7 +159,7 @@
                        (do (do state (car expr) prg lim) (cdr expr) prg lim))
                       ; if 
                       ((eq? (car expr) 'if)
-                       (do state (eval-if (eval-predicate expr) state expr) prg lim))
+                       (do state (get-if state expr) prg lim))
                       ; turn left
                       ((eq? (car expr) 'turn-left)
                        (do (turn-left (push-sequence state 'turn-left)) (cdr expr) prg lim))
