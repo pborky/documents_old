@@ -124,12 +124,16 @@
                (lambda (state)
                  (eq? (at-xy (get-coord-x state) (get-coord-y state) (get-maze state)) 'w) ))
               (eval-if ; return branch body based on predicate
+               (lambda (predicate? state expr)
+                 (cond
+                      ((predicate? (step state)) (cons (at 1 expr) '()))
+                      (else (cons (at 2 expr) '()) ) ) ))
+              (eval-if ; return branch body based on predicate
                (lambda (state expr)
                  (cond 
-                   ((eq? (at 0 expr) 'wall?)
-                    (cond
-                      ((wall? (step state)) (cons (at 1 expr) '()))
-                      (else (cons (at 2 expr) '()) ) ))
+                   ((eq? (at 0 expr) 'wall?) (lambda (state) (wall? (step state))))
+                   ((eq? (at 0 expr) 'west?) west?)
+                   ((eq? (at 0 expr) 'mark?) mark?)
                    ((eq? (car expr) 'mark?) 
                     (cond 
                       ((mark? state) (cons (at 1 expr) '()))
@@ -152,9 +156,9 @@
                       ; nothing to do
                       ((null? expr)  state)
                       ; procedure recursion limit exceeded
-                      ((< lim 0) (set-failed state 'recursion-lim-exceeded))
+                      ((< lim 0) (set-failed state 'recursion-limit-exceeded))
                       ; if execution subtree failed
-                      ((get-failed state) (trunc-list 4 state))
+                      ((get-failed state) state)
                       ; another list? we need to go deeper
                       ((list? (car expr))
                        (do (do state (car expr) prg lim) (cdr expr) prg lim))
@@ -184,7 +188,7 @@
                       ; that`s all
                       )) )  )
           ; exec entry
-          (apply-at reverse 0 (do (cons '() state) expr prg lim)) ))
+          (trunc-list 4 (apply-at reverse 0 (do (cons '() state) expr prg lim))) ))
 
 (define get-maze
   '(
@@ -225,4 +229,4 @@
   )
 
 ;(simulate (list get-maze '(1 1) 'west) 'start (list right-hand-rule-prg) 3)
-(simulate (list get-maze '(1 1) 'west) '(start) right-hand-rule-prg 10)
+(simulate (list get-maze '(1 1) 'west) '(do) right-hand-rule-prg 50)
