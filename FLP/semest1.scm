@@ -130,7 +130,7 @@
                       ((predicate? state) (cons (at 2 expr) '()))
                       (else (cons (at 3 expr) '()) ) ) ))
               (eval-predicate ; return branch body based on predicate
-               (lambda (state expr)
+               (lambda (expr)
                  (cond 
                    ((eq? (at 1 expr) 'wall?) (lambda (state) (wall? (step state))))
                    ((eq? (at 1 expr) 'west?) west?)
@@ -159,7 +159,7 @@
                        (do (do state (car expr) prg lim) (cdr expr) prg lim))
                       ; if 
                       ((eq? (car expr) 'if)
-                       (do state (eval-if (eval-predicate state expr) state expr) prg lim))
+                       (do state (eval-if (eval-predicate expr) state expr) prg lim))
                       ; turn left
                       ((eq? (car expr) 'turn-left)
                        (do (turn-left (push-sequence state 'turn-left)) (cdr expr) prg lim))
