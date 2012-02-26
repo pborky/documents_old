@@ -1,5 +1,8 @@
 #lang scheme
 
+; simple robot simulator definitions for scheme
+; see https://cw.felk.cvut.cz/lib/exe/fetch.php/courses/a4b33flp/flp2012_scheme_1.pdf for details
+
 (define (simulate state expr prg lim)
         (letrec 
              (; data              
