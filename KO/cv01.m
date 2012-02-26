@@ -1,7 +1,9 @@
+function cv01(g)
+
 addpath(genpath('/home/pborky/workspace/school/KO/scheduling'));
 
-blockSize = 3;
-blockCount = 3;
+blockSize = g;
+blockCount = g;
 mapSize = blockSize*blockCount;
 
 indices = reshape(1:mapSize^2, mapSize, mapSize);

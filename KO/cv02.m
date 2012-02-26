@@ -1,9 +1,6 @@
+function cv02 (mapSize)
 
 addpath(genpath('/home/pborky/workspace/school/KO/scheduling'));
-
-clear;
-
-mapSize = 6;
 
 l = [ 0 0; 0 -1; 0 1; -1 0; 1 0 ];
 
@@ -29,25 +26,29 @@ ub = [ones(mapSize^2,1);2*ones(mapSize^2,1)];
 vartype = repmat('I', 2*mapSize^2,1);
 
 %Parametry optimalizace
-schoptions=schoptionsset('ilpSolver','glpk','solverVerbosity',2);
+schoptions=schoptionsset('ilpSolver','glpk','solverVerbosity',0);
 
 %spusteni optimalizace z TORSCHE
 [xmin,fmin,status,extra] = ilinprog(schoptions,sense,c,A,b,ctype,lb,ub,vartype);
 
 if(status==1)
-    disp('Reseni:');
+    xmin = xmin(1:mapSize^2);
+    xmin = reshape(logical(xmin), [mapSize,mapSize]);
+    
+    fprintf('Tahy:\n');
     %xmin(1:mapSize^2)
-    [y x] = ind2sub([mapSize mapSize],find(xmin(1:mapSize^2)));
-    fprintf('x_%d,%d\n', [x y]');
+    [i j] = ind2sub([mapSize mapSize],find(xmin));
+    fprintf('  (%d,%d)\n', [j i]');
     
-    disp('Hodnota cilove funkce:');
-    fmin
+    fprintf('\nMinimalní počet tahů:\n');
+    fprintf('  fmin = %d\n', fmin);
+
+    fprintf('\nMapa:\n');
+    c = 'O*';
+    c = c(1+xmin);
+    fmt = ['  ' repmat('%c',1,mapSize) '\n'];
+    fprintf(fmt, c);
     
-    disp('Mapa:');
-    X = zeros(mapSize);
-    X(:) = 'O';
-    X(find(xmin(1:mapSize^2))) = '*';
-    char(X)
 else
     disp('Problem nema reseni!');
 end;
