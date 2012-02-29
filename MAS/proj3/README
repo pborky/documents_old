@@ -1,0 +1,20 @@
+Count of agents is determined from own priority (expecting linear ordering). 
+Upon receiving Ok() messages total count is updated.
+
+Initial position is determined at random, but at that moment agents do not know real size of world.
+So each agent chooses random integer from <1, p> where p is own priority.
+
+Ok meassages are sent after reaching targetX, no updates during the movement are sent.
+
+Agent determines the soution has been reached after certain ammount of inactivity (LOCAL_SOLUTION_STEPS = 40).
+Agent writes solution to standard output and terminates after certain amount of inactivity (GLOBAL_SOLUTION_STEPS = 350).
+Both constants are measured in steps.
+
+If SEND_TARGET_REACHED_MESSAGES is set to true agend sends message OK(0,0) or NoGood(0,0) after LOCAL_SOLUTION_STEPS of inactivity.
+This messages helps agents to collect information aobout activity of others and terminate the algorithm if solution has been found.
+
+If one agent determines there is no solution it sends message NG(-1,-1) to all agents.
+That will cause termination of agents.
+
+Some changes to threading has been performed. DamaSyncAgent implements .run() and does NOT create different thread for .runSyncAgent().
+
