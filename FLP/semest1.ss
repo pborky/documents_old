@@ -1,5 +1,5 @@
+;#lang r5rs
 #lang scheme
-
 ; simple robot simulator definitions for scheme
 ; see https://cw.felk.cvut.cz/lib/exe/fetch.php/courses/a4b33flp/flp2012_scheme_1.pdf for details
 
@@ -12,8 +12,8 @@
               (even? ; true if argument x is even
                (lambda (x) 
                  (cond
-                    ((= x 1) false)
-                    ((= x 0) true)
+                    ((= x 1) #f)
+                    ((= x 0) #t)
                     ((< x 0) (even? (+ x 2)))
                     (else (even? (- x 2))) )))
               (reverse ; return reversed list l
@@ -86,7 +86,7 @@
                  (not (null? (at 4 state))) ))
               (set-failed ; execution subtree failed
                (lambda (state reason)
-                 (append state (list true)) ))
+                 (append state (list #t)) ))
                  ;(push-sequence (append state (list true)) reason) ))
               (next-orientation ; rotate left helper function
                (lambda (o l)
@@ -139,8 +139,8 @@
               (get-procedure ; return procedure body
                (lambda (expr prg)
                  (cond
-                   ((null? prg) false)
-                   ((and (eq? (at 0 (car prg)) 'procedure) (eq? (at 1 (car prg)) expr)) (at 2 (car prg)))
+                   ((null? prg) #f)
+                   ((and (eq? (at 0 (car prg)) 'procedure) (eq? (at 1 (car prg)) expr)) (cons (at 2 (car prg)) '()) )
                    (else (get-procedure expr (cdr prg))) )) )
               
               (do ; entry point
@@ -149,7 +149,7 @@
                       ; nothing to do
                       ((null? expr)  state)
                       ; unknown procedure has been called
-                      ((false? expr)  (set-failed state 'unknown-procedure-call))
+                      ((not expr)  (set-failed state 'unknown-procedure-call))
                       ; procedure recursion limit exceeded
                       ((< lim 0) (set-failed state 'recursion-limit-exceeded))
                       ; if execution subtree failed
@@ -166,20 +166,29 @@
                       ; put mark
                       ((eq? (car expr) 'put-mark)
                        (do (put-mark (push-sequence state 'put-mark)) (cdr expr) prg lim))
+                      ; get mark
+                      ((eq? (car expr) 'get-mark)
+                       (cond 
+                         ((mark? state) (do (push-sequence state 'get-mark) (cdr expr) prg lim))
+                          (else (set-failed state 'try-to-get-mark-on-empty-field)) ) )
                       ; step
                       ((eq? (car expr) 'step)
                        (let 
-                           ((nextstate (step (push-sequence state 'step ))))
+                           ((nextstate (step state)))
                          (cond 
                            ((wall? nextstate) (set-failed state 'stepped-to-wall))
-                           (else (do nextstate (cdr expr) prg lim)) )))
+                           (else (do (push-sequence nextstate 'step ) (cdr expr) prg lim)) )))
                       ; handle procedure calls
                       (else 
                        (do (do state (get-procedure (car expr) prg) prg (- lim 1)) (cdr expr) prg lim))
                       ; that`s all
                       )) )  )
           ; exec entry point
-          (trunc-list  4  (apply-at reverse  0 (do (cons '() state) (cond ((list? expr) expr) (else (list expr))) prg lim))) ))
+          (let ((ret
+          (trunc-list 4 
+           (apply-at reverse 0
+            (do (cons '() state) (cond ((list? expr) expr) (else (list expr))) prg lim))) )) 
+            (list (car ret) (cdr ret) )) ))
 
 (define get-initial-state
   '( ;maze
@@ -219,9 +228,10 @@
     (procedure test ( turn-left (if wall? () step)))
     (procedure turn-right (turn-left turn-left turn-left turn-left turn-left))
     (procedure do ( (if mark? () ((if wall? (turn-left) (put-mark step))  do) ) ) )
-    (procedure fok (turn-left))
+    (procedure fok (put-mark foka))
+    (procedure foka (turn-left foking turn-left))
     )
   )
 
 ;(simulate (list get-maze '(1 1) 'west) 'start (list right-hand-rule-prg) 3)
-(simulate get-initial-state 'start right-hand-rule-prg 3)
+(simulate get-initial-state 'fok right-hand-rule-prg 3)
