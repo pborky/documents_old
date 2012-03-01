@@ -97,6 +97,9 @@
               (put-mark ; put mark 
                (lambda (state)
                  (apply-at (lambda (l) (inc-at-xy (get-coord-x state) (get-coord-y state) l)) 1 state)) )
+              (get-mark ; put mark 
+               (lambda (state)
+                 (apply-at (lambda (l) (dec-at-xy (get-coord-x state) (get-coord-y state) l)) 1 state)) )
               (turn-left ; rotate left 
                (lambda (state) 
                  (set-orientation state (next-orientation (get-orientation state) orientations)) )) ; apply rotation helper
@@ -169,7 +172,7 @@
                       ; get mark
                       ((eq? (car expr) 'get-mark)
                        (cond 
-                         ((mark? state) (do (push-sequence state 'get-mark) (cdr expr) prg lim))
+                         ((mark? state) (do (get-mark (push-sequence state 'get-mark)) (cdr expr) prg lim) )
                           (else (set-failed state 'try-to-get-mark-on-empty-field)) ) )
                       ; step
                       ((eq? (car expr) 'step)
@@ -184,11 +187,13 @@
                       ; that`s all
                       )) )  )
           ; exec entry point
-          (let ((ret
-          (trunc-list 4 
-           (apply-at reverse 0
-            (do (cons '() state) (cond ((list? expr) expr) (else (list expr))) prg lim))) )) 
-            (list (car ret) (cdr ret) )) ))
+          (let ((ret ; bind the return state with "ret" - we need to mangle it a bit
+                 (do (cons '() state) (cond ((list? expr) expr) (else (list expr))) prg lim)))
+          (list 
+           (reverse (car ret)) ; reverse the action list
+           (trunc-list 3 (cdr ret)) ; discard any obsolete items
+           )) ))
+
 
 (define get-initial-state
   '( ;maze
@@ -234,4 +239,4 @@
   )
 
 ;(simulate (list get-maze '(1 1) 'west) 'start (list right-hand-rule-prg) 3)
-(simulate get-initial-state 'fok right-hand-rule-prg 3)
+;(simulate get-initial-state 'fok right-hand-rule-prg 3)
