@@ -40,28 +40,6 @@
 \usepackage[margin=25mm]{geometry}
 
 \usepackage{graphviz}
-%\usepackage{tikz}
-%\usetikzlibrary{decorations,arrows,shapes}
-%
-%\newcommand{\digraph}[2]{
-%  \newwrite\dotfile
-%  \immediate\openout\dotfile=#1.dot
-%  \immediate\write\dotfile{digraph #1 {\string#2}}
-%  \immediate\closeout\dotfile
-%  \IfFileExists{#1.dot}
-%  % the pdf exists: include it 
-%  { \input{|"dot -Txdot #1.dot | dot2tex --figonly"} }
-%  % the pdf was not created - show a hint
-%  { \fbox{ \begin{tabular}{l}
-%        The file \texttt{#1.pdf} hasn't been created from
-%        \texttt{#1.dot} yet. \\
-%        We attempted to create it with:\\
-%        `\texttt{dot -Tps2 #1.dot | epstopdf --filter -o=#1.pdf}' \\
-%        but that seems not to have worked. You need to execute `\texttt{pdflatex}' with \\
-%        the `\texttt{-shell-escape} option. You also need `\texttt{epstopdf}' from CTAN.
-%      \end{tabular}}
-%  }
-%}
 
 \usepackage[cmex10]{amsmath}
 \usepackage{amsfonts}
@@ -89,7 +67,8 @@
 %\usepackage[T1]{fontenc}
 
 
-\usepackage{url}
+%\usepackage{url}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
 \usepackage{fixltx2e}
 \usepackage{stfloats}
 \usepackage{ucs}
@@ -106,11 +85,11 @@
 
 \begin{document}
 
-\title{Optimalization of the Assembly Line Manufacturing Processes}
+\title{Optimalization of the Manufacturing Processes on the Assembly Line}
 \date{March 05, 2012}
 \author{Peter~Boráros %
-\thanks{{Peter Boráros}, Czech technical university, Faculty of Electrical Engineering,
-see~\texttt{http://www.pborky.sk/contact} for a contact infomation}}%
+\thanks{{Peter Boráros}, Czech Technical University in Prague, Faculty of Electrical Engineering,
+see~\href{http://www.pborky.sk/contact}{\scriptsize{\texttt{http://www.pborky.sk/contact}}} for a contact infomation}}%
 
 % The paper headers
 %\markboth{Peter Boráros, Czech technical university, Faculty of Electrical Engineering, Prague, Czech Republic}{}
@@ -124,10 +103,10 @@ see~\texttt{http://www.pborky.sk/contact} for a contact infomation}}%
 \IEEEdisplaynotcompsoctitleabstractindextext
 \IEEEpeerreviewmaketitle
 
-\section{Assignment}\label{ass}
+\section{The problem}\label{ass}
 The task is to design and implement scheduling algorithm for assembly manufacturing line group.
 Group is described by directed acyclic graph with one output and several input nodes (see
-~fig.~\ref{fig:graph}). Input nodes repesent input buffer of the material and output node represents
+~\emph{fig.~\ref{fig:graph}}). Input nodes repesent input buffer of the material and output node represents
 output buffer of the product. Inner nodes represent assembly machines or control points.
 One or more machines or control points are handled by operator. Operator must be qualified for 
 position where he works. Operator`s skills can affect the productivity.
@@ -212,365 +191,37 @@ the customer and estimate of material availability. Time is discrete and time st
   \label{fig:graph}
 \end{figure}
 
+The problem can be categorised as job-shop scheduling problem. The tasks are production orders (instructions for the operators).
+The production order (task) depicts an ammount produced model (or duration of the production) and the description of the model
+at the particular time span.
+Jobs are sets of tasks for particular resource.
+The resources are prodution machines and material or subassemblies used by machine.
+Availability of the resources is limited by setup or maintence process or by production of the subassemblies
+on the upstream assembly line or by shipment of the material from the suppliers.
+%Limitations of the availability can be caused by the change of particular task for another taks.
 
-%Motivation for this work is to enable ability to distinguish a periodic behavior of potential threats from ordinary
-%network communication. Dataset that has been provided for purposes of this work contains an agregate information of 
-%about one day of the network communication as well as the information of malignancy of particular communication 
-%participants. The crucial moment of this research is to differentiate an malicious peer-to-peer communication from
-%other not-malicous classes (especially www proxy servers or DNS servers).
-%
-%Section \ref{sec:prep} provides formal information about data capturing, and process of extracting features involving 
-%fourier transformation. In section \ref{sec:stats} an usage of the statistical methods is described and in section 
-%\ref{sec:exp} is described the aplication on given dataset. 
-%Especially the construction and verification of the statistical models. 
-%
-%Reader interested in statistical analysis should skip to section \ref{sec:stats}. 
-%
-%\section{Data preparation}\label{sec:prep}
-%\subsection{Network traffic, gathering the data}
-%It is possible to represent a network traffic by set of flows distributed in time. The flow is a sequence of packets having  similar attributes. Packets are exchanged usually among network endpoints. Attributes taken under consideration are at least: source and destination endpoint address, port and protocol. Mentioned attributes usualy delimitate flows.
-%
-%In order to evaluate anomaly rate of paticular flow other properties ought to be taken in account. Especially number of packets and bytes, starting and ending time (time-stamp of the first or the last packet in the flow).
-%
-%%TODO mention the features 
-%The time distribution of flows can be determined by considering the starting timestamp of each flow. This approach provides generalized view on the flow, as it has been occured in network channel with unlimited throughput.
-%
-%Experimental dataset provided for purposes of this work has been extended with classification information, a knowledge if particular endpoint is harmfull or not or even if it is suspicious.
-%
-%\subsection{Data binning}
-%In order to reduce minor observation errors binning technique ought to be used. The time axis is divided into disjoint intervals - bins. Let $h$ be number of bins and $\mathbb{F}$ be the set of all flows captured in time interval $\mathbb{T} = (0, T_{max}\rangle $. The $t$-th bin is known as  set of flows $\mathbb{F}_t$ that occurs in time interval $\mathbb{T}_t = ((t-1)\cdot \delta, t\cdot \delta\rangle $ where $t \in \{1, .. h\}$ and $\delta$ is the width of time intervals denoted $\delta = \frac{T_{max}}{h}$. Denote
-%\begin{equation}
-%\mathbb{F}_t = \{f : f \in \mathbb{F} \wedge s(f) \in \mathbb{T}_t \}
-%\end{equation}
-%where function $s:\mathbb{F} \rightarrow \mathbb{N} $ 
-%returns starting timestamp of the flow $f\in \mathbb{F}$.
-%
-%For each interval,
-%representative value is calculated. Following formula have been considered:
-%\begin{equation}
-%r_t = \frac{\sum\limits_{f\in \mathbb{F}_t}b(f)}{\sum\limits_{f\in \mathbb{F}_t}p(f)}
-%\end{equation}
-%where $r_t$ is representative of time interval $t$, $\mathbb{F}_t$ is set of flows captured in time 
-%interval $t$, function $b:\mathbb{F} \rightarrow \mathbb{N}$ outputs size of the flow $f$ in bytes and function 
-%$p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$. 
-%In the other words, value $r_t$ is an average packet size. 
-%
-%Tuples $s_i = (r_a, \ldots, r_b)$ are ordered lists of representatives for
-%$a = (i-1)\cdot w +1 $, $b = i\cdot w $ and $ i = 1, \ldots, \lfloor \frac{h-w}{w} \rfloor$,
-%where $w$ is size of each tuple and $h$ is number of bins. In other words, sequence $r_1,\ldots,r_h$
-%is chopped into non-overlapping subsequences $s_i$.
-%
-%
-%%TODO further description of representatives and features
-%
-%\subsection{Fourier transformation}
-%Tuples $s_i$ are to be transformed from the time domain to the frequency domain.
-%This can be achieved by fourier-related tranforms, e.g. by a fourier or a wavelet transform.
-%The wavelet transform, unlike the fourier transform, captures
-%not only a notion of the frequency content of the input, by
-%examining it at different scales, but also temporal content.
-%
-%To achieve fast computation, a fast fourier transform (FFT) algorithm has been involved.
-%It is an efficient algorithm to compute the discrete fourier tranform (DFT) and its inverse.
-%A DFT decomposes a sequence of values into components of different frequencies. 
-%This operation is useful in many fields but computing it directly from the definition is often 
-%too slow to be practical.
-%An FFT is a way to compute the same result more quickly: 
-%computing a DFT of N points in the naive way, using the definition, takes $O(N^2$) arithmetical 
-%operations, while an FFT can compute the same result in only $ O(N \log N)$ operations.
-%
-%The sequence of $N$ complex numbers $x_0, ..., x_{N−1}$ is transformed into the
-%sequence of $N$ complex numbers $X_0, ..., X_{N−1}$ by the DFT according to the
-%formula:
-%\begin{equation}
-%X_k = \sum_{n=0}^{N-1} x_n e^{-\frac{2 \pi i}{N} k n} \quad \quad k = 0, \dots, N-1
-%\end{equation}
-%where $i$ is imaginary unit and $e^{-\frac{2 \pi i}{N} k n}$ is $N$-th root of unity.
-%
-%The transform is sometimes denoted as 
-%$\mathcal{F}\colon\mathbb{C}^N \to \mathbb{C}^N$, e.g.
-%$\mathbf{X} = \mathcal{F} \left ( \mathbf{x} \right )$.
-%
-%Fourier transform is appliend on sequences $s_i$ resulting in sequences of complex coeficients.
-%By discarding phase information real coeficients are obtained.
-%Coeficients are organised in matrix $\mathcal{S}$. Columns of matrix $\mathcal{S}$ are denoted:
-%
-%\begin{equation}
-%\mathcal{S}_{*,j} = \mid\mathcal{F}(s_{j})\mid
-%\end{equation}
-%
-%An experimental dataset contains also classification information. For particular classes,
-%different matrices ought to be constructed, specifying the class information in upper index, 
-%e.g.: $\mathcal{S}^{(c)}$.
-%
-%\section{Statistical analysis}\label{sec:stats}
-%In previous section an matrix $\mathcal{S}$, that represents feature set, has been introduced.
-%Columns of the matrix are $N$-dimensional random vectors that have to undergo further analysis.
-%
-%At first step, the model (along with the model`s parameters $\theta$) ought to be found.
-%Most popular methods are based on maximum likelihood estimation (MLE) where the solution is sought by 
-%iterative manner maximizing the likelihood estimate and iteratively modifying the parameters $\theta$ so the likelihood
-%estimate increases. An Expectation-Maximization (EM) algorithm is example of such process. It is very popular in 
-%examining mixture models due to its speed. In \cite{Bor04} it has been shown that this algorithm converges 
-%to local optima. First question is, if the locally optimal model is good enough. The other question is how accuratelly 
-%the fitting process approximates the observed distribution even if it finds an global optima.
-%
-%These reasonable doubts are implying that the parameters obtained by EM algorithm have to undergo a goodness-of-fit
-%testing by method indepedent from the MLE.
-%An articles \cite{Nar03}, \cite{Ros62} sugests that for multivariate distribution ($N > 1$) little research
-%has been accomplished and there is no such universal method like $\chi^2$-test or  Kolmogorov-Smirnov test
-%for the univariate case ($N=1$). 
-%
-%
-%\subsection{The model}
-%In last subsection the process of fittng the model`s parameters have been outlined without any closer look at the model.
-%Hence, nearer look on the model have to be taken.
-%
-%Generally, the sample set represented by matrix  $\mathcal{S}$ is the set of $N$-dimensional real vectors $\vec{R}_i $.
-%For $N=1$ it reduces to scalar value.
-%
-%Vector $\vec{R}_i$ can be seen as random vector with unknown probability distribution
-%$F_R: \mathbb{R}^N \rightarrow \langle 0, 1 \rangle $. Distribution $F_R$ represents the supected model.
-%
-%There can be doubts about normality of the distribution, but for the sake of convenience a plausible assumption of 
-%normality of the distribution $F_R$  ought to be verified. Under this assuption the sample set is modelled by multivariate 
-%normal distribution, denote $\vec{R} \sim \mathcal{N}(\vec{\mu},\mathbf \Sigma)$, where the parameters of the model are 
-%$\theta = (\vec{\mu}, \mathbf\Sigma)$, $\vec{\mu}$ is mean vector, and $\mathbf\Sigma$ is the covariance matrix. 
-%Instead of cumulative distribution function $F_R$ we denote an probabilty density function $f_R$:
-%\begin{equation}
-%f_R(\vec{\mathbf{t}})\, =
-%\frac{1}{(2\pi)^{N/2}|\mathbf\Sigma|^{1/2}}
-%\exp \left(-\frac{1}{2}({\mathbf{\vec t}}-{\mathbf{\vec\mu}})^T{\mathbf\Sigma}^{-1}({\mathbf{\vec t}}-\mathbf{\vec\mu})
-%\right).
-%\end{equation}
-%In case $N=1$ the distribution is reduced to univariate normal distribution $R \sim N(\mu,\sigma)$, where $\mu$ is 
-%mean value $\mu = ER$ and $\sigma$ is standard deviation $\sigma = \sqrt{DR} = \sqrt{E[(R - ER)^2] }$ and 
-%probabilty density function $f_R$ is:
-%\begin{equation}
-%f_R(t)\, =
-%\frac{1}{\sqrt{2\pi}\sigma}
-%\exp \left(-\frac{(t-\mu)^2}{2\sigma^2}
-%\right).
-%\end{equation}
-%A cumulative distribution function could be expressed as:
-%\begin{equation}
-%F_R(x) = \int_{-\infty}^x f(t)\,dt.
-%\end{equation}
-%
-%\subsection{Fitting the model`s parameters}
-%The EM algorithm is an efficient iterative procedure to compute the maximum likelihood estimate (MLE) in the
-%presence of missing or hidden data. In MLE, we wish to estimate the model parameter(s) for which the observed
-%data are the most likely.
-%
-%Each iteration of the Expectation-Maximization (EM) algorithm consists of two processes: 
-%The E-step, and the M-step. In the expectation, or E-step, the missing data are estimated given the observed 
-%data and current estimate of the model parameters. 
-%This is achieved using the conditional expectation, explaining the choice of terminology.
-%In the M-step, the likelihood function is maximized under the assumption that the missing data are known. 
-%The estimate of the missing data from the E-step are used in lieu of the actual missing data.
-%
-%Convergence is assured since the algorithm is guaranteed to increase the likelihood at each iteration.
-%
-%As has been suggested, EM algorithm is used to searching for model in the presence of missing or hidden data.
-%For example a fitting an gaussian mixture model can be highlighted. Gaussian mixture model is denoted by
-%$ Mix_{\mathbf{\vec{c}}}(N(\mu_1,\mathbf{\Sigma_1}),\ldots,N(\mu_k,\mathbf{\Sigma_k})) $ where $k$ denominates a number
-%of mixture components, vector $\vec{c} = (c_1,\ldots,c_k)^T$ is mixture weight vector and it must sum to 1.
-%Algortihm fits the mixture model while each component of mixture and the weight vector $\vec{c}$
-%is hidden property of provided sample data (for example an unspecified clustering).
-%
-%In this article a closer look on simple gaussian model, has been taken. 
-%Mixture model is out of scope of this article.
-%
-%\subsection{Univariate goodness-of-fit test - Anderson-Darling test}
-%Anderson-Darling test is considered as most powerful statistical tool for detecting most departures from normality. 
-%\cite{Ste74} Its test statistic is based on empirical distribution function.
-%
-%The Anderson–Darling test assesses whether a sample comes from a specified distribution. It makes use of the fact that, 
-%when given a hypothesized underlying distribution and assuming the data does arise from this distribution, 
-%the data can be transformed to a uniform distribution. 
-%The transformed sample data can be then tested for uniformity with a distance test (Shapiro 1980).
-%The formula for the test statistic $A^2$ to assess if data $\{R_1,\ldots,R_n\}$ comes from a distribution with cumulative distribution function (CDF) $F_R$:
-%\begin{equation}
-%A^2=-n-\sum_{k=1}^n \frac{2k-1}{n}\left[\ln( F_R(R_k)) + \ln\left(1-F_R(R_{n+1-k})\right)\right].
-%\end{equation}
-%Note that data must be put in the order: $\forall i,j = 1,\ldots,n: (i \le j) \implies R_i \le R_j $.
-%
-%The test statistic can then be compared against the critical values of the theoretical distribution.
-%Note that in this case no parameters are estimated in relation to the distribution function $F_R$.
-%
-%In case of testing for the normality $R \sim N(\mu, \sigma)$, with known parameters $\mu$ and $\sigma$, 
-%the test statistic is
-%\begin{equation}
-%A^2=-n-\sum_{k=1}^n \frac{2k-1}{n}\left[\ln( \Phi(T_k)) + \ln\left(1-\Phi(T_{n+1-k})\right)\right],
-%\end{equation}
-%where $T_k = \hat\sigma^{-1}(R_k - \hat\mu)$ ($R_k$ standardized), 
-%$\Phi$ is standard normal cumulative distribution function $N(1,0)$
-%and  $\hat\mu = \mu$, $\hat\sigma = \sigma$ (if parameters are known). 
-%
-%If $A^2$ exceeds given critical value hypotesis of normality is rejected with som significance level.
-%The critical values are given in \textsc{table \ref{tbl:crit}}.
-%
-%\begin{table}[!h]
-%\caption{Critical values of the test statistic $A^2$ for the particular significance levels}
-%\begin{center}
-%\begin{tabular}{|c|c|}\hline
-%\textbf{Significance} & $\mathbf{A^2_{max}}$ \\ \hline
-%15\% & 0.576 \\ \hline
-%10\% & 0.656 \\ \hline
-%5\% & 0.787 \\ \hline
-%2.5\% & 0.918 \\ \hline
-%1\% & 1.092 \\ \hline
-%\end{tabular}
-%\end{center}
-%\label{tbl:crit}
-%\end{table}
-%\subsection{Multivariate goodness-of-fit test}
-%Unfortunately in multivariate case, hypotesis testing is much more complicated. \textsc{Rosenblatt} \cite{Ros62} suggests 
-%mapping the set of all $N$-dimensional distributions in a one to one measurable manner into a subset of one-dimensional
-%distribution functions. An \cite{Bro08} brings a closer look on the Rosenblatt`s transformation and its generalization.
-%
-%Article \cite{BicBre83} suggest using an volume of nearest neighbour sphere centered an particular point of tested dataset.
-%In \cite{Nar03} multivariate clustering method is introduced.
-%
-%Multivariate goodness-of-fit tests are out of scope of this article.%, although ..
-%
-%\section{Experiments}\label{sec:exp}
-%A set of three matrices  $\{\mathcal{S}^{(1)},\mathcal{S}^{(2)},\mathcal{S}^{(3)}\}$ has been captured and
-%have to undergo model finding and checking procedure. The upper index $^{(i)}$ distinguishes between classes.
-%An upper index has been omitted, if there is no need to distinguish.
-%
-%Size of each matrix is $[N \times m]$.
-%Columns of this matrices contain independent and identically distributed $N$-dimesional random vectors.
-%For the purposes of this article we \emph{choose} only first dimesion of all \emph{column vectors} to undergo analysis.
-%Hence we select first row of the \emph{matrices} $\mathcal{S}^{(i)}$.
-%Each component of selected \emph{row} vector is independent and identically distributed random sample.
-%Analysis of the other dimensions is out of scope of this article.
-%
-%Denote the vectors as ${\vec k^{(i)}}=( k^{(i)}_1,\ldots,k^{(i)}_{m})$, 
-%where $i=1,2,3$, and  size of each vector is $m$.
-%
-%Each of the vectors captures different type of computer network traffic, as shown in the
-%\textsc{table \ref{tbl:data}}.
-%
-%\begin{table}[!h]
-%\caption{Datasets}
-%\begin{center}
-%\begin{tabular}{|c|c|c|}\hline
-%\textbf{No.} & \textbf{Class} & \textbf{Data} \\ \hline
-%1 & proxy server & $\vec{k}^{(1)}$ \\ \hline
-%2 & dns server & $\vec{k}^{(2)}$ \\ \hline
-%3 & p2p network & $\vec{k}^{(3)}$ \\ \hline
-%\end{tabular}
-%\end{center}
-%\label{tbl:data}
-%\end{table}
-%
-%Proxy server and DNS server is considered to be legitimate, while p2p network not.
-%
-%\subsubsection{Model fitting}
-%Under assumption that given random sample sets are from normal distribution,
-%the appropiate model have to be found. 
-%This can be achieved by already introduced EM algorithm, but for normal distribution, 
-%parameters can be estimated using formulae:
-%\begin{equation}
-%\mu = \bar\mu_m = \frac{1}{m}\sum^m_{i=1}k_{i},
-%\end{equation}
-%\begin{equation}
-%\sigma = S_m = \sqrt{\frac{1}{m-1}\sum^m_{i=1}(k_{i}-\bar\mu_m)^2},
-%\end{equation}
-%where $\bar\mu_m$ is mean value of samples, $ S_m$ is sample standard deviation.
-%\emph{Note} that $\bar\mu_m$ and  $ S_m$ are unbiased estimators of the parameters $\mu$, $\sigma$.
-%Results are in shown in the \textsc{table \ref{tbl:params}}. The number $m$ is sample set size.
-%The EM algorithm lead to absolutely same results, even if random initialization has been performed, 
-%so for simple cases is its usage obsolete.
-%
-%Cumulative distribution fuctions along with histograms are shown on \textbf{fig. \ref{fig:hist}}.
-%
-%\begin{figure}[h]%
-%  \centering
-%  \digraph[width=80mm]{MyGraph}{rankdir=LR; a->b; b->c}
-%  \caption{Normed histogram and tested probability density function}
-%  \label{fig:hist}
-%\end{figure}
-%
-%\begin{table}[!h]
-%\caption{Estimated parameters of models}
-%\begin{center}
-%\begin{tabular}{|c|c|c|c|c|}\hline
-%\textbf{No.} & \textbf{Class}  & $\mathbf{\bar\mu_m}$ & $\mathbf{S_m}$ & \textbf{m} \\ \hline
-%1 & proxy server & 1788.89 & 531.03 & 1870 \\ \hline
-%2 & dns server & 459.51 & 144.53 & 1867 \\ \hline
-%3 & p2p network & 812.43 & 212.81  & 1871 \\ \hline
-%\end{tabular}
-%\end{center}
-%\label{tbl:params}
-%\end{table}
-%
-%\subsubsection{Goodness-of-fit measure}
-%
-%The test statistics are in  \textsc{table \ref{tbl:anders}}.
-%The value $n$ is the number of samples used for test.
-%\textsc{Stephens} \cite{Ste74} notes that the test becomes better when the parameters 
-%are computed from the data. Despite of his note different sample set were used to compute the test statistics.
-%The model has been computed using one set
-%and the test statistic using other one. 
-%Anyway, as the statistic exceeds $A^2_{max}$ value, hypotesis of normality can be rejected in all cases
-%at significance level 1\%.
-%
-%\begin{table}[!h]
-%\caption{Test statistics}
-%\begin{center}
-%\begin{tabular}{|c|c|c|c|}\hline
-%\textbf{No.} & \textbf{Class} & $\mathbf{A^2}$ &  \textbf{n} \\ \hline
-%1 & proxy server & 43908.04 & 200 \\ \hline
-%2 & dns server & 33334.23 & 203 \\ \hline
-%3 & p2p network & 58299.30 & 199 \\ \hline
-%\end{tabular}
-%\end{center}
-%\label{tbl:anders}
-%\end{table}
-%
-%\section{Conclusion}
-%Simple experiments described above are not the goal of the research.
-%Further research of model finding and checking is intended to be done. 
-%Next experiments will employ gaussian mixture models along with the EM algorithm. 
-%The goal is, to work out  an easy-to-use and fast method for searching and especially for testing 
-% multivariate mixture models.
-%
-%\begin{thebibliography}{1}
-%
-%\bibitem{Bor04}
-%  \textsc{S. Borman}. (2004). \emph{The Expectation Maximization Algorithm - A short tutorial}.
-%  
-%\bibitem{Nar03}
-%  \textsc{I. Narsky}. (2003). \emph{Goodness of Fit: What Do We Really Want to Know?}. 
-%  paper at PHYSTAT2003. SLAC National Accelerator Laboratory. 
-%
-%\bibitem{Ros62}
-%  \textsc{J. Rosenblatt}. (1962). \emph{Note on Multivariate Goodness-of-fit Tests}. 
-%  The Annals of Mathematical Statistics 33. 807-810.
-%
-%\bibitem{KanHar95}
-%  \textsc{T. Kanungo, R. N. Haralick}. (1995). 
-%  \emph{Multivariate hypotesis testing for Gaussian Data: Theory and Software}.
-%
-%\bibitem{Ste74}
-%  \textsc{M. A. Stephens}. (1974). 
-%  \emph{EDF Statistics for Goodness of Fit and Some Comparisons}.
-%  Journal of the American Statistical Association 69. 730–737.
-%
-%\bibitem{Bro08}
-%  \textsc{A.E. Brockwell}. (2008). 
-%  \emph{Universal Residuals: A Multivariate Transformation}.
-%  Statistics \& Probability Letters. 77. 1473-1478.
-%
-%\bibitem{BicBre83}
-%   \textsc{J. Bickel, L. Breiman}. (1983). 
-%   \emph{Sums of Functions of Nearest Neighbor Distances, Moment Bounds, Limit Theorems and a Goodness of Fit Test}.
-%   The Annals of Probability 11. 185-214. 
+\section{Review}
+Most common methodology in job-shop scheduling is material resource planning (MRP). As the MRP is the planning tool it
+is not designed for the detailed scheduling. In practice the scheduling is performed by experienced shop-floor
+personel with pencil. \cite{Hoi} 
 
 
-%\end{thebibliography}
+\section{Problem solution}
+Given a set of $m$ machines and set of $n$ jobs. Each job consist of a sequence of operations each of which needs 
+to be processed during an uninterupted time period of a given length on a given resource. 
+Each resource can process at most one operation at a time.
+
+
+\begin{thebibliography}{1}
+
+\bibitem{Hoi} \textsc{D.J. Hoitomt}, \textsc{P.B. Luh}, and \textsc{K.R. Pattipati}, \emph{Practical Approach to Job-Shop Scheduling
+Problems}, 1-13, IEEE Trans Rob Autom, Feb, 9(1), 1993.
+
+\bibitem{Sed} \textsc{Miloš Šeda}, \emph{Mathematical Models of Flow Shop and Job Shop Scheduling Problem}, 122-127, World Academy of Science, Engineering and Technology 31, 2007.
+
+%\bibitem{} \textsc{}, \emph{}, , .
+
+\end{thebibliography}
 
 % that's all folks
 \end{document}
