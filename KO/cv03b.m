@@ -13,12 +13,13 @@ for i = 1:24,
 end;
 
 sense=1;
-bx = [ops,b,b];
+bx = [ops,b,b,2*ones(1,24)];
 A = [   [ones(1,24),zeros(1,24)]
 	[A,-eye(24)];
-	[A,eye(24)] ];
-c = [zeros(24, 1);ones(24, 1)];
-ctype = [repmat('L',25,1);repmat('G',24,1)];
+	[A,eye(24)];
+	[A,zeros(24)] ];
+c = [zeros(24, 1);[1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,2,3,1,1,1,1,1]'];
+ctype = [repmat('L',25,1);repmat('G',48,1)];
 lb = zeros(48,1);
 ub = inf(48,1);
 vartype = repmat('C', 48, 1);
@@ -35,7 +36,7 @@ if(status==1),
         j = [j; [24-i+1:24, 1:24-i]];
     end;
     br = sum(xmin(j'),2);
-    subplot(2,1,2); bar ([b',br],1); title('weak');
+    subplot(2,1,2); bar ([b',br],1); title(sprintf('weak (max. operators: %d)', ops));
     fprintf('\nOperator count:\t%d\n', sum(xmin(1:24)));
     %fprintf('\nTotal diff:\t%d\n', sum(abs(br - b')));
     fprintf('\nTotal diff:\t%d\n', sum(xmin(25:end)));
