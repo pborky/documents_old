@@ -1,7 +1,3 @@
-;#lang r5rs
-#lang scheme
-; simple robot simulator definitions for scheme
-; see https://cw.felk.cvut.cz/lib/exe/fetch.php/courses/a4b33flp/flp2012_scheme_1.pdf for details
 
 (define (simulate state expr prg lim)
         (letrec 
@@ -47,9 +43,9 @@
               (dec-at ; decrement i-th element of the list l
                (lambda (i l) (apply-at (lambda (a) (- a 1)) i l)))
               (inc-at-xy ; increment x-th element of y-th sublist of list l
-               (lambda (x y l) (apply-at-xy (lambda (a) (+ a 1)) x y l)))
+               (lambda (l x y) (apply-at-xy (lambda (a) (+ a 1)) x y l)))
               (dec-at-xy ; decrement x-th element of y-th sublist of list l
-               (lambda (x y l) (apply-at-xy (lambda (a) (- a 1)) x y l)))
+               (lambda (l x y) (apply-at-xy (lambda (a) (- a 1)) x y l)))
               (trunc-list ; keep first i elements of the list l
                (lambda (i l)
                  (cond 
@@ -58,29 +54,70 @@
                    (else (cons (car l) (trunc-list (- i 1) (cdr l)))) )))
               
               ; simulator functions
-              (get-maze ; get actual maze
-               (lambda (state) (at 1 state)))
-              (get-coords ; coordinates of robot
-               (lambda (state) (at 2 state)))
-              (get-coord-x ; x-coordinate of robot
-               (lambda (state) (at 0 (at 2 state)))) 
-              (get-coord-y ; y-coordinate of robot
-               (lambda (state) (at 1 (at 2 state))))
+              (apply-state ; generic
+               (lambda (fnc state)
+                 (apply (lambda (steps maze pos orient) (apply (lambda (x y) (fnc steps maze x y orient)) pos)) state ) ))
+              (apply-state2 ; generic
+               (lambda (fnc state) (apply fnc state)) )
+              (init-state ;
+               (lambda (state) (cons (seq-elem '() '()) state) ))
+              (get-maze  ; get actual maze
+               (lambda (state)
+                 (apply-state2 (lambda (steps maze pos orient) maze) state) ))
+              (get-coords  ; coordinates of robot
+               (lambda (state)
+                 (apply-state2 (lambda (steps maze pos orient) pos) state) ))
+              (get-coord-x  ; x-coordinate of robot
+               (lambda (state)
+                 (apply-state (lambda (steps maze x y orient) x) state) ) )
+              (get-coord-y  ; y-coordinate of robot
+               (lambda (state)
+                 (apply-state (lambda (steps maze x y orient) y) state) ) )
               (get-orientation ; get robot`s orientation
-               (lambda (state) (at 3 state)))
+               (lambda (state)
+                 (apply-state2 (lambda (steps maze pos orient) orient) state) ) )
               (set-orientation ; set robot`s orientation
-               (lambda (state o) (apply-at (lambda (k) o) 3 state)))
+               (lambda (state o)
+                 (apply-state2 (lambda (steps maze pos orient) (list steps maze pos o)) state) ))
+              (seq-elem
+               (lambda (steps a)
+                 (lambda (y)
+                       (cond
+                         ((null? a) y)
+                         ((not (null? steps)) (steps (cons a y))) ))))
               (push-sequence ; put something to action-sequence list
-               (lambda (state a) (apply-at (lambda (o) (cons a o)) 0 state )))
-               ;(lambda (state a) (apply-at (lambda (o) (cons (list a (get-orientation state) (get-coords state)) o)) 0 state )))
+               (lambda (state a)
+                 (apply-state2 
+                  (lambda (steps maze pos orient)
+                    (list (seq-elem steps a) maze pos orient)) state) ))
+              ;(lambda (state a) (apply-at (lambda (o) (cons (list a (get-orientation state) (get-coords state)) o)) 0 state )))
               (inc-coord-x ; increment x-coordinate of robot
-               (lambda (state) (apply-at (lambda (k) (inc-at 0 k)) 2 state)))
+               (lambda (state)
+                 (apply 
+                  (lambda (steps maze pos orient)
+                    (list steps maze (apply (lambda (x y) (list (+ 1 x) y)) pos) orient)) state ) ))
+              (inc-coord-y ; increment y-coordinate of robot
+               (lambda (state)
+                 (apply 
+                  (lambda (steps maze pos orient)
+                    (list steps maze (apply (lambda (x y) (list x (+ 1 y))) pos) orient)) state ) ))
               (dec-coord-x ; decrement x-coordinate of robot
-               (lambda (state) (apply-at (lambda (k) (dec-at 0 k)) 2 state)))
-              (inc-coord-y ; increment x-coordinate of robot
-               (lambda (state) (apply-at (lambda (k) (inc-at 1 k)) 2 state)))
-              (dec-coord-y ; decrement x-coordinate of robot
-               (lambda (state) (apply-at (lambda (k) (dec-at 1 k)) 2 state)))
+               (lambda (state)
+                 (apply 
+                  (lambda (steps maze pos orient)
+                    (list steps maze (apply (lambda (x y) (list (- 1 x) y)) pos) orient)) state ) ))
+              (dec-coord-y ; decrement y-coordinate of robot
+               (lambda (state)
+                 (apply 
+                  (lambda (steps maze pos orient)
+                    (list steps maze (apply (lambda (x y) (list x (- 1 y))) pos) orient)) state ) ))
+              ;(get-failed ; return if execution subtree failed
+              ; (lambda (state)
+              ;   (apply 
+              ;    (lambda (steps maze pos orient)
+              ;      (cond ((null? steps) #f) ((null? (car steps)) #t)) ) state )) )
+              ;(set-failed ; execution subtree failed
+              ; (lambda (state) (push-sequence state '()) ))
               (get-failed ; return if execution subtree failed
                (lambda (state)
                  (not (null? (at 4 state))) ))
@@ -92,41 +129,44 @@
                (lambda (o l)
                  (cond
                    ((null? l) 'fail) ; this should not happen
-                   ((eq? (car l) o) (at 1 l))
+                   ((eq? (car l) o) (car (cdr l)))
                    (else (next-orientation o (cdr l))) ) ))
               (put-mark ; put mark 
                (lambda (state)
-                 (apply-at (lambda (l) (inc-at-xy (get-coord-x state) (get-coord-y state) l)) 1 state)) )
-              (get-mark ; put mark 
+                 (apply-state2 (lambda (steps maze pos orient) (list steps (apply inc-at-xy (cons maze pos )) pos orient)) state) ))
+              (get-mark ; get mark 
                (lambda (state)
-                 (apply-at (lambda (l) (dec-at-xy (get-coord-x state) (get-coord-y state) l)) 1 state)) )
+                 (apply-state2 (lambda (steps maze pos orient) (list steps (apply dec-at-xy (cons maze pos )) pos orient)) state) ))
               (turn-left ; rotate left 
-               (lambda (state) 
-                 (set-orientation state (next-orientation (get-orientation state) orientations)) )) ; apply rotation helper
+               (lambda (state)
+                 (apply-state2 (lambda (steps maze pos orient) (list steps maze pos (next-orientation orient orientations))) state) ))
               (step ; make step without check
                (lambda (state)
-                 (cond 
-                   ((eq? (get-orientation state) 'west) (dec-coord-x state))
-                   ((eq? (get-orientation state) 'east) (inc-coord-x state))
-                   ((even? (get-coord-y state))
-                    (cond ((eq? (get-orientation state) 'northwest) (dec-coord-y (dec-coord-x state)))
-                          ((eq? (get-orientation state) 'southwest) (inc-coord-y (dec-coord-x state)))
-                          ((eq? (get-orientation state) 'northeast) (dec-coord-y state))
-                          ((eq? (get-orientation state) 'southeast) (inc-coord-y state)) ) )
-                   (else
-                    (cond ((eq? (get-orientation state) 'northwest) (dec-coord-y state))
-                          ((eq? (get-orientation state) 'southwest) (inc-coord-y state))
-                          ((eq? (get-orientation state) 'northeast) (dec-coord-y (inc-coord-x state)))
-                          ((eq? (get-orientation state) 'southeast) (inc-coord-y (inc-coord-x state))) ) ) ) ))
+                 (apply-state
+                  (lambda (steps maze x y orient)
+                    (cond
+                      ((eq? orient 'west) (list steps maze (list (- x 1) y) orient))
+                      ((eq? orient 'east) (list steps maze (list (+ x 1) y) orient))
+                      ((even? y) (cond
+                                   ((eq? orient 'northwest) (list steps maze (list (- x 1) (- y 1)) orient))
+                                   ((eq? orient 'southwest) (list steps maze (list (- x 1) (+ y 1)) orient))
+                                   ((eq? orient 'northeast) (list steps maze (list x (- y 1)) orient))
+                                   ((eq? orient 'southeast) (list steps maze (list x (+ y 1)) orient)) ))
+                      (else (cond
+                              ((eq? orient 'northwest) (list steps maze (list x (- y 1)) orient))
+                              ((eq? orient 'southwest) (list steps maze (list x (+ y 1)) orient))
+                              ((eq? orient 'northeast) (list steps maze (list (+ x 1) (- y 1)) orient))
+                              ((eq? orient 'southeast) (list steps maze (list (+ x 1) (+ y 1)) orient)) ))) )
+                 state)) )
               (west? ; true if looking to the west
                (lambda (state)
-                 (eq? (get-orientation state) 'west) ))
+                 (apply-state2 (lambda (steps maze pos orient) (eq? orient 'west)) state) ))
               (mark? ; tru if there is an mark
                (lambda (state)
-                 (> (at-xy (get-coord-x state) (get-coord-y state) (get-maze state)) 0 ) ))
+                 (apply-state (lambda (steps maze x y orient) (> (at-xy x y maze) 0) ) state) ))
               (wall? ; true if there is a wall
                (lambda (state)
-                 (eq? (at-xy (get-coord-x state) (get-coord-y state) (get-maze state)) 'w) ))
+                 (apply-state (lambda (steps maze x y orient) (eq? (at-xy x y maze) 'w) ) state) ))
               (get-predicate ; return proper predicate
                (lambda (expr)
                  (cond 
@@ -137,8 +177,8 @@
               (get-if ; return branch body based on predicate
                (lambda (state expr)
                  (cond
-                      (((get-predicate expr) state) (cons (at 2 expr) '()))
-                      (else (cons (at 3 expr) '()) ) ) ))
+                   (((get-predicate expr) state) (cons (at 2 expr) '()))
+                   (else (cons (at 3 expr) '()) ) ) ))
               (get-procedure ; return procedure body
                (lambda (expr prg)
                  (cond
@@ -188,9 +228,9 @@
                       )) )  )
           ; exec entry point
           (let ((ret ; bind the return state with "ret" - we need to mangle it a bit
-                 (do (cons '() state) (cond ((list? expr) expr) (else (list expr))) prg lim)))
+                 (do (init-state state) (cond ((list? expr) expr) (else (list expr))) prg lim)))
           (list 
-           (reverse (car ret)) ; reverse the action list
+           ((car ret) '()) ; reverse the action list
            (trunc-list 3 (cdr ret)) ; discard any obsolete items
            )) ))
 
@@ -239,4 +279,6 @@
   )
 
 ;(simulate (list get-maze '(1 1) 'west) 'start (list right-hand-rule-prg) 3)
-;(simulate get-initial-state 'fok right-hand-rule-prg 3)
+(display (simulate get-initial-state 'start right-hand-rule-prg 3)) (newline)
+(display (simulate get-initial-state 'do right-hand-rule-prg 3)) (newline)
+(display (simulate get-initial-state 'fok right-hand-rule-prg 3))  (newline)
