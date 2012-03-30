@@ -192,11 +192,11 @@
                       ; nothing to do
                       ((null? expr)  state)
                       ; unknown procedure has been called
-                      ((not expr)  (set-failed state 'unknown-procedure-call))
+                      ((not expr) (set-failed state 'unknown-procedure-call))
                       ; procedure recursion limit exceeded
                       ((< lim 0) (set-failed state 'recursion-limit-exceeded))
                       ; recursion limit exceeded
-                      ((< steps -1) (set-failed state 'recursion-limit-exceeded))
+                      ((< steps 0) (set-failed state 'recursion-limit-exceeded))
                       ; if execution subtree failed
                       ((get-failed state) state)
                       ; another list? we need to go deeper
@@ -225,7 +225,7 @@
                            (else (do (push-sequence nextstate 'step ) (cdr expr) prg lim (- steps 1))) )))
                       ; handle procedure calls
                       (else 
-                       (do (do state (get-procedure (car expr) prg) prg (- lim 1) steps) (cdr expr) prg lim steps))
+                       (do (do state (get-procedure (car expr) prg) prg (- lim 1) steps) (cdr expr) prg lim (- steps 1)))
                       ; that`s all
                       )) )  )
           ; exec entry point
@@ -297,10 +297,10 @@
                      (cond
                        ((null? l) l)
                        ((null? (cdr l)) l)
-                       (#t (let ((k (split l)))
-                             (merge pred
-                                    (merge-sort pred (car k))
-                                    (merge-sort pred (cdr k)))) ) )))
+                       (else (let ((k (split l)))
+                               (merge pred
+                                      (merge-sort pred (car k))
+                                      (merge-sort pred (cdr k)))) ) )))
        (pivotal (lambda (pred l  k)
                   (cond
                     ((null? l) #f)
@@ -327,16 +327,15 @@
               final)  )
            pair ) ) )
        (proc-pair
-        (lambda (prg pairs threshold stack-size prglen)
+        (lambda (prg pairs threshold stack-size prglen maxsteps)
           (cond
             ((null? pairs) '(0 0 0 0))
             (else
              (let
-                 ((value (proc-pair prg (cdr pairs) threshold stack-size prglen))
-                  (maxsteps (apply (lambda (a b c d) d) threshold)))
+                 ( (value (proc-pair prg (cdr pairs) threshold stack-size prglen maxsteps)) )
                (cond
-                 ((all? <= value threshold) (map + value (ex prg (car pairs) threshold stack-size prglen maxsteps)) )
-                 (else value) ) ) ) ) ))
+                 ((all? <= value threshold) (map + value (ex prg (car pairs) threshold stack-size prglen (- maxsteps (apply (lambda (a b c d) d) value)))))
+                 (else value) )  ) ) ) ))
        (proc-prg 
         (lambda (prgs pairs threshold stack-size)
           (cond
@@ -344,12 +343,13 @@
             (else 
              (let
                  ((prglen (lengthf (lambda (a) (cond ((eq? a 'procedure) #f) ((eq? a 'if) #f) (else #t) )) (car prgs)))
-                  (maxprglen (apply (lambda (a b c d) c) threshold)))
+                  (maxprglen (apply (lambda (a b c d) c) threshold))
+                  (maxsteps (apply (lambda (a b c d) d) threshold)))
                (cond
                  ((> prglen maxprglen) (proc-prg (cdr prgs) pairs threshold stack-size))
                  (else
                   (let
-                    ((value (apply (lambda (a b c d) (list a b prglen d)) (proc-pair (car prgs) pairs threshold stack-size prglen) )))
+                    ((value (apply (lambda (a b c d) (list a b prglen d)) (proc-pair (car prgs) pairs threshold stack-size prglen maxsteps) )))
                     (cond
                       ((all? <= value threshold) (cons (list value (car prgs)) (proc-prg (cdr prgs) pairs threshold stack-size)) )
                       (else (proc-prg (cdr prgs) pairs threshold stack-size)) ) ) )))  )) )) )

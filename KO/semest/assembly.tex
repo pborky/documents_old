@@ -21,7 +21,7 @@
 %%
 %%*************************************************************************
 
-\documentclass[a4paper,journal,onecolumn]{IEEEtran}
+\documentclass[a4paper,journal,twocolumn]{IEEEtran}
 
 \usepackage{cite}
 % \usepackage[nocompress]{cite}
@@ -88,7 +88,7 @@
 \title{Optimalization of the Manufacturing Processes on the Assembly Line}
 \date{March 05, 2012}
 \author{Peter~Boráros %
-\thanks{{Peter Boráros}, Czech Technical University in Prague, Faculty of Electrical Engineering,
+\thanks{{Peter Boráros}, Czech Technical University in Prague,
 see~\href{http://www.pborky.sk/contact}{\scriptsize{\texttt{http://www.pborky.sk/contact}}} for a contact infomation}}%
 
 % The paper headers
@@ -125,6 +125,61 @@ placement of the operator and technical staff (it must be capable to handle with
 Algorithm maximizes the production quantity. The constraints are shipment schedule to
 the customer and estimate of material availability. Time is discrete and time step is given.
 
+
+The problem can be categorised as job-shop scheduling problem. The tasks are production orders (instructions for the operators).
+The production order (task) depicts an ammount produced model (or duration of the production) and the description of the model
+at the particular time span.
+Jobs are sets of tasks for particular resource.
+The resources are prodution machines and material or subassemblies used by machine.
+Availability of the resources is limited by setup or maintence process or by production of the subassemblies
+on the upstream assembly line or by shipment of the material from the suppliers.
+%Limitations of the availability can be caused by the change of particular task for another taks.
+
+\section{Review}
+Most common methodology in job-shop scheduling is material resource planning (MRP). As the MRP is the planning tool it
+is not designed for the detailed scheduling. In practice the scheduling is performed by experienced shop-floor
+personel with pencil. 
+For solving immediate problems, such as sequencing, dispatching rules are often used. 
+There have been implemented dispatching rules and heuristics  based on  due dates, criticalicity of the operations, 
+processing times and resource utilization. 
+Such heuristics and rules were used also in artificial intelligence approaches.\cite{Hoi}
+
+Other methods have been developed based on optimalization methodologies such as \emph{dynamic programming} or 
+\emph{branch-and-bound} method.
+These methods require at least partial enumeration of possible sequences and thus computational complexity grows exponentially
+as the problem size increases. Additionally the schedule is no longer optimal after minor changes in tasks or addition of the 
+new tasks or breakdown of the machine.\cite{Hoi}
+
+\emph{Langragian relaxation} method has been developped to solve scheduling problem. 
+Method is used to decompose the problem into set of smaller subproblems, 
+providing tight lower bound on optimal cost.\cite{Hoi}
+The langragian problem can be used to probide bounds in branch-and-bounds algorithm.
+This approach lead to increase performance for several problems such as routing problem, scheduling and set covering.\cite{Fis}
+
+
+\section{Problem solution}
+Given a set of $m$ machines and set of $n$ jobs. Each job consist of a sequence of operations each of which needs 
+to be processed during an uninterupted time period of a given length on a given resource. 
+Each resource can process at most one operation at a time.
+
+
+\begin{thebibliography}{1}
+
+\bibitem{Hoi} \textsc{D.J. Hoitomt}, \textsc{P.B. Luh}, and \textsc{K.R. Pattipati}, \emph{Practical Approach to Job-Shop Scheduling
+Problems}, 1-13, IEEE Trans Rob Autom, Feb, 9(1), 1993.
+
+\bibitem{Fis} \textsc{Marshall L. Fisher}, \emph{The langragian relaxation method for solving linear integer problems}, 1-17, 
+Management Science, Vol. 27, No. 1, 1981.
+
+\bibitem{Sed} \textsc{Miloš Šeda}, \emph{Mathematical Models of Flow Shop and Job Shop Scheduling Problem}, 122-127, World Academy of Science, Engineering and Technology 31, 2007.
+
+%\bibitem{} \textsc{}, \emph{}, , .
+
+\end{thebibliography}
+
+\clearpage
+\onecolumn
+\appendix
 
 \begin{figure}[h]%
   \centering
@@ -190,38 +245,6 @@ the customer and estimate of material availability. Time is discrete and time st
   The input buffers are nodes of square shape and checkpoints are of diamond shape.}
   \label{fig:graph}
 \end{figure}
-
-The problem can be categorised as job-shop scheduling problem. The tasks are production orders (instructions for the operators).
-The production order (task) depicts an ammount produced model (or duration of the production) and the description of the model
-at the particular time span.
-Jobs are sets of tasks for particular resource.
-The resources are prodution machines and material or subassemblies used by machine.
-Availability of the resources is limited by setup or maintence process or by production of the subassemblies
-on the upstream assembly line or by shipment of the material from the suppliers.
-%Limitations of the availability can be caused by the change of particular task for another taks.
-
-\section{Review}
-Most common methodology in job-shop scheduling is material resource planning (MRP). As the MRP is the planning tool it
-is not designed for the detailed scheduling. In practice the scheduling is performed by experienced shop-floor
-personel with pencil. \cite{Hoi} 
-
-
-\section{Problem solution}
-Given a set of $m$ machines and set of $n$ jobs. Each job consist of a sequence of operations each of which needs 
-to be processed during an uninterupted time period of a given length on a given resource. 
-Each resource can process at most one operation at a time.
-
-
-\begin{thebibliography}{1}
-
-\bibitem{Hoi} \textsc{D.J. Hoitomt}, \textsc{P.B. Luh}, and \textsc{K.R. Pattipati}, \emph{Practical Approach to Job-Shop Scheduling
-Problems}, 1-13, IEEE Trans Rob Autom, Feb, 9(1), 1993.
-
-\bibitem{Sed} \textsc{Miloš Šeda}, \emph{Mathematical Models of Flow Shop and Job Shop Scheduling Problem}, 122-127, World Academy of Science, Engineering and Technology 31, 2007.
-
-%\bibitem{} \textsc{}, \emph{}, , .
-
-\end{thebibliography}
 
 % that's all folks
 \end{document}
