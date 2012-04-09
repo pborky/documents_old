@@ -1,4 +1,4 @@
-function [ img ] = cv08 (sumR, sumC, iters)
+function [ I ] = cv08 (sumR, sumC, iters)
     
     n1 = length(sumR);
     n2 = length(sumC);
@@ -6,16 +6,21 @@ function [ img ] = cv08 (sumR, sumC, iters)
     cp = zeros(n1+n2, n1+n2);
     b = [sumR -sumC]';
     l = zeros(n1+n2, n1+n2);
-    u = ones(n1+n2, n1+n2);
+    u = [ zeros(n1), ones(n1,n2);
+          zeros(n2,n1), zeros(n2) ];
     
+    img = [];
     for ic = 1:iters,
         [c] = fce(cp, I);
         cp = c;
         g = graph;
-        F = g.mincostflow(c,l,u,b); 
-        imshow(I)
+        F = g.mincostflow(c,l,u,b);
+        I = F(1:n1,n1+1:n1+n2);
+        img = [img,ones(n1,1),I];
     end;
-    img = I;
+    figure; imshow(img);
+    figure; imshow(I);
+    fprintf('diff: R=%f; C=%f;\n', sum(sumR~=sum(I,2)'), sum(sumC~=sum(I,1)));
 
     function [c] = fce (cp, I)
         [n1,n2] = size(I);
@@ -28,15 +33,15 @@ function [ img ] = cv08 (sumR, sumC, iters)
                 if I(row,col) == 1,
                     s = sum(sum(I(row-1:row+1,col-1:col+1)));
                     if s == 1,
-                        c(row,col) = 1;
+                        c(row,col+n1) = 1;
                     elseif s == 2.
-                        c(row,col) = .2;
+                        c(row,col+n1) = .2;
                     elseif s == 3.
-                        c(row,col) = .1;
+                        c(row,col+n1) = .1;
                     end;
                 else
                     if (I(row-1,col) == 1 && I(row+1,col) == 1) || (I(row,col-1) == 1 && I(row,col+1) == 1),
-                        c(row,col) = -.1;
+                        c(row,col+n1) = -.1;
                     end;
                 end;
             end;
