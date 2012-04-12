@@ -8,19 +8,20 @@ function [ I ] = cv08 (sumR, sumC, iters)
     l = zeros(n1+n2, n1+n2);
     u = [ zeros(n1), ones(n1,n2);
           zeros(n2,n1), zeros(n2) ];
-    
-    img = [];
+    t=' *';
+    img = I;
     for ic = 1:iters,
         [c] = fce(cp, I);
         cp = c;
         g = graph;
         F = g.mincostflow(c,l,u,b);
-        I = F(1:n1,n1+1:n1+n2);
-        img = [img,ones(n1,1),I];
+        I = ceil(F(1:n1,n1+1:n1+n2));
+	fprintf('iter=%d\n', ic);
+        fprintf('change=%d\n',sum(sum(abs(I-img))));
+	t(I+1)
+	img = I;
     end;
-    figure; imshow(img);
-    figure; imshow(I);
-    fprintf('diff: R=%f; C=%f;\n', sum(sumR~=sum(I,2)'), sum(sumC~=sum(I,1)));
+    fprintf('diff: R=%f; C=%f;\n', sum(sumR~=sum(I,1)), sum(sumC'~=sum(I,2)));
 
     function [c] = fce (cp, I)
         [n1,n2] = size(I);
