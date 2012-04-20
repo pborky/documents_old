@@ -1,7 +1,6 @@
 filter p xs = [ x | x <- xs, p x ]
 
-sieve (p:xp) = p: sieve [ x | x <- xp, (mod x p) /= 0  ]
-primes = sieve [2..]
+--primes = sieve [2..] where sieve (p:xp) = p: sieve [ x | x <- xp, (mod x p) /= 0  ]
 
 data Natural = MakeNat Integer
 data TCons a b = Cons a b | Empty
@@ -34,4 +33,4 @@ toNatural x | x > 0  = MakeNat x
 fromNatural :: Natural -> Integer
 fromNatural (MakeNat x) = x
 
-
+primes = let sieve = (\ (s) (p:xp) -> p : (s s [ x | x <- xp, (mod x p) /= 0  ]) ) in (sieve sieve [2..] )

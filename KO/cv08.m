@@ -47,4 +47,4 @@ function [ I ] = cv08 (sumR, sumC, iters)
             end;
             c = c + .5*cp;
         end;
-        
+
