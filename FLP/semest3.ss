@@ -1,4 +1,4 @@
-#lang r5rs
+;#lang r5rs
 ;(require racket/trace)
 
 (define (simulate-preempt state expr prg lim steps)
@@ -243,8 +243,7 @@
 
 (define (evaluate prgs pairs threshold stack-size)
   (letrec
-      (
-       (manhatan-dst (lambda (l k) 
+      ((manhatan-dst (lambda (l k) 
                        (apply +
                               (map
                                (lambda (x y)
@@ -351,7 +350,7 @@
                  ((> prglen maxprglen) (proc-prg (cdr prgs) pairs threshold stack-size))
                  (else
                   (let
-                    ((value (apply (lambda (a b c d) (list a b prglen d)) (proc-pair (car prgs) pairs threshold stack-size prglen maxsteps) )))
+                      ((value (apply (lambda (a b c d) (list a b prglen d)) (proc-pair (car prgs) pairs threshold stack-size prglen maxsteps) )))
                     (cond
                       ((all? <= value threshold) (cons (list value (car prgs)) (proc-prg (cdr prgs) pairs threshold stack-size)) )
                       (else (proc-prg (cdr prgs) pairs threshold stack-size)) ) ) )))  )) )) )
@@ -369,14 +368,76 @@
             (set! seed n)
             (quotient (* (- n 1) b) m-1)))))))
 
-(define
-  (crossover mother father im if)
+
+(define 
+  (merge-sort l)
+  
+  (define (merge pred l k)
+    (cond
+      ((null? l) k)
+      ((null? k) l)
+      ((null? pred) (cons (car l) (cons (car k) (merge (cdr l) (cdr k)))))
+      (else (let ((al (car l))
+                  (ak (car k)))
+              (cond
+                ((pred al ak) (cons al (merge pred (cdr l) k)))
+                (else (cons ak (merge pred l (cdr k)))) ))) ))
+  (define
+    (split l)
+    (define 
+      (spl l i)
+      (cond
+        ((null? l) (cons (ceiling (/ i 2)) l))
+        (else (let ((ret (spl (cdr l) (+ i 1))))
+                (let ((ar (car ret))
+                      (dr (cdr ret)))
+                  (cond
+                    ((list? ar) (cons (cons (car l) ar) dr))
+                    ((<= ar i) (cons ar (cons (car l) dr)) )
+                    (else (cons (cons (car l) '()) dr) ) ) )) )))
+    (spl l 0))
   
   (define
-    (choose-at skip? skip l n)
+    (pivotal pred l k)
+    (cond
+      ((null? l) #f)
+      ((= (car l) (car k)) (pivotal pred (cdr l) (cdr k)))
+      ((pred (car l) (car k)) #t)
+      (else #f) ))
+  
+  (define (pred a b) (pivotal < (car a) (car b)))
+  
+  (cond
+    ((null? l) l)
+    ((null? (cdr l)) l)
+    (else (let ((k (split l)))
+            (merge pred
+                   (merge-sort (car k))
+                   (merge-sort (cdr k)))) ) ))
+
+(define 
+  (evolve pairs threshold stack-size)
+  
+  (define (lengthf skip? skip skipcnt l)
+    (cond
+      ((null? l) 0)
+      ((list? (car l)) (+ (lengthf skip? skip skipcnt (car l)) (lengthf skip? skip skipcnt (cdr l))))
+      ((skip? (car l)) (+ skipcnt (lengthf skip? skip skipcnt (skip l '()))))
+      (else (lengthf skip? skip skipcnt (cdr l))) ) )
+  
+  (define
+    (skip? a)
+    (eq? a 'if))
+  (define 
+    (skip l k)
+    (cond 
+      ((null? k) (cdr (cdr l)))
+      (#t (cons (car l) (cons (car (cdr l)) k )) ) ))  
+  (define
+    (choose-at skip? skip skipcnt l n)
     (cond
       ((null? l) (list n l '()))
-      ((skip? (car l)) (choose-at skip? skip (skip l '()) n))
+      ((skip? (car l)) (choose-at skip? skip skipcnt (skip l '()) n))
       ((<= n 0) (list -1 (car l) '()))
       ((list? (car l))
        (apply
@@ -384,11 +445,40 @@
             (nn ll rr)
           (cond
             ((< nn 0) (list nn ll rr))
-            (#t (choose-at skip? skip (cdr l) nn)) ) )
-        (choose-at skip? skip (car l) (- n 1)) ))
-      (#t (choose-at skip? skip (cdr l) (- n 1))) ))
+            (#t (choose-at skip? skip skipcnt (cdr l) nn)) ) )
+        (choose-at skip? skip skipcnt (car l) (- n 1)) ))
+      (#t (choose-at skip? skip skipcnt (cdr l) (- n 1))) ))  
   (define
-    (replace-at skip? skip l k n)
+    (replace-at-m skip? skip skipcnt l mix n)
+    (cond
+      ((null? l) (list n l '()))
+      ((skip? (car l))
+       (apply 
+        (lambda (nn ll rest) (list nn (skip l ll) rest))
+        (replace-at-m skip? skip skipcnt (skip l '()) mix n) ) )
+      ((<= n 0) (list -1 (cons (mix (car l)) (cdr l)) (car l)) )
+      ((list? (car l))
+       (apply
+        (lambda 
+            (nn ll rest)
+          (cond 
+            ((< nn 0) (list nn (cons ll (cdr l)) rest))
+            (#t 
+             (apply
+              (lambda 
+                  (nnn lll rest) 
+                (list nnn (cons ll lll) rest))
+              (replace-at-m skip? skip skipcnt (cdr l) mix nn)) ) )) 
+        (replace-at-m skip? skip skipcnt (car l) mix (- n 1)) ) )
+      (#t 
+       (apply
+        (lambda 
+            (nn ll rest)
+          (list nn (cons (car l) ll) rest))
+        (replace-at-m skip? skip skipcnt (cdr l) mix (- n 1))) )) )
+  
+  (define
+    (replace-at skip? skip skipcnt l k n)
     (define
       (pack-result n x l k)
       (cond
@@ -399,7 +489,7 @@
       ((skip? (car l))
        (apply 
         (lambda (nn ll rest) (list nn (skip l ll) rest))
-        (replace-at skip? skip (skip l '()) k n) ) )
+        (replace-at skip? skip skipcnt (skip l '()) k n) ) )
       ((<= n 0) (list -1 (cons k (cdr l)) (car l)) )
       ((list? (car l))
        (apply
@@ -412,76 +502,128 @@
               (lambda 
                   (nnn lll rest) 
                 (list nnn (cons ll lll) rest))
-              (replace-at skip? skip (cdr l) k nn)) ) )) 
-        (replace-at skip? skip (car l) k (- n 1)) ) )
+              (replace-at skip? skip skipcnt (cdr l) k nn)) ) )) 
+        (replace-at skip? skip skipcnt (car l) k (- n 1)) ) )
       (#t 
        (apply
         (lambda 
             (nn ll rest)
           (list nn (cons (car l) ll) rest))
-        (replace-at skip? skip (cdr l) k (- n 1))) )) )
-  (define
-    (skip? a)
-    (eq? a 'if))
-  (define 
-    (skip l k)
-    (cond 
-      ((null? k) (cdr (cdr l)))
-      (#t (cons (car l) (cons (car (cdr l)) k )) ) ))  
+        (replace-at skip? skip skipcnt (cdr l) k (- n 1))) )) )
   
-  (apply
-   (lambda (n xm ym)
-     (apply
-      (lambda (n l r)
-        (list l (apply (lambda (n ll r) ll) (replace-at skip? skip mother r im)) ) )
-      (replace-at skip? skip father xm if) ) )
-   (choose-at skip? skip mother im)) )
-
-(define
-  (mutate prg)
-  '())
-
-(define
-  (select prgs)
-  '())
-
-(define 
-  (evolve pairs threshold stack-size)
-  (define (lengthf pred l)
-    (cond
-      ((null? l) 0)
-      ((list? (car l)) (+ (lengthf pred (car l)) (lengthf pred (cdr l))))
-      ((pred (car l)) (+ 1 (lengthf pred (cdr l))))
-      (else (lengthf pred (cdr l))) ) )
   (define
-    (choose-at l n)
-    (cond
-      ((eq? n 0) l)
-      ((null? l) n)
-      ((list? (car l))
-       (let ((r (choose-at (car l) (- n 1))))
-         (cond ((list? r) r) (choose-at (cdr l) r)) ) )
-      (#t  (choose-at (cdr l) (- n 1))) ))
+    (mix a rng)
+    (define 
+      (get-at l i)
+      (cond
+        ((null? l) l)
+        ((= i 0) (car l))
+        (#t (get-at l (- i 1)))  ))
+    (define genes '(turn-left turn-right put-mark get-mark step))
+    (define n-genes 5)
+    (get-at genes (rng n-genes)))
+  
   (define
-    (replace-at l k n)
+    (mutate entity len rng)
+    
+    (apply
+     (lambda (n l r) l)
+     (replace-at-m skip? skip 2 entity (lambda (a) (mix a rng)) (rng len)) ))
+  
+  (define ; take 2 trees and generate 2 other where random subtrees are excanged at single point
+    (crossover mother father lm lf rng)
+    (let 
+        ((im (rng lm))
+         (if (rng lf)))
+      (apply
+       (lambda (n xm ym)
+         (apply
+          (lambda (n l r)
+            (list l (apply (lambda (n ll r) ll) (replace-at skip? skip 2 mother r im)) ) )
+          (replace-at skip? skip 2 father xm if) ) )
+       (choose-at skip? skip 2 mother im)) ) )
+  
+
+  (define ; http://en.wikipedia.org/wiki/Stochastic_universal_sampling
+    (stochstic-universal-sampling population max-individuals fitness-fnc rng)
+    
+    (define
+      (roulette-wheel l u ptr roulette-step)
+      ;(display (list "bounds=<" (* 1. l) "," (* 1. u) ">," "step=" ptr ))(newline)
+      (cond
+        ((> ptr u) #f)
+        ((and (> ptr l) (<= ptr u)) #t)
+        (#t (roulette-wheel l u (+ ptr roulette-step) roulette-step)) ))
+    
+    (define (sus population roulette-step sub-total-fitness idx max min rand)      
+      (cond
+        ((null? population) (list (fitness-fnc idx min max sub-total-fitness) min max '()))
+        (#t (apply 
+             (lambda
+                 (fitness b c d)
+               (let
+                   ((mx (cond ((null? max) fitness) ((> fitness max) fitness) (#t max)  ))
+                    (mi (cond ((null? min) fitness) ((< fitness min) fitness) (#t min)  )))
+                 (apply
+                  (lambda (total-fitness min max rest)
+                    (let
+                        ((lower (/ (fitness-fnc idx min max sub-total-fitness) total-fitness))
+                         (upper (/ (fitness-fnc (+ 1 idx) min max (+ sub-total-fitness fitness)) total-fitness)))
+                      (cond
+                        ((roulette-wheel lower upper rand roulette-step)  (list total-fitness min max (cons (car population) rest) ))
+                        (#t (list total-fitness min max rest)) ) ))
+                  (sus (cdr population) roulette-step (+ sub-total-fitness fitness) (+ idx 1) mx mi rand) ) ))
+             (car (car population)) ))  ) )
+    
+    ;(trace sus)
+    ;(trace roulette-wheel)
+    (car (cdr (cdr (cdr (sus population (/ 1. max-individuals) 0 0 '() '() (/ (rng 1000000.) (* max-individuals 1000000.))) ))) ))
+  
+  (define ; from given population select 'max-individuals individuals. 
+    ; 'elite of them are copied and others are selected by stochastic universal sapling
+    (select population max-individuals elite rng)
+    
     (cond
-      ((eq? n 0) k)
-      ((null? l) n)
-      ((list? (car l))
-       (let ((r (replace-at (car l) k (- n 1))))
-         (cond 
-           ((list? r) (cons r (cdr l)))
-           (#t (cons (car l) (replace-at (cdr l) k r)))) ) )
-      (#t (cons (car l) (replace-at (cdr l) k (- n 1)))) ))
+      ((null? population) '())
+      ((<= max-individuals 0) '())
+      ((<= elite 0) 
+       (stochstic-universal-sampling 
+        population 
+        max-individuals 
+        (lambda (idx min max cum-fitness) (- (* idx (+ min max)) cum-fitness))
+        rng ))
+      (#t (cons (car population) (select (cdr population) (- max-individuals 1) (- elite 1) rng) )) ) )
+  
   (define
-    (cross prgA prgB rng)
-    (letrec
-        ((lenA (lengthf (lambda (a) (cond ((eq? a 'procedure) #f) ((eq? a 'if) #f) (else #t) )) prgA))
-         (lenB (lengthf (lambda (a) (cond ((eq? a 'procedure) #f) ((eq? a 'if) #f) (else #t) )) prgB))
-         (indA (rng lenA))
-         (indB (rng lenB)))
-      (crossover prgA prgB indA indB) ))
-  '())
+    (generate population rng)
+    '())
+  
+  (define
+    (do offspring ancestors pairs threshold stack-size rng)
+    (let
+        ((population (select (merge-sort (append ancestors (evaluate offspring pairs threshold stack-size))) 40 rng)))
+      (do (generate population rng) population pairs threshold stack-size rng)))
+  
+  (define 
+    (show-c l)
+    (apply 
+       (lambda (child1 child2)
+         (display "child1:")(newline)(display child1)(newline)(newline)
+         (display "child2:")(newline)(display child2)(newline)(newline))
+       l ) )
+  
+  (define 
+    (show-m l)
+    (display "mutant:")(newline)(display l)(newline)(newline) )
+  
+  
+  (define hermafrodit '(turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ))
+  (let
+      ((rng (congruential-rng 3456))
+       (len (lengthf skip? skip 2 hermafrodit)))
+    (show-c (crossover hermafrodit hermafrodit len len rng))
+    (show-m (mutate hermafrodit len rng))
+    ))
 
 
 
@@ -499,9 +641,10 @@
 
 
 
-(define hermafrodit '(turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start )) 
 
-(crossover hermafrodit hermafrodit 0 4)
+(evolve '() '() 0)
+
+
 ; '(turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start )
 ;(define prgs '( ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ) ) (procedure turn-right (turn-left turn-left turn-left turn-left turn-left)) ) ( (procedure start (put-mark (if wall? turn-left step) start)) ) ( (procedure start (step step step put-mark)) ) ) ) (define pairs '( ( (((w w w w w w) (w 0 w 0 w w) (w 1 w 0 0 w) (w 1 0 0 w w) (w w w w w w)) (1 3) southwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) ) ( (((w w w w w w) (w 0 w 0 w w) (w 0 w 2 0 w) (w 1 3 0 w w) (w w w w w w)) (3 3) northwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) )) )
 ;(evaluate prgs pairs '(20 20 20 20) 5)
