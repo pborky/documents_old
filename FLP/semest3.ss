@@ -386,7 +386,6 @@
       ((null? l) #f)
       ((null? (cdr l)) (set-cdr! l k) k)
       (#t (circ (cdr l) k)) ) )
-  ;(display l)(newline)
   (circ l l))
 
 (define 
@@ -508,7 +507,6 @@
                   (#t (get-at (cdr l) a (- i 1) rng))  )))
         (cond
           ((procedure? a) (a get-at rng)) (#t a) )) )
-    ;(trace get-at)
     (get-at genes a (rng n-genes) rng))
   
   (define
@@ -537,7 +535,6 @@
     
     (define
       (roulette-wheel l u ptr roulette-step)
-      ;(display (list "bounds=<" (* 1. l) "," (* 1. u) ">," "step=" ptr ))(newline)
       (cond
         ((> ptr u) #f)
         ((and (> ptr l) (<= ptr u)) #t)
@@ -565,8 +562,6 @@
                     (sus (cdr population) roulette-step (+ sub-total-fitness fitness) (+ idx 1) mx mi rand) ) )) )
              (car (car population)) ))  ) )
     
-    ;(trace sus)
-    ;(trace roulette-wheel)
     (cond 
       ((= 0 max-individuals) '())
       (#t
@@ -649,33 +644,27 @@
     '( 
       ( (procedure start ((if west? (turn-left put-mark) (if wall? (turn-left) (put-mark))) (if mark? (step) ()) start) ) )
       ( (procedure start (put-mark step)) )
-      ( (procedure start ((if wall? (turn-left) (put-mark)) (if mark? (step) ()) start) ) )
+      ( (procedure start ((if wall? (if west? (step) (turn-left turn-left turn-left turn-left turn-left)) (put-mark)) (if mark? (step) ()) start) ) )
       ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ) ) 
         (procedure turn-right (turn-left turn-left turn-left turn-left turn-left)) ) 
       ( (procedure start (put-mark (if wall? turn-left step) start)) ) 
       ( (procedure start (step step step put-mark)) )
       ( (procedure start (turn-left put-mark step step )) )
       ( (procedure start (step step step put-mark)) )
+      ( (procedure start ((if west? () turn-right) step step step step step step step))  (procedure turn-right (if wall? (turn-left turn-left turn-left turn-left turn-left) ())) )
       ( (procedure start (step start)) )
       ( (procedure start ((if wall? () (2)) put-mark)) (procedure 2 (step start () step)))
       ( (procedure start ((if west? () (turn-left)) start)) )
+      ( (procedure start ((if west? () (if wall? (turn-left turn-left turn-left turn-left turn-left) ())) step step step start)) )
       ( (procedure start (() turn-left turn-left turn-left)) )
       ( (procedure start (put-mark 1 put-mark)) (procedure 1 (turn-left turn-left turn-left step)) )
       ( (procedure start ((if wall? () (2)) put-mark)) (procedure 2 (step start () step)))
       ( (procedure start ((if wall? (turn-left) (put-mark step)) start )) )
       ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start)) (procedure turn-right (turn-left turn-left turn-left turn-left turn- left)))) )
   
-  (define hermafrodit '(turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ))
-  ;(define rng (let ((t (current-seconds))) (congruential-rng (* (truncate (/ t 10000)) (* 1000000 (modulo t 10000)) ))))
-  (define rng (congruential-rng 344544334564))
+  (define rng (congruential-rng 34454434354254))
   (display (list pairs threshold stack-size))(newline)
-  (let
-      ((len (lengthf skip? skip 2 hermafrodit)))
-    (do init-prgs '() pairs threshold stack-size rng)
-    ;(show-c (crossover hermafrodit hermafrodit len len rng))
-    ;(show-m (mutate hermafrodit len rng))
-    )
-  )
+  (do init-prgs '() pairs threshold stack-size rng) )
 
 
 
@@ -688,108 +677,25 @@
 
 
 
+(evolve  
+ '(((((w w w) (w 0 w) (w w w)) (1 1) east) (((w w w) (w 1 w) (w w w)) (1 1) west)) 
+   ((((w w w) (w 0 w) (w 0 w) (w w w)) (1 1) southwest) (((w w w) (w 1 w) (w 1 w) (w w w)) (1 2) southwest)) 
+   ((((w w w w w w w w w) (w 0 0 0 0 0 0 0 w) (w w w w w w w w w)) (1 1) east) (((w w w w w w w w w) (w 1 1 1 1 1 1 1 w) (w w w w w w w w w)) (7 1) east)) 
+   ((((w w w w w w w w w) (w 0 0 0 0 0 0 0 w) (w 0 0 0 0 0 0 0 w) (w w w w w w w w w)) (1 1) east) (((w w w w w w w w w) (w 1 1 1 1 1 1 1 w) (w 1 1 1 1 1 1 1 w) (w w w w w w w w w)) (1 2) west)) ) 
+ '(10000 10000 200 200) 200)
 
 
 
 
 
 
-;(evolve '() '() 0)
-(define s0
-'((
-(w w w)
- (w 1 w)
-(w w w)
-)
-(1 1) east
-))
-
-(define t0
-'((
-(w w w)
- (w 0 w)
-(w w w)
-)
-(1 1) northwest
-))
-
-(define s1
-'((
-(w w w)
- (w 0 w)
-(w 0 w)
- (w w w)
-)
-(1 1) northeast
-))
-
-(define t1
-'((
-(w w w)
- (w 1 w)
-(w 1 w)
- (w w w)
-)
-(1 2) northeast
-))
-
-(define s2
-'((
-(w w w w w w w w w)
- (w 0 0 0 0 0 0 0 w)
-(w w w w w w w w w)
-)
-(1 1) west
-))
-
-(define t2
-'((
-(w w w w w w w w w)
- (w 1 1 1 1 1 1 1 w)
-(w w w w w w w w w)
-)
-(7 1) east
-))
-
-(define s3
-'((
-(w w w w w w w w w)
- (w 0 0 0 0 0 0 0 w)
-(w 0 0 0 0 0 0 0 w)
- (w w w w w w w w w)
-)
-(1 1) west
-))
-
-(define t3
-'((
-(w w w w w w w w w)
- (w 1 1 1 1 1 1 1 w)
-(w 1 1 1 1 1 1 1 w)
- (w w w w w w w w w)
-)
-(1 2) west
-))
-
-(define pairs '( ( (((w w w w w w) (w 0 w 0 w w) (w 1 w 0 0 w) (w 1 0 0 w w) (w w w w w w)) (1 3) southwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) ) ( (((w w w w w w) (w 0 w 0 w w) (w 0 w 2 0 w) (w 1 3 0 w w) (w w w w w w)) (3 3) northwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) )) )
-
+;(define pairs '( ( (((w w w w w w) (w 0 w 0 w w) (w 1 w 0 0 w) (w 1 0 0 w w) (w w w w w w)) (1 3) southwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) ) ( (((w w w w w w) (w 0 w 0 w w) (w 0 w 2 0 w) (w 1 3 0 w w) (w w w w w w)) (3 3) northwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) )) )
 ; '(turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start )
 ;(define prgs '( ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ) ) (procedure turn-right (turn-left turn-left turn-left turn-left turn-left)) ) ( (procedure start (put-mark (if wall? turn-left step) start)) ) ( (procedure start (step step step put-mark)) ) ) ) (define pairs '( ( (((w w w w w w) (w 0 w 0 w w) (w 1 w 0 0 w) (w 1 0 0 w w) (w w w w w w)) (1 3) southwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) ) ( (((w w w w w w) (w 0 w 0 w w) (w 0 w 2 0 w) (w 1 3 0 w w) (w w w w w w)) (3 3) northwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) )) )
 ;(evolve pairs '(20 20 20 20) 5)
-
-;(trace evaluate)
 ;(evolve `((,s0 ,t0) (,s1 ,t1) (,s2 ,t2) (,s3 ,t3)  ) `(10000 10000 300 1000) 30)
-(evolve `((,s0 ,t0)   ) `(10000 10000 300 1000) 30)
+;(evolve `((,s0 ,t0)   ) `(10000 10000 300 1000) 30)
 ;(evolve pairs `(10000 10000 20 20) 10)
 ;(define prgs '( ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ) ) (procedure turn-right (turn-left turn-left turn-left turn-left turn-left)) ) ( (procedure start (put-mark (if wall? turn-left step) start)) ) ( (procedure start (step step step put-mark)) ) ) ) (define pairs '( ( (((w w w w w w) (w 0 w 0 w w) (w 1 w 0 0 w) (w 1 0 0 w w) (w w w w w w)) (1 3) southwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) ) ( (((w w w w w w) (w 0 w 0 w w) (w 0 w 2 0 w) (w 1 3 0 w w) (w w w w w w)) (3 3) northwest) (((w w w w w w) (w 0 w 0 w w) (w 0 w 0 0 w) (w 0 0 0 w w) (w w w w w w)) (1 1) northeast) )) )
-  (define init-prgs 
-    '( 
-      ( (procedure start ((if wall? (turn-left) (put-mark)) (if mark? (step) ()) start) ) )
-      ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start ) ) 
-        (procedure turn-right (turn-left turn-left turn-left turn-left turn-left)) ) 
-      ( (procedure start (put-mark (if wall? turn-left step) start)) ) 
-      ( (procedure start (step step step put-mark)) )
-      ( (procedure start (turn-right (if wall? (turn-left (if wall? (turn-left (if wall? turn-left step)) step)) step) put-mark start)) (procedure turn-right (turn-left turn-left turn-left turn-left turn-left)))) )
-  
-;(evaluate '(( (procedure start (step step step start)) )) `((,s0 ,t0)) `(10000 10000 100 1000) 10)
-;(simulate s0 'start '( (procedure start (step step step start)) ) 100)
+;(evaluate '(((procedure start ((if wall? (turn-left turn-left turn-left turn-left turn-left) ()) step step step step put-mark step step step))))   '(((((w w w) (w 1 w) (w w w)) (1 1) east) (((w w w) (w 1 w) (w w w)) (1 1) southeast)) ((((w w w) (w 1 w) (w 0 w) (w w w)) (1 1) west) (((w w w) (w 1 w) (w 0 w) (w w w)) (1 1) west)) ((((w w w w w w w w w) (w 0 0 0 0 1 0 0 w) (w w w w w w w w w)) (1 1) east) (((w w w w w w w w w) (w 0 0 0 0 1 0 0 w) (w w w w w w w w w)) (7 1) east))) '(10000 10000 20 20) 10)
+;(simulate '(((w w w w w w w w w) (w 0 0 0 0 1 0 0 w) (w w w w w w w w w)) (1 1) east) 'start '((procedure start ((if wall? (turn-left turn-left turn-left turn-left turn-left) ()) step step step step put-mark step step step))) 100)
