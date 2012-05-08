@@ -66,34 +66,112 @@ def get_jobshopdata(Njobs):
     return J,O,d,p,r,s
 
 
+def problemLR_dual(prob, lp, Njobs):
+    J,O,d,p,r,s = get_jobshopdata(Njobs)
+    #define vars
+    Cmax = lp.LpVariable('Cmax',0)
+    D = lp.LpVariable.dicts("D",O,0)
+    b = lp.LpVariable.dicts("b",O)
+    x = lp.LpVariable.dicts( 'x',
+            set( (i,j)
+                for i in O 
+                    for j in O 
+                        if i!=j and i[1]==j[1]) ,0,1)
+    pi = lp.LpVariable.dicts('pi',
+            set( (i,j)
+                for i in O 
+                    for j in O 
+                        if i!=j and i[1]==j[1]) )
+
+    lamb = lp.LpVariable.dicts('lambda',
+            set( (i,j)
+                for i in O 
+                    for j in O 
+                        if i[0] == j[0] and prec(i[1],j[1]) ) )
+
+    # rename vars
+    for k,v in D.items(): v.setName('D_%s_%s' % k )
+    for k,v in b.items(): v.setName('b_%s_%s' % k )
+    for k,v in x.items(): v.setName('x_%s_%s_%s_%s' % (k[0]+k[1]))
+    for k,v in lamb.items(): v.setName('lambda_%s_%s_%s_%s' % (k[0]+k[1]))
+    for k,v in pi.items(): v.setName('pi_%s_%s_%s_%s' % (k[0]+k[1]))
+    
+    ## lowerBound (10)
+    for k,v in b.items(): v.lowBound = r[k]
+    
+    ## uperBound (11)
+    for k,v in b.items(): v.upBound = d[k]-p[k]
+
+    ## capacity (13)
+    constr = [x[i,j]+x[j,i] == 1
+                for i in O 
+                    for j in O 
+                        if i!=j and i[1]==j[1]]
+
+    ## precedence (12)
+    obj = [ lamb[i,j] *(-b[j] + b[i] + p[i] + s[i,j])
+                for i in O 
+                    for j in O
+                        if i[0] == j[0] and prec(i[1],j[1])]
+
+    ## capacity (14)
+    obj += [ (pi[i,j]*(-b[j] + b[i] + x[i,j]*(p[i] + s[i,j]) - (1-x[i,j])*d[i]))
+                for i in O
+                    for j in O 
+                        if i!=j and i[1]==j[1] ] #(prec_t(i[1], j[1]) or i[1]==j[1])]
+    
+    ## Cmax + sum(D) (9)
+    constr += [Cmax>=b[o]+p[o] for o in O]
+    constr += [D[i] == b[i]+p[i]+s[i,j]-b[j]
+                for i in O 
+                    for j in O
+                        if prec(i[1],j[1]) and i[0]==j[0] and same_block(i[1], j[1])]
+    
+    oo = 0
+    for o in obj: oo = oo+o
+
+    # add all to problem
+    for k in constr:
+        prob += k
+    # and objective too
+    prob += lp.lpSum(D+Cmax+oo)
+    
+    # return vars and problem
+    return prob,lamb,pi
+
 def problem(prob, lp, Njobs):
     J,O,d,p,r,s = get_jobshopdata(Njobs)
     #define vars
     Cmax = lp.LpVariable('Cmax',0)
     D = lp.LpVariable.dicts("D",O,0)
     b = lp.LpVariable.dicts("b",O)
-    x = lp.LpVariable.dicts( 'x', set( (i,j) 
+    x = lp.LpVariable.dicts( 'x',
+            set( (i,j)
                 for i in O 
                     for j in O 
-                        if i!=j and i[1]==j[1]),0,1,lp.LpInteger)
+                        if i!=j and i[1]==j[1]) ,0,1,lp.LpInteger)
     # rename vars
-    [ (b[o].setName('b_%s_%s' % o ), D[o].setName('D_%s_%s' % o )) for o in O  ]
-    [ x[i,j].setName('x_%s_%s_%s_%s' % (i+j) ) for i in O for j in O if i!=j and i[1]==j[1] ]
+    for k,v in D.items(): v.setName('D_%s_%s' % k )
+    for k,v in b.items(): v.setName('b_%s_%s' % k )
+    for k,v in x.items(): v.setName('x_%s_%s_%s_%s' % (k[0]+k[1]))
     
     ## lowerBound (10)
-    for o in O: b[o].lowBound = r[o]
+    for k,v in b.items(): v.lowBound = r[k]
     
     ## uperBound (11)
-    for o in O: b[o].upBound = d[o]-p[o]
+    for k,v in b.items(): v.upBound = d[k]-p[k]
 
     ## precedence (12)
     constr = [ b[j] >= b[i] + p[i] + s[i,j]
                 for i in O 
                     for j in O
-                        if i[0] == j[0] and prec_t(i[1],j[1])]
+                        if i[0] == j[0] and prec(i[1],j[1])]
 
     ## capacity (13)
-    constr += [x[i,j]+x[j,i] == 1 for i in O for j in O if i!=j and i[1]==j[1]]
+    constr += [x[i,j]+x[j,i] == 1 
+                for i in O 
+                    for j in O 
+                        if i!=j and i[1]==j[1]]
 
     ## capacity (14)
     constr += [b[j] >= b[i] + x[i,j]*(p[i] + s[i,j]) - (1-x[i,j])*d[i]
@@ -107,7 +185,6 @@ def problem(prob, lp, Njobs):
                 for i in O 
                     for j in O
                         if prec(i[1],j[1]) and i[0]==j[0] and same_block(i[1], j[1])]
-
     # add all to problem
     for k in constr:
         prob += k
@@ -142,6 +219,17 @@ def pulp(Njobs):
     prob.solve()
     toc = time()
     return prob,Cmax,b,x,D,J,toc-tic
+
+def pulpLR(Njobs):
+    # use default GLPK method
+    import pulp as lp
+    from time import time
+    prob,lamb,pi = problemLR_dual(lp.LpProblem('Job Shop',lp.LpMaximize), lp, Njobs)
+    tic = time()
+    prob.solve()
+    toc = time()
+    return prob,lamb,pi,toc-tic
+
 
 def print_results(a,j):
     # print wonderfull unicode table
@@ -210,13 +298,13 @@ def draw_gantt(a,nj,name):
 
 if __name__=='__main__':
     probs = []
-    for nj in range(1,9):
-        prob,Cmax,b,x,D,j,t = dippy(nj,conf={'PRICE_AND_CUT': {'LogDumpModel': '10'}})
+    for nj in range(1,7):
+        #prob,Cmax,b,x,D,j,t = dippy(nj,conf={'PRICE_AND_CUT': {'LogDumpModel': '10'}})
         #prob,Cmax,b,x,D,j,t = dippy(nj)
-        probs += ('dip',nj,b,t,prob),
+        #probs += ('dip',nj,b,t,prob),
         J,O,d,p,r,s = get_jobshopdata(nj)
         #print_results((o+(v.value(),p[o]) for o,v in b.items()),nj)
-        draw_gantt((o+(v.value(),p[o]) for o,v in b.items()),nj,'dip-%d'%nj)
+        #draw_gantt((o+(v.value(),p[o]) for o,v in b.items()),nj,'dip-%d'%nj)
         prob,Cmax,b,x,D,j,t = pulp(nj)
         probs += ('glpk',nj,b,t,prob),
         fn = 'jobshop-%d.cpxlp'%nj

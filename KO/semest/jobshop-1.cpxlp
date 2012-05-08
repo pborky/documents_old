@@ -1,0 +1,79 @@
+\* Job Shop *\
+Minimize
+OBJ: Cmax + D_ModelA_a0 + D_ModelA_a1 + D_ModelA_a2 + D_ModelA_a3
+ + D_ModelA_a4 + D_ModelA_b0 + D_ModelA_b1 + D_ModelA_b2 + D_ModelA_b3
+ + D_ModelA_c0 + D_ModelA_c1 + D_ModelA_c2 + D_ModelA_d0 + D_ModelA_d1
+ + D_ModelA_d2 + D_ModelA_d3 + D_ModelA_d4 + D_ModelA_f1 + D_ModelA_f2
+Subject To
+_C1: - b_ModelA_a4 + b_ModelA_d2 >= 55
+_C10: - b_ModelA_d2 + b_ModelA_d4 >= 55
+_C11: - b_ModelA_d1 + b_ModelA_d4 >= 505
+_C12: - b_ModelA_d0 + b_ModelA_d1 >= 55
+_C13: - b_ModelA_a0 + b_ModelA_a1 >= 55
+_C14: - b_ModelA_a1 + b_ModelA_a4 >= 505
+_C15: - b_ModelA_d4 + b_ModelA_f1 >= 55
+_C16: - b_ModelA_a2 + b_ModelA_a3 >= 55
+_C17: - b_ModelA_c2 + b_ModelA_d3 >= 55
+_C18: - b_ModelA_a3 + b_ModelA_a4 >= 755
+_C19: Cmax - b_ModelA_a4 >= 50
+_C2: - b_ModelA_c0 + b_ModelA_c1 >= 55
+_C20: Cmax - b_ModelA_c0 >= 50
+_C21: Cmax - b_ModelA_b0 >= 50
+_C22: Cmax - b_ModelA_f1 >= 500
+_C23: Cmax - b_ModelA_c1 >= 750
+_C24: Cmax - b_ModelA_b3 >= 50
+_C25: Cmax - b_ModelA_d3 >= 750
+_C26: Cmax - b_ModelA_b2 >= 50
+_C27: Cmax - b_ModelA_b1 >= 750
+_C28: Cmax - b_ModelA_d2 >= 50
+_C29: Cmax - b_ModelA_d1 >= 500
+_C3: - b_ModelA_b0 + b_ModelA_b1 >= 55
+_C30: Cmax - b_ModelA_d0 >= 50
+_C31: Cmax - b_ModelA_a0 >= 50
+_C32: Cmax - b_ModelA_a1 >= 500
+_C33: Cmax - b_ModelA_d4 >= 50
+_C34: Cmax - b_ModelA_f2 >= 50
+_C35: Cmax - b_ModelA_a2 >= 50
+_C36: Cmax - b_ModelA_c2 >= 50
+_C37: Cmax - b_ModelA_a3 >= 750
+_C38: D_ModelA_c0 - b_ModelA_c0 + b_ModelA_c1 = 55
+_C39: D_ModelA_b0 - b_ModelA_b0 + b_ModelA_b1 = 55
+_C4: - b_ModelA_f1 + b_ModelA_f2 >= 505
+_C40: D_ModelA_f1 - b_ModelA_f1 + b_ModelA_f2 = 505
+_C41: D_ModelA_c1 - b_ModelA_c1 + b_ModelA_c2 = 755
+_C42: D_ModelA_d3 - b_ModelA_d3 + b_ModelA_d4 = 755
+_C43: D_ModelA_b2 - b_ModelA_b2 + b_ModelA_b3 = 55
+_C44: D_ModelA_b1 - b_ModelA_b1 + b_ModelA_b2 = 755
+_C45: D_ModelA_d2 - b_ModelA_d2 + b_ModelA_d4 = 55
+_C46: D_ModelA_d1 - b_ModelA_d1 + b_ModelA_d4 = 505
+_C47: D_ModelA_d0 - b_ModelA_d0 + b_ModelA_d1 = 55
+_C48: D_ModelA_a0 - b_ModelA_a0 + b_ModelA_a1 = 55
+_C49: D_ModelA_a1 - b_ModelA_a1 + b_ModelA_a4 = 505
+_C5: - b_ModelA_c1 + b_ModelA_c2 >= 755
+_C50: D_ModelA_a2 - b_ModelA_a2 + b_ModelA_a3 = 55
+_C51: D_ModelA_a3 - b_ModelA_a3 + b_ModelA_a4 = 755
+_C6: - b_ModelA_b3 + b_ModelA_c2 >= 55
+_C7: - b_ModelA_d3 + b_ModelA_d4 >= 755
+_C8: - b_ModelA_b2 + b_ModelA_b3 >= 55
+_C9: - b_ModelA_b1 + b_ModelA_b2 >= 755
+Bounds
+b_ModelA_a0 <= 4950
+b_ModelA_a1 <= 4500
+10 <= b_ModelA_a2 <= 4950
+b_ModelA_a3 <= 4250
+b_ModelA_a4 <= 4950
+50 <= b_ModelA_b0 <= 4950
+b_ModelA_b1 <= 4250
+b_ModelA_b2 <= 4950
+b_ModelA_b3 <= 4950
+b_ModelA_c0 <= 4950
+b_ModelA_c1 <= 4250
+b_ModelA_c2 <= 4950
+1 <= b_ModelA_d0 <= 4950
+b_ModelA_d1 <= 4500
+b_ModelA_d2 <= 4950
+b_ModelA_d3 <= 4250
+b_ModelA_d4 <= 4950
+b_ModelA_f1 <= 4500
+b_ModelA_f2 <= 4950
+End

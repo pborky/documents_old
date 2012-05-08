@@ -112,6 +112,71 @@ output buffer of the product. Inner nodes represent assembly machines or control
 One or more machines or control points are handled by operator. Operator must be qualified for 
 position where he works. Operator`s skills can affect the productivity.
 
+\begin{figure}[h]%
+  \centering
+  \digraph[width=75mm]{MyGraph}{
+    rankdir=LR;
+	subgraph cluster_0 {
+		node [style=filled];
+		a0 [shape=square];
+		a2 [shape=square];
+		a1 [shape=diamond];
+		a3 [shape=diamond];
+		a0 -> a1 -> a4;
+		a2 -> a3 -> a4;
+		label = "subassembly";
+		color=lightblue;
+		style=filled;
+	} 
+	subgraph cluster_1 {
+		node [style=filled];
+		b0 [shape=square];
+		b1 [shape=diamond];
+		b0 -> b1 -> b2 -> b4;
+		label = "PCB";
+		color=lightblue;
+		style=filled;
+	}  
+	subgraph cluster_2 {
+		node [style=filled];
+		c0 [shape=square];
+		c1 [shape=diamond];
+		c0 -> c1 -> c2;
+		label = "heatsink";
+		color=lightblue;
+		style=filled;
+	}
+	subgraph cluster_3 {
+		node [style=filled];
+		d0 [shape=square];
+		d1 [shape=diamond];
+		d2 [shape=diamond];
+		d3 [shape=diamond];
+		d0 -> d1 -> d4;
+		d2 -> d4;
+		d3 -> d4;
+		label = "assembly";
+		color=lightblue;
+		style=filled;
+	}
+	subgraph cluster_4 {
+  		node [style=filled];
+  		f1 [shape=diamond];
+		f1 -> f2;
+		label = "packing";
+		color=lightblue;
+		style=filled;
+	}
+	b4 -> c2 -> d3;
+	a4 -> d2;
+	d4 -> f1;
+  }
+  \caption{Example of production line group. Blue clusters represent particular assembly lines
+  and operator position. 
+  The input buffers are nodes of square shape and checkpoints are of diamond shape.}
+  \label{fig:graph}
+\end{figure}
+
 Manufacturing line group can produce several models of the product based on setup of the 
 machines. Modification to the setup takes defined time and consumes resources of the
 technical support group (technicians and engineers).
@@ -286,7 +351,9 @@ solving dual problem (D) such that
 \begin{align}
 	& Z_{LR}\left(\pi,\lambda\right)\nonumber
 \end{align}
-is maximized subject to (\ref{eq:upperbound2}), (\ref{eq:lowbound2}) and (\ref{eq:x}).
+is maximized.
+Note that there is multiplication of variables ($\pi$ and $\lambda$ are variables) in dual problem.
+The solution to this problem can be done using subgradient methods. This methodology is out scope of this article.
 
 \subsection{Stochastic search}
 In this section we will describe genetic algorithm developed to solve job-shop scheduling problem.
@@ -308,18 +375,109 @@ The permutation of jobs at each resource determines starting time of particular 
 and the gap between operations are as small as possible respecting capacity constraint (\ref{eq:capconstraints}).
 
 \section{Experiments}
+
+\begin{figure}[h]%
+  \includegraphics[width=75mm]{gantt1}
+  \centering 
+  \caption{Schedule of three jobs obtained using DIP}
+  \label{fig:gantt1}
+\end{figure}
+
+\begin{figure}[h]%
+  \includegraphics[width=75mm]{gantt2}
+  \centering 
+  \caption{Schedule of three jobs obtained using GLPK}
+  \label{fig:gantt2}
+\end{figure}
+
 In this section we will present solution to linear programming problems, that were described in past section.
 For this we will use modeling language PuLP that is Python-based environment with interface to several solver engines like CPLEX, GLPK, DIP, etc.
 
-The simple program written in python programming language implements instance of job-shop graphically represented on \emph{fig. \ref{fig:graph}}.
+The program written in python programming language implements instance of
+job-shop scheduling problem with graphical representtion of processes on \emph{fig. \ref{fig:graph}}.
 There is fixed number of operations per job determined by vertices of graph.
+Before execution of scheduling algorithm several parameters are preset -- $r$, $p$, $s$, $\prec_o$. 
+With parameter $s$ an gap or overlap between operations and jobs can be controlled.
+Overlap is useful for linked-up technologies producing large ammount of products per job so consecutive operations
+would start before previous operation finishes. Parameter $r$ determines presence of material in input buffers and also 
+presence of operators on particular positions. Relation $\prec_o$ is determined based on topology of technology line.
+The values of parameters are determined based on production orders, material arrival plans, staff presence plans and
+production line properties (topology or capacity).
+
 Problem definition can be found in procedure \texttt{problem()}  in file \texttt{jobshop.py}. 
-The procedure outputs intermediate representation 
-and CPLEX representation is written to file \texttt{test.cpxlp}.
+The procedure outputs intermediate representation and it is passed to solver. After then solver is executed.
 
-The program outputs an operation schedule in tabular form and also the gantt graph that is graphical representation of the schedule and can be seen on
-\emph{fig. \ref{fig:gantt}}. 
+\begin{table}[h]
+\centering
+  \caption{Execution times and memory requirements for several job sizes }
+  \label{tbl:exec}
+\begin{tabular}{|l|r|r|r|}
+ \hline
+ solver & job count & time [sec] & memory [MB] \\ \hline
+ \hline
+ glpk & 1 & 0.005 & 0.1 \\ \hline
+ glpk & 2 & 0.018 & 0.3\\ \hline
+ glpk & 3 & 0.323 & 0.7\\ \hline
+ glpk & 4 & 39.667 & 8.9\\ \hline
+ glpk & 5 & 18.610 & 3.6\\ \hline
+ glpk & 6 & 26.455 & 8.6\\ \hline
+ glpk & 7 & 2820.2 & 180 \\ \hline 
+ dip & 1 & 0.003  & - \\ \hline
+ dip & 2 & 0.036  & - \\ \hline
+ dip & 3 & 2.857 & - \\ \hline
+ dip & 4 & 3896.8 & - \\ \hline
+\end{tabular}
+\end{table}
 
+\begin{figure}[h]%
+  \includegraphics[width=75mm]{times}
+  \centering 
+  \caption{Dependency of processing time on instance size in semilogaritmic plot. Solutions above plot didn`t finnis due to enormous memory consumption.}
+  \label{fig:times}
+\end{figure}
+
+\begin{figure}[h]%
+  \includegraphics[width=75mm]{memory}
+  \centering 
+  \caption{Dependency of memory requirements on instance size in semilogaritmic plot. The momory consupmtion data are only available for GLPK.}
+  \label{fig:memory}
+\end{figure}
+
+The program outputs
+Gantt chart of solution is drawed (see \emph{fig. \ref{fig:gantt1}}, \emph{\ref{fig:gantt2}} or \emph{\ref{fig:gantt}})
+and operation schedule is present in dictionary \texttt{b[]}.
+Text-based representation of linear program is written to file \texttt{jobshop-<n>.cpxlp} where \texttt{n} is number of jobs.
+
+
+Several instance sizes were tested. Instance size has been modified changing and job count. Operation count changes lineary with change of jobs.
+Two solers were used -- DIP and GLPK.
+The solution do lagrange dual problem $\max Z_{LR}(\pi,\lambda)$ can be performed by subgradient method. 
+Unfortunately none of these solvers implements Langrange relaxation method so that was not tested.
+
+Execution times or memory requirements are in table \ref{tbl:exec} and on \emph{fig. \ref{fig:times}}, \emph{\ref{fig:memory}}.
+
+\begin{figure}[h]%
+  \includegraphics[width=75mm]{gantt}
+  \centering 
+  \caption{Gantt chart expressing schedule of six models (jobs) given  technology graph on fig. \ref{fig:graph} computed using GLPK }
+  \label{fig:gantt}
+\end{figure}
+
+\section{Conclusion}
+In this article we described various methodologies to solve job-shop scheduling problem --
+the methods based on mixed integer linear programing and stochastic methods that perturbate search space in random manner. 
+
+For the purpose of this article linear programing model has been developed and implemented in python programing language. The implementetion converted the model
+to different representation and passed to solvers Decomposition for Integer Programming (DIP, \url{https://projects.coin-or.org/Dip})
+and GNU Linear Programming Kit (GLPK, \url{http://www.gnu.org/software/glpk/}). Both are open source solvers free to use, but while DIP is still experimental GLPK 
+is more mature and it showed better performance than DIP without customization of callback functions and implementing heuridstics.
+
+It has been shown that usage of
+linear programming model without additional heurisitcs is impractical for larger jobs-shops as it was not able to schedule more than six jobs effectively. 
+Unfortunately lengragian relaxation were not been adopted as the problem of finding lagrange multipliers is complex and is out of scope of this work.
+
+In future work we would like to perform test with relaxation methodologies and respectively implement heuristic functions for DIP solver as described in \cite{Dip}.
+Additionaly stochastic approaches as described in \cite{Uni} would be examined in future work.
 
 
 \begin{thebibliography}{1}
@@ -340,79 +498,6 @@ Management Science, Vol. 27, No. 1, 1981.
 
 \end{thebibliography}
 
-\clearpage
-\onecolumn
-\appendix
 
-\begin{figure}[h]%
-  \centering
-  \digraph[width=150mm]{MyGraph}{
-    rankdir=LR;
-	subgraph cluster_0 {
-		node [style=filled];
-		a0 [shape=square];
-		a2 [shape=square];
-		a1 [shape=diamond];
-		a3 [shape=diamond];
-		a0 -> a1 -> a4;
-		a2 -> a3 -> a4;
-		label = "subassembly";
-		color=lightblue;
-		style=filled;
-	} 
-	subgraph cluster_1 {
-		node [style=filled];
-		b0 [shape=square];
-		b1 [shape=diamond];
-		b0 -> b1 -> b2 -> b4;
-		label = "PCB";
-		color=lightblue;
-		style=filled;
-	}  
-	subgraph cluster_2 {
-		node [style=filled];
-		c0 [shape=square];
-		c1 [shape=diamond];
-		c0 -> c1 -> c2;
-		label = "heatsink";
-		color=lightblue;
-		style=filled;
-	}
-	subgraph cluster_3 {
-		node [style=filled];
-		d0 [shape=square];
-		d1 [shape=diamond];
-		d2 [shape=diamond];
-		d3 [shape=diamond];
-		d0 -> d1 -> d4;
-		d2 -> d4;
-		d3 -> d4;
-		label = "assembly";
-		color=lightblue;
-		style=filled;
-	}
-	subgraph cluster_4 {
-  		node [style=filled];
-  		f1 [shape=diamond];
-		f1 -> f2;
-		label = "packing";
-		color=lightblue;
-		style=filled;
-	}
-	b4 -> c2 -> d3;
-	a4 -> d2;
-	d4 -> f1;
-  }
-  \caption{Example of production line group. Blue clusters represent particular assembly lines
-  and operator position. 
-  The input buffers are nodes of square shape and checkpoints are of diamond shape.}
-  \label{fig:graph}
-\end{figure}
-
-\begin{figure}[h]%
-\includegraphics[width=150mm]{gantt}
-  \centering  \caption{Gantt chart expressing schedule of five models (jobs) given  technology graph on fig. \ref{fig:graph} }
-  \label{fig:gantt}
-\end{figure}
 % that's all folks
 \end{document}
