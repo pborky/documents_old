@@ -73,7 +73,3 @@ dfs2(From, Goal, _, [From,Goal]) :- w(From,Goal),!.
 dfs2(From, Goal, Closed, [From|Route]) :- 
     w(From,Node),not(member(Node,Closed)),dfs2(Node,Goal,[From|Closed], Route).
 
-
-
-
-
