@@ -1,0 +1,570 @@
+\* Job Shop *\
+Minimize
+OBJ: Cmax + D_ModelA_a0 + D_ModelA_a1 + D_ModelA_a2 + D_ModelA_a3
+ + D_ModelA_a4 + D_ModelA_b0 + D_ModelA_b1 + D_ModelA_b2 + D_ModelA_b3
+ + D_ModelA_c0 + D_ModelA_c1 + D_ModelA_c2 + D_ModelA_d0 + D_ModelA_d1
+ + D_ModelA_d2 + D_ModelA_d3 + D_ModelA_d4 + D_ModelA_f1 + D_ModelA_f2
+ + D_ModelB_a0 + D_ModelB_a1 + D_ModelB_a2 + D_ModelB_a3 + D_ModelB_a4
+ + D_ModelB_b0 + D_ModelB_b1 + D_ModelB_b2 + D_ModelB_b3 + D_ModelB_c0
+ + D_ModelB_c1 + D_ModelB_c2 + D_ModelB_d0 + D_ModelB_d1 + D_ModelB_d2
+ + D_ModelB_d3 + D_ModelB_d4 + D_ModelB_f1 + D_ModelB_f2 + D_ModelC_a0
+ + D_ModelC_a1 + D_ModelC_a2 + D_ModelC_a3 + D_ModelC_a4 + D_ModelC_b0
+ + D_ModelC_b1 + D_ModelC_b2 + D_ModelC_b3 + D_ModelC_c0 + D_ModelC_c1
+ + D_ModelC_c2 + D_ModelC_d0 + D_ModelC_d1 + D_ModelC_d2 + D_ModelC_d3
+ + D_ModelC_d4 + D_ModelC_f1 + D_ModelC_f2
+Subject To
+_C1: - b_ModelC_d0 + b_ModelC_d1 >= 25
+_C10: - b_ModelB_b1 + b_ModelB_b2 >= 1505
+_C100: x_ModelB_a3_ModelC_a3 + x_ModelC_a3_ModelB_a3 = 1
+_C101: x_ModelA_b0_ModelC_b0 + x_ModelC_b0_ModelA_b0 = 1
+_C102: x_ModelB_b0_ModelC_b0 + x_ModelC_b0_ModelB_b0 = 1
+_C103: x_ModelA_b2_ModelC_b2 + x_ModelC_b2_ModelA_b2 = 1
+_C104: x_ModelB_b2_ModelC_b2 + x_ModelC_b2_ModelB_b2 = 1
+_C105: x_ModelB_d2_ModelC_d2 + x_ModelC_d2_ModelB_d2 = 1
+_C106: x_ModelA_d2_ModelB_d2 + x_ModelB_d2_ModelA_d2 = 1
+_C107: x_ModelA_b3_ModelC_b3 + x_ModelC_b3_ModelA_b3 = 1
+_C108: x_ModelB_b3_ModelC_b3 + x_ModelC_b3_ModelB_b3 = 1
+_C109: x_ModelB_f1_ModelC_f1 + x_ModelC_f1_ModelB_f1 = 1
+_C11: - b_ModelB_a4 + b_ModelB_d2 >= 105
+_C110: x_ModelA_f1_ModelC_f1 + x_ModelC_f1_ModelA_f1 = 1
+_C111: x_ModelA_b3_ModelB_b3 + x_ModelB_b3_ModelA_b3 = 1
+_C112: x_ModelB_b3_ModelC_b3 + x_ModelC_b3_ModelB_b3 = 1
+_C113: x_ModelA_a2_ModelC_a2 + x_ModelC_a2_ModelA_a2 = 1
+_C114: x_ModelA_a2_ModelB_a2 + x_ModelB_a2_ModelA_a2 = 1
+_C115: x_ModelA_d3_ModelB_d3 + x_ModelB_d3_ModelA_d3 = 1
+_C116: x_ModelB_d3_ModelC_d3 + x_ModelC_d3_ModelB_d3 = 1
+_C117: x_ModelB_a1_ModelC_a1 + x_ModelC_a1_ModelB_a1 = 1
+_C118: x_ModelA_a1_ModelB_a1 + x_ModelB_a1_ModelA_a1 = 1
+_C119: x_ModelA_b0_ModelB_b0 + x_ModelB_b0_ModelA_b0 = 1
+_C12: - b_ModelC_d1 + b_ModelC_d4 >= 205
+_C120: x_ModelB_b0_ModelC_b0 + x_ModelC_b0_ModelB_b0 = 1
+_C121: x_ModelB_d2_ModelC_d2 + x_ModelC_d2_ModelB_d2 = 1
+_C122: x_ModelA_d2_ModelC_d2 + x_ModelC_d2_ModelA_d2 = 1
+_C123: x_ModelA_d4_ModelB_d4 + x_ModelB_d4_ModelA_d4 = 1
+_C124: x_ModelA_d4_ModelC_d4 + x_ModelC_d4_ModelA_d4 = 1
+_C125: x_ModelB_a0_ModelC_a0 + x_ModelC_a0_ModelB_a0 = 1
+_C126: x_ModelA_a0_ModelC_a0 + x_ModelC_a0_ModelA_a0 = 1
+_C127: x_ModelA_c1_ModelC_c1 + x_ModelC_c1_ModelA_c1 = 1
+_C128: x_ModelB_c1_ModelC_c1 + x_ModelC_c1_ModelB_c1 = 1
+_C129: x_ModelA_d2_ModelB_d2 + x_ModelB_d2_ModelA_d2 = 1
+_C13: - b_ModelA_a3 + b_ModelA_a4 >= 755
+_C130: x_ModelA_d2_ModelC_d2 + x_ModelC_d2_ModelA_d2 = 1
+_C131: x_ModelB_d4_ModelC_d4 + x_ModelC_d4_ModelB_d4 = 1
+_C132: x_ModelA_d4_ModelC_d4 + x_ModelC_d4_ModelA_d4 = 1
+_C133: x_ModelA_d0_ModelC_d0 + x_ModelC_d0_ModelA_d0 = 1
+_C134: x_ModelA_d0_ModelB_d0 + x_ModelB_d0_ModelA_d0 = 1
+_C135: x_ModelB_a1_ModelC_a1 + x_ModelC_a1_ModelB_a1 = 1
+_C136: x_ModelA_a1_ModelC_a1 + x_ModelC_a1_ModelA_a1 = 1
+_C137: x_ModelA_f2_ModelC_f2 + x_ModelC_f2_ModelA_f2 = 1
+_C138: x_ModelB_f2_ModelC_f2 + x_ModelC_f2_ModelB_f2 = 1
+_C139: x_ModelA_a1_ModelB_a1 + x_ModelB_a1_ModelA_a1 = 1
+_C14: - b_ModelB_c1 + b_ModelB_c2 >= 1505
+_C140: x_ModelA_a1_ModelC_a1 + x_ModelC_a1_ModelA_a1 = 1
+_C141: x_ModelB_d0_ModelC_d0 + x_ModelC_d0_ModelB_d0 = 1
+_C142: x_ModelA_d0_ModelB_d0 + x_ModelB_d0_ModelA_d0 = 1
+_C143: x_ModelA_c2_ModelC_c2 + x_ModelC_c2_ModelA_c2 = 1
+_C144: x_ModelA_c2_ModelB_c2 + x_ModelB_c2_ModelA_c2 = 1
+_C145: x_ModelB_a0_ModelC_a0 + x_ModelC_a0_ModelB_a0 = 1
+_C146: x_ModelA_a0_ModelB_a0 + x_ModelB_a0_ModelA_a0 = 1
+_C147: x_ModelA_d3_ModelC_d3 + x_ModelC_d3_ModelA_d3 = 1
+_C148: x_ModelB_d3_ModelC_d3 + x_ModelC_d3_ModelB_d3 = 1
+_C149: x_ModelA_a3_ModelC_a3 + x_ModelC_a3_ModelA_a3 = 1
+_C15: - b_ModelA_c0 + b_ModelA_c1 >= 55
+_C150: x_ModelB_a3_ModelC_a3 + x_ModelC_a3_ModelB_a3 = 1
+_C151: x_ModelA_f1_ModelB_f1 + x_ModelB_f1_ModelA_f1 = 1
+_C152: x_ModelA_f1_ModelC_f1 + x_ModelC_f1_ModelA_f1 = 1
+_C153: x_ModelA_b2_ModelB_b2 + x_ModelB_b2_ModelA_b2 = 1
+_C154: x_ModelB_b2_ModelC_b2 + x_ModelC_b2_ModelB_b2 = 1
+_C155: x_ModelA_c0_ModelC_c0 + x_ModelC_c0_ModelA_c0 = 1
+_C156: x_ModelB_c0_ModelC_c0 + x_ModelC_c0_ModelB_c0 = 1
+_C157: x_ModelB_a2_ModelC_a2 + x_ModelC_a2_ModelB_a2 = 1
+_C158: x_ModelA_a2_ModelB_a2 + x_ModelB_a2_ModelA_a2 = 1
+_C159: x_ModelA_d1_ModelC_d1 + x_ModelC_d1_ModelA_d1 = 1
+_C16: - b_ModelA_b0 + b_ModelA_b1 >= 55
+_C160: x_ModelA_d1_ModelB_d1 + x_ModelB_d1_ModelA_d1 = 1
+_C161: x_ModelA_c0_ModelB_c0 + x_ModelB_c0_ModelA_c0 = 1
+_C162: x_ModelB_c0_ModelC_c0 + x_ModelC_c0_ModelB_c0 = 1
+_C163: x_ModelA_a0_ModelC_a0 + x_ModelC_a0_ModelA_a0 = 1
+_C164: x_ModelA_a0_ModelB_a0 + x_ModelB_a0_ModelA_a0 = 1
+_C165: x_ModelA_f2_ModelB_f2 + x_ModelB_f2_ModelA_f2 = 1
+_C166: x_ModelB_f2_ModelC_f2 + x_ModelC_f2_ModelB_f2 = 1
+_C167: x_ModelA_b1_ModelC_b1 + x_ModelC_b1_ModelA_b1 = 1
+_C168: x_ModelB_b1_ModelC_b1 + x_ModelC_b1_ModelB_b1 = 1
+_C169: b_ModelA_d0 - b_ModelC_d0 - 10120 x_ModelC_d0_ModelA_d0 >= -10000
+_C17: - b_ModelC_c2 + b_ModelC_d3 >= 25
+_C170: b_ModelB_d0 - b_ModelC_d0 - 10120 x_ModelC_d0_ModelB_d0 >= -10000
+_C171: - b_ModelA_a4 + b_ModelC_a4 - 5150 x_ModelA_a4_ModelC_a4 >= -5000
+_C172: - b_ModelA_a4 + b_ModelB_a4 - 5150 x_ModelA_a4_ModelB_a4 >= -5000
+_C173: - b_ModelA_b2 + b_ModelC_b2 - 5150 x_ModelA_b2_ModelC_b2 >= -5000
+_C174: - b_ModelA_b2 + b_ModelB_b2 - 5150 x_ModelA_b2_ModelB_b2 >= -5000
+_C175: - b_ModelA_c1 + b_ModelB_c1 - 5850 x_ModelA_c1_ModelB_c1 >= -5000
+_C176: - b_ModelA_c1 + b_ModelC_c1 - 5850 x_ModelA_c1_ModelC_c1 >= -5000
+_C177: - b_ModelA_b3 + b_ModelC_b3 - 5150 x_ModelA_b3_ModelC_b3 >= -5000
+_C178: - b_ModelA_b3 + b_ModelB_b3 - 5150 x_ModelA_b3_ModelB_b3 >= -5000
+_C179: b_ModelA_a4 - b_ModelC_a4 - 10120 x_ModelC_a4_ModelA_a4 >= -10000
+_C18: - b_ModelB_c2 + b_ModelB_d3 >= 105
+_C180: b_ModelB_a4 - b_ModelC_a4 - 10120 x_ModelC_a4_ModelB_a4 >= -10000
+_C181: b_ModelA_a2 - b_ModelC_a2 - 10120 x_ModelC_a2_ModelA_a2 >= -10000
+_C182: b_ModelB_a2 - b_ModelC_a2 - 10120 x_ModelC_a2_ModelB_a2 >= -10000
+_C183: - b_ModelA_b1 + b_ModelB_b1 - 5850 x_ModelA_b1_ModelB_b1 >= -5000
+_C184: - b_ModelA_b1 + b_ModelC_b1 - 5850 x_ModelA_b1_ModelC_b1 >= -5000
+_C185: - b_ModelA_f2 + b_ModelC_f2 - 5150 x_ModelA_f2_ModelC_f2 >= -5000
+_C186: - b_ModelA_f2 + b_ModelB_f2 - 5150 x_ModelA_f2_ModelB_f2 >= -5000
+_C187: - b_ModelB_f1 + b_ModelC_f1 - 46100 x_ModelB_f1_ModelC_f1 >= -45000
+_C188: b_ModelA_f1 - b_ModelB_f1 - 46100 x_ModelB_f1_ModelA_f1 >= -45000
+_C189: b_ModelA_b1 - b_ModelB_b1 - 46600 x_ModelB_b1_ModelA_b1 >= -45000
+_C19: - b_ModelA_d3 + b_ModelA_d4 >= 755
+_C190: - b_ModelB_b1 + b_ModelC_b1 - 46600 x_ModelB_b1_ModelC_b1 >= -45000
+_C191: b_ModelA_a4 - b_ModelB_a4 - 45200 x_ModelB_a4_ModelA_a4 >= -45000
+_C192: - b_ModelB_a4 + b_ModelC_a4 - 45200 x_ModelB_a4_ModelC_a4 >= -45000
+_C193: b_ModelB_d1 - b_ModelC_d1 - 10300 x_ModelC_d1_ModelB_d1 >= -10000
+_C194: b_ModelA_d1 - b_ModelC_d1 - 10300 x_ModelC_d1_ModelA_d1 >= -10000
+_C195: - b_ModelA_a3 + b_ModelB_a3 - 5850 x_ModelA_a3_ModelB_a3 >= -5000
+_C196: - b_ModelA_a3 + b_ModelC_a3 - 5850 x_ModelA_a3_ModelC_a3 >= -5000
+_C197: b_ModelA_c1 - b_ModelB_c1 - 46600 x_ModelB_c1_ModelA_c1 >= -45000
+_C198: - b_ModelB_c1 + b_ModelC_c1 - 46600 x_ModelB_c1_ModelC_c1 >= -45000
+_C199: - b_ModelA_c0 + b_ModelC_c0 - 5150 x_ModelA_c0_ModelC_c0 >= -5000
+_C2: - b_ModelA_a4 + b_ModelA_d2 >= 55
+_C20: - b_ModelB_d1 + b_ModelB_d4 >= 1005
+_C200: - b_ModelA_c0 + b_ModelB_c0 - 5150 x_ModelA_c0_ModelB_c0 >= -5000
+_C201: - b_ModelA_b0 + b_ModelC_b0 - 5150 x_ModelA_b0_ModelC_b0 >= -5000
+_C202: - b_ModelA_b0 + b_ModelB_b0 - 5150 x_ModelA_b0_ModelB_b0 >= -5000
+_C203: b_ModelB_c2 - b_ModelC_c2 - 10120 x_ModelC_c2_ModelB_c2 >= -10000
+_C204: b_ModelA_c2 - b_ModelC_c2 - 10120 x_ModelC_c2_ModelA_c2 >= -10000
+_C205: - b_ModelB_c2 + b_ModelC_c2 - 45200 x_ModelB_c2_ModelC_c2 >= -45000
+_C206: b_ModelA_c2 - b_ModelB_c2 - 45200 x_ModelB_c2_ModelA_c2 >= -45000
+_C207: - b_ModelA_d3 + b_ModelB_d3 - 5850 x_ModelA_d3_ModelB_d3 >= -5000
+_C208: - b_ModelA_d3 + b_ModelC_d3 - 5850 x_ModelA_d3_ModelC_d3 >= -5000
+_C209: - b_ModelB_d1 + b_ModelC_d1 - 46100 x_ModelB_d1_ModelC_d1 >= -45000
+_C21: - b_ModelB_d4 + b_ModelB_f1 >= 105
+_C210: b_ModelA_d1 - b_ModelB_d1 - 46100 x_ModelB_d1_ModelA_d1 >= -45000
+_C211: b_ModelA_d4 - b_ModelB_d4 - 45200 x_ModelB_d4_ModelA_d4 >= -45000
+_C212: - b_ModelB_d4 + b_ModelC_d4 - 45200 x_ModelB_d4_ModelC_d4 >= -45000
+_C213: b_ModelA_a3 - b_ModelB_a3 - 46600 x_ModelB_a3_ModelA_a3 >= -45000
+_C214: - b_ModelB_a3 + b_ModelC_a3 - 46600 x_ModelB_a3_ModelC_a3 >= -45000
+_C215: b_ModelA_b0 - b_ModelC_b0 - 10120 x_ModelC_b0_ModelA_b0 >= -10000
+_C216: b_ModelB_b0 - b_ModelC_b0 - 10120 x_ModelC_b0_ModelB_b0 >= -10000
+_C217: b_ModelA_b2 - b_ModelC_b2 - 10120 x_ModelC_b2_ModelA_b2 >= -10000
+_C218: b_ModelB_b2 - b_ModelC_b2 - 10120 x_ModelC_b2_ModelB_b2 >= -10000
+_C219: - b_ModelB_d2 + b_ModelC_d2 - 45200 x_ModelB_d2_ModelC_d2 >= -45000
+_C22: - b_ModelB_a3 + b_ModelB_a4 >= 1505
+_C220: b_ModelA_d2 - b_ModelB_d2 - 45200 x_ModelB_d2_ModelA_d2 >= -45000
+_C221: b_ModelA_b3 - b_ModelC_b3 - 10120 x_ModelC_b3_ModelA_b3 >= -10000
+_C222: b_ModelB_b3 - b_ModelC_b3 - 10120 x_ModelC_b3_ModelB_b3 >= -10000
+_C223: b_ModelB_f1 - b_ModelC_f1 - 10300 x_ModelC_f1_ModelB_f1 >= -10000
+_C224: b_ModelA_f1 - b_ModelC_f1 - 10300 x_ModelC_f1_ModelA_f1 >= -10000
+_C225: b_ModelA_b3 - b_ModelB_b3 - 45200 x_ModelB_b3_ModelA_b3 >= -45000
+_C226: - b_ModelB_b3 + b_ModelC_b3 - 45200 x_ModelB_b3_ModelC_b3 >= -45000
+_C227: - b_ModelA_a2 + b_ModelC_a2 - 5150 x_ModelA_a2_ModelC_a2 >= -5000
+_C228: - b_ModelA_a2 + b_ModelB_a2 - 5150 x_ModelA_a2_ModelB_a2 >= -5000
+_C229: b_ModelA_d3 - b_ModelB_d3 - 46600 x_ModelB_d3_ModelA_d3 >= -45000
+_C23: - b_ModelC_b0 + b_ModelC_b1 >= 25
+_C230: - b_ModelB_d3 + b_ModelC_d3 - 46600 x_ModelB_d3_ModelC_d3 >= -45000
+_C231: - b_ModelB_a1 + b_ModelC_a1 - 46100 x_ModelB_a1_ModelC_a1 >= -45000
+_C232: b_ModelA_a1 - b_ModelB_a1 - 46100 x_ModelB_a1_ModelA_a1 >= -45000
+_C233: b_ModelA_b0 - b_ModelB_b0 - 45200 x_ModelB_b0_ModelA_b0 >= -45000
+_C234: - b_ModelB_b0 + b_ModelC_b0 - 45200 x_ModelB_b0_ModelC_b0 >= -45000
+_C235: b_ModelB_d2 - b_ModelC_d2 - 10120 x_ModelC_d2_ModelB_d2 >= -10000
+_C236: b_ModelA_d2 - b_ModelC_d2 - 10120 x_ModelC_d2_ModelA_d2 >= -10000
+_C237: - b_ModelA_d4 + b_ModelB_d4 - 5150 x_ModelA_d4_ModelB_d4 >= -5000
+_C238: - b_ModelA_d4 + b_ModelC_d4 - 5150 x_ModelA_d4_ModelC_d4 >= -5000
+_C239: b_ModelB_a0 - b_ModelC_a0 - 10120 x_ModelC_a0_ModelB_a0 >= -10000
+_C24: - b_ModelC_b2 + b_ModelC_b3 >= 25
+_C240: b_ModelA_a0 - b_ModelC_a0 - 10120 x_ModelC_a0_ModelA_a0 >= -10000
+_C241: b_ModelA_c1 - b_ModelC_c1 - 10400 x_ModelC_c1_ModelA_c1 >= -10000
+_C242: b_ModelB_c1 - b_ModelC_c1 - 10400 x_ModelC_c1_ModelB_c1 >= -10000
+_C243: - b_ModelA_d2 + b_ModelB_d2 - 5150 x_ModelA_d2_ModelB_d2 >= -5000
+_C244: - b_ModelA_d2 + b_ModelC_d2 - 5150 x_ModelA_d2_ModelC_d2 >= -5000
+_C245: b_ModelB_d4 - b_ModelC_d4 - 10120 x_ModelC_d4_ModelB_d4 >= -10000
+_C246: b_ModelA_d4 - b_ModelC_d4 - 10120 x_ModelC_d4_ModelA_d4 >= -10000
+_C247: - b_ModelA_d0 + b_ModelC_d0 - 5150 x_ModelA_d0_ModelC_d0 >= -5000
+_C248: - b_ModelA_d0 + b_ModelB_d0 - 5150 x_ModelA_d0_ModelB_d0 >= -5000
+_C249: b_ModelB_a1 - b_ModelC_a1 - 10300 x_ModelC_a1_ModelB_a1 >= -10000
+_C25: - b_ModelB_d2 + b_ModelB_d4 >= 105
+_C250: b_ModelA_a1 - b_ModelC_a1 - 10300 x_ModelC_a1_ModelA_a1 >= -10000
+_C251: b_ModelA_f2 - b_ModelC_f2 - 10120 x_ModelC_f2_ModelA_f2 >= -10000
+_C252: b_ModelB_f2 - b_ModelC_f2 - 10120 x_ModelC_f2_ModelB_f2 >= -10000
+_C253: - b_ModelA_a1 + b_ModelB_a1 - 5600 x_ModelA_a1_ModelB_a1 >= -5000
+_C254: - b_ModelA_a1 + b_ModelC_a1 - 5600 x_ModelA_a1_ModelC_a1 >= -5000
+_C255: - b_ModelB_d0 + b_ModelC_d0 - 45200 x_ModelB_d0_ModelC_d0 >= -45000
+_C256: b_ModelA_d0 - b_ModelB_d0 - 45200 x_ModelB_d0_ModelA_d0 >= -45000
+_C257: - b_ModelA_c2 + b_ModelC_c2 - 5150 x_ModelA_c2_ModelC_c2 >= -5000
+_C258: - b_ModelA_c2 + b_ModelB_c2 - 5150 x_ModelA_c2_ModelB_c2 >= -5000
+_C259: - b_ModelB_a0 + b_ModelC_a0 - 45200 x_ModelB_a0_ModelC_a0 >= -45000
+_C26: - b_ModelC_b3 + b_ModelC_c2 >= 25
+_C260: b_ModelA_a0 - b_ModelB_a0 - 45200 x_ModelB_a0_ModelA_a0 >= -45000
+_C261: b_ModelA_d3 - b_ModelC_d3 - 10400 x_ModelC_d3_ModelA_d3 >= -10000
+_C262: b_ModelB_d3 - b_ModelC_d3 - 10400 x_ModelC_d3_ModelB_d3 >= -10000
+_C263: b_ModelA_a3 - b_ModelC_a3 - 10400 x_ModelC_a3_ModelA_a3 >= -10000
+_C264: b_ModelB_a3 - b_ModelC_a3 - 10400 x_ModelC_a3_ModelB_a3 >= -10000
+_C265: - b_ModelA_f1 + b_ModelB_f1 - 5600 x_ModelA_f1_ModelB_f1 >= -5000
+_C266: - b_ModelA_f1 + b_ModelC_f1 - 5600 x_ModelA_f1_ModelC_f1 >= -5000
+_C267: b_ModelA_b2 - b_ModelB_b2 - 45200 x_ModelB_b2_ModelA_b2 >= -45000
+_C268: - b_ModelB_b2 + b_ModelC_b2 - 45200 x_ModelB_b2_ModelC_b2 >= -45000
+_C269: b_ModelA_c0 - b_ModelC_c0 - 10120 x_ModelC_c0_ModelA_c0 >= -10000
+_C27: - b_ModelC_f1 + b_ModelC_f2 >= 205
+_C270: b_ModelB_c0 - b_ModelC_c0 - 10120 x_ModelC_c0_ModelB_c0 >= -10000
+_C271: - b_ModelB_a2 + b_ModelC_a2 - 45200 x_ModelB_a2_ModelC_a2 >= -45000
+_C272: b_ModelA_a2 - b_ModelB_a2 - 45200 x_ModelB_a2_ModelA_a2 >= -45000
+_C273: - b_ModelA_d1 + b_ModelC_d1 - 5600 x_ModelA_d1_ModelC_d1 >= -5000
+_C274: - b_ModelA_d1 + b_ModelB_d1 - 5600 x_ModelA_d1_ModelB_d1 >= -5000
+_C275: b_ModelA_c0 - b_ModelB_c0 - 45200 x_ModelB_c0_ModelA_c0 >= -45000
+_C276: - b_ModelB_c0 + b_ModelC_c0 - 45200 x_ModelB_c0_ModelC_c0 >= -45000
+_C277: - b_ModelA_a0 + b_ModelC_a0 - 5150 x_ModelA_a0_ModelC_a0 >= -5000
+_C278: - b_ModelA_a0 + b_ModelB_a0 - 5150 x_ModelA_a0_ModelB_a0 >= -5000
+_C279: b_ModelA_f2 - b_ModelB_f2 - 45200 x_ModelB_f2_ModelA_f2 >= -45000
+_C28: - b_ModelB_b3 + b_ModelB_c2 >= 105
+_C280: - b_ModelB_f2 + b_ModelC_f2 - 45200 x_ModelB_f2_ModelC_f2 >= -45000
+_C281: b_ModelA_b1 - b_ModelC_b1 - 10400 x_ModelC_b1_ModelA_b1 >= -10000
+_C282: b_ModelB_b1 - b_ModelC_b1 - 10400 x_ModelC_b1_ModelB_b1 >= -10000
+_C283: Cmax - b_ModelC_d0 >= 20
+_C284: Cmax - b_ModelA_a4 >= 50
+_C285: Cmax - b_ModelA_b2 >= 50
+_C286: Cmax - b_ModelA_c1 >= 750
+_C287: Cmax - b_ModelA_b3 >= 50
+_C288: Cmax - b_ModelC_a4 >= 20
+_C289: Cmax - b_ModelC_a2 >= 20
+_C29: - b_ModelA_a2 + b_ModelA_a3 >= 55
+_C290: Cmax - b_ModelA_b1 >= 750
+_C291: Cmax - b_ModelA_f2 >= 50
+_C292: Cmax - b_ModelB_f1 >= 1000
+_C293: Cmax - b_ModelB_b1 >= 1500
+_C294: Cmax - b_ModelB_a4 >= 100
+_C295: Cmax - b_ModelC_d1 >= 200
+_C296: Cmax - b_ModelA_a3 >= 750
+_C297: Cmax - b_ModelB_c1 >= 1500
+_C298: Cmax - b_ModelA_c0 >= 50
+_C299: Cmax - b_ModelA_b0 >= 50
+_C3: - b_ModelA_b2 + b_ModelA_b3 >= 55
+_C30: - b_ModelB_d3 + b_ModelB_d4 >= 1505
+_C300: Cmax - b_ModelC_c2 >= 20
+_C301: Cmax - b_ModelB_c2 >= 100
+_C302: Cmax - b_ModelA_d3 >= 750
+_C303: Cmax - b_ModelB_d1 >= 1000
+_C304: Cmax - b_ModelB_d4 >= 100
+_C305: Cmax - b_ModelB_a3 >= 1500
+_C306: Cmax - b_ModelC_b0 >= 20
+_C307: Cmax - b_ModelC_b2 >= 20
+_C308: Cmax - b_ModelB_d2 >= 100
+_C309: Cmax - b_ModelC_b3 >= 20
+_C31: - b_ModelB_a1 + b_ModelB_a4 >= 1005
+_C310: Cmax - b_ModelC_f1 >= 200
+_C311: Cmax - b_ModelB_b3 >= 100
+_C312: Cmax - b_ModelA_a2 >= 50
+_C313: Cmax - b_ModelB_d3 >= 1500
+_C314: Cmax - b_ModelB_a1 >= 1000
+_C315: Cmax - b_ModelB_b0 >= 100
+_C316: Cmax - b_ModelC_d2 >= 20
+_C317: Cmax - b_ModelA_d4 >= 50
+_C318: Cmax - b_ModelC_a0 >= 20
+_C319: Cmax - b_ModelC_c1 >= 300
+_C32: - b_ModelB_b0 + b_ModelB_b1 >= 105
+_C320: Cmax - b_ModelA_d2 >= 50
+_C321: Cmax - b_ModelC_d4 >= 20
+_C322: Cmax - b_ModelA_d0 >= 50
+_C323: Cmax - b_ModelC_a1 >= 200
+_C324: Cmax - b_ModelC_f2 >= 20
+_C325: Cmax - b_ModelA_a1 >= 500
+_C326: Cmax - b_ModelB_d0 >= 100
+_C327: Cmax - b_ModelA_c2 >= 50
+_C328: Cmax - b_ModelB_a0 >= 100
+_C329: Cmax - b_ModelC_d3 >= 300
+_C33: - b_ModelC_d2 + b_ModelC_d4 >= 25
+_C330: Cmax - b_ModelC_a3 >= 300
+_C331: Cmax - b_ModelA_f1 >= 500
+_C332: Cmax - b_ModelB_b2 >= 100
+_C333: Cmax - b_ModelC_c0 >= 20
+_C334: Cmax - b_ModelB_a2 >= 100
+_C335: Cmax - b_ModelA_d1 >= 500
+_C336: Cmax - b_ModelB_c0 >= 100
+_C337: Cmax - b_ModelA_a0 >= 50
+_C338: Cmax - b_ModelB_f2 >= 100
+_C339: Cmax - b_ModelC_b1 >= 300
+_C34: - b_ModelA_d4 + b_ModelA_f1 >= 55
+_C340: D_ModelC_d0 - b_ModelC_d0 + b_ModelC_d1 = 25
+_C341: D_ModelA_b2 - b_ModelA_b2 + b_ModelA_b3 = 55
+_C342: D_ModelA_c1 - b_ModelA_c1 + b_ModelA_c2 = 755
+_C343: D_ModelC_a2 - b_ModelC_a2 + b_ModelC_a3 = 25
+_C344: D_ModelA_b1 - b_ModelA_b1 + b_ModelA_b2 = 755
+_C345: D_ModelB_f1 - b_ModelB_f1 + b_ModelB_f2 = 1005
+_C346: D_ModelB_b1 - b_ModelB_b1 + b_ModelB_b2 = 1505
+_C347: D_ModelC_d1 - b_ModelC_d1 + b_ModelC_d4 = 205
+_C348: D_ModelA_a3 - b_ModelA_a3 + b_ModelA_a4 = 755
+_C349: D_ModelB_c1 - b_ModelB_c1 + b_ModelB_c2 = 1505
+_C35: - b_ModelC_a0 + b_ModelC_a1 >= 25
+_C350: D_ModelA_c0 - b_ModelA_c0 + b_ModelA_c1 = 55
+_C351: D_ModelA_b0 - b_ModelA_b0 + b_ModelA_b1 = 55
+_C352: D_ModelA_d3 - b_ModelA_d3 + b_ModelA_d4 = 755
+_C353: D_ModelB_d1 - b_ModelB_d1 + b_ModelB_d4 = 1005
+_C354: D_ModelB_a3 - b_ModelB_a3 + b_ModelB_a4 = 1505
+_C355: D_ModelC_b0 - b_ModelC_b0 + b_ModelC_b1 = 25
+_C356: D_ModelC_b2 - b_ModelC_b2 + b_ModelC_b3 = 25
+_C357: D_ModelB_d2 - b_ModelB_d2 + b_ModelB_d4 = 105
+_C358: D_ModelC_f1 - b_ModelC_f1 + b_ModelC_f2 = 205
+_C359: D_ModelA_a2 - b_ModelA_a2 + b_ModelA_a3 = 55
+_C36: - b_ModelC_c1 + b_ModelC_c2 >= 305
+_C360: D_ModelB_d3 - b_ModelB_d3 + b_ModelB_d4 = 1505
+_C361: D_ModelB_a1 - b_ModelB_a1 + b_ModelB_a4 = 1005
+_C362: D_ModelB_b0 - b_ModelB_b0 + b_ModelB_b1 = 105
+_C363: D_ModelC_d2 - b_ModelC_d2 + b_ModelC_d4 = 25
+_C364: D_ModelC_a0 - b_ModelC_a0 + b_ModelC_a1 = 25
+_C365: D_ModelC_c1 - b_ModelC_c1 + b_ModelC_c2 = 305
+_C366: D_ModelA_d2 - b_ModelA_d2 + b_ModelA_d4 = 55
+_C367: D_ModelA_d0 - b_ModelA_d0 + b_ModelA_d1 = 55
+_C368: D_ModelC_a1 - b_ModelC_a1 + b_ModelC_a4 = 205
+_C369: D_ModelA_a1 - b_ModelA_a1 + b_ModelA_a4 = 505
+_C37: - b_ModelA_d2 + b_ModelA_d4 >= 55
+_C370: D_ModelB_d0 - b_ModelB_d0 + b_ModelB_d1 = 105
+_C371: D_ModelB_a0 - b_ModelB_a0 + b_ModelB_a1 = 105
+_C372: D_ModelC_d3 - b_ModelC_d3 + b_ModelC_d4 = 305
+_C373: D_ModelC_a3 - b_ModelC_a3 + b_ModelC_a4 = 305
+_C374: D_ModelA_f1 - b_ModelA_f1 + b_ModelA_f2 = 505
+_C375: D_ModelB_b2 - b_ModelB_b2 + b_ModelB_b3 = 105
+_C376: D_ModelC_c0 - b_ModelC_c0 + b_ModelC_c1 = 25
+_C377: D_ModelB_a2 - b_ModelB_a2 + b_ModelB_a3 = 105
+_C378: D_ModelA_d1 - b_ModelA_d1 + b_ModelA_d4 = 505
+_C379: D_ModelB_c0 - b_ModelB_c0 + b_ModelB_c1 = 105
+_C38: - b_ModelC_d4 + b_ModelC_f1 >= 25
+_C380: D_ModelA_a0 - b_ModelA_a0 + b_ModelA_a1 = 55
+_C381: D_ModelC_b1 - b_ModelC_b1 + b_ModelC_b2 = 305
+_C39: - b_ModelA_d0 + b_ModelA_d1 >= 55
+_C4: - b_ModelA_c1 + b_ModelA_c2 >= 755
+_C40: - b_ModelC_a1 + b_ModelC_a4 >= 205
+_C41: - b_ModelA_a1 + b_ModelA_a4 >= 505
+_C42: - b_ModelB_d0 + b_ModelB_d1 >= 105
+_C43: - b_ModelA_c2 + b_ModelA_d3 >= 55
+_C44: - b_ModelB_a0 + b_ModelB_a1 >= 105
+_C45: - b_ModelC_d3 + b_ModelC_d4 >= 305
+_C46: - b_ModelC_a3 + b_ModelC_a4 >= 305
+_C47: - b_ModelA_f1 + b_ModelA_f2 >= 505
+_C48: - b_ModelB_b2 + b_ModelB_b3 >= 105
+_C49: - b_ModelC_c0 + b_ModelC_c1 >= 25
+_C5: - b_ModelA_b3 + b_ModelA_c2 >= 55
+_C50: - b_ModelB_a2 + b_ModelB_a3 >= 105
+_C51: - b_ModelA_d1 + b_ModelA_d4 >= 505
+_C52: - b_ModelB_c0 + b_ModelB_c1 >= 105
+_C53: - b_ModelA_a0 + b_ModelA_a1 >= 55
+_C54: - b_ModelC_b1 + b_ModelC_b2 >= 305
+_C55: x_ModelA_d0_ModelC_d0 + x_ModelC_d0_ModelA_d0 = 1
+_C56: x_ModelB_d0_ModelC_d0 + x_ModelC_d0_ModelB_d0 = 1
+_C57: x_ModelA_a4_ModelC_a4 + x_ModelC_a4_ModelA_a4 = 1
+_C58: x_ModelA_a4_ModelB_a4 + x_ModelB_a4_ModelA_a4 = 1
+_C59: x_ModelA_b2_ModelC_b2 + x_ModelC_b2_ModelA_b2 = 1
+_C6: - b_ModelC_a4 + b_ModelC_d2 >= 25
+_C60: x_ModelA_b2_ModelB_b2 + x_ModelB_b2_ModelA_b2 = 1
+_C61: x_ModelA_c1_ModelB_c1 + x_ModelB_c1_ModelA_c1 = 1
+_C62: x_ModelA_c1_ModelC_c1 + x_ModelC_c1_ModelA_c1 = 1
+_C63: x_ModelA_b3_ModelC_b3 + x_ModelC_b3_ModelA_b3 = 1
+_C64: x_ModelA_b3_ModelB_b3 + x_ModelB_b3_ModelA_b3 = 1
+_C65: x_ModelA_a4_ModelC_a4 + x_ModelC_a4_ModelA_a4 = 1
+_C66: x_ModelB_a4_ModelC_a4 + x_ModelC_a4_ModelB_a4 = 1
+_C67: x_ModelA_a2_ModelC_a2 + x_ModelC_a2_ModelA_a2 = 1
+_C68: x_ModelB_a2_ModelC_a2 + x_ModelC_a2_ModelB_a2 = 1
+_C69: x_ModelA_b1_ModelB_b1 + x_ModelB_b1_ModelA_b1 = 1
+_C7: - b_ModelC_a2 + b_ModelC_a3 >= 25
+_C70: x_ModelA_b1_ModelC_b1 + x_ModelC_b1_ModelA_b1 = 1
+_C71: x_ModelA_f2_ModelC_f2 + x_ModelC_f2_ModelA_f2 = 1
+_C72: x_ModelA_f2_ModelB_f2 + x_ModelB_f2_ModelA_f2 = 1
+_C73: x_ModelB_f1_ModelC_f1 + x_ModelC_f1_ModelB_f1 = 1
+_C74: x_ModelA_f1_ModelB_f1 + x_ModelB_f1_ModelA_f1 = 1
+_C75: x_ModelA_b1_ModelB_b1 + x_ModelB_b1_ModelA_b1 = 1
+_C76: x_ModelB_b1_ModelC_b1 + x_ModelC_b1_ModelB_b1 = 1
+_C77: x_ModelA_a4_ModelB_a4 + x_ModelB_a4_ModelA_a4 = 1
+_C78: x_ModelB_a4_ModelC_a4 + x_ModelC_a4_ModelB_a4 = 1
+_C79: x_ModelB_d1_ModelC_d1 + x_ModelC_d1_ModelB_d1 = 1
+_C8: - b_ModelA_b1 + b_ModelA_b2 >= 755
+_C80: x_ModelA_d1_ModelC_d1 + x_ModelC_d1_ModelA_d1 = 1
+_C81: x_ModelA_a3_ModelB_a3 + x_ModelB_a3_ModelA_a3 = 1
+_C82: x_ModelA_a3_ModelC_a3 + x_ModelC_a3_ModelA_a3 = 1
+_C83: x_ModelA_c1_ModelB_c1 + x_ModelB_c1_ModelA_c1 = 1
+_C84: x_ModelB_c1_ModelC_c1 + x_ModelC_c1_ModelB_c1 = 1
+_C85: x_ModelA_c0_ModelC_c0 + x_ModelC_c0_ModelA_c0 = 1
+_C86: x_ModelA_c0_ModelB_c0 + x_ModelB_c0_ModelA_c0 = 1
+_C87: x_ModelA_b0_ModelC_b0 + x_ModelC_b0_ModelA_b0 = 1
+_C88: x_ModelA_b0_ModelB_b0 + x_ModelB_b0_ModelA_b0 = 1
+_C89: x_ModelB_c2_ModelC_c2 + x_ModelC_c2_ModelB_c2 = 1
+_C9: - b_ModelB_f1 + b_ModelB_f2 >= 1005
+_C90: x_ModelA_c2_ModelC_c2 + x_ModelC_c2_ModelA_c2 = 1
+_C91: x_ModelB_c2_ModelC_c2 + x_ModelC_c2_ModelB_c2 = 1
+_C92: x_ModelA_c2_ModelB_c2 + x_ModelB_c2_ModelA_c2 = 1
+_C93: x_ModelA_d3_ModelB_d3 + x_ModelB_d3_ModelA_d3 = 1
+_C94: x_ModelA_d3_ModelC_d3 + x_ModelC_d3_ModelA_d3 = 1
+_C95: x_ModelB_d1_ModelC_d1 + x_ModelC_d1_ModelB_d1 = 1
+_C96: x_ModelA_d1_ModelB_d1 + x_ModelB_d1_ModelA_d1 = 1
+_C97: x_ModelA_d4_ModelB_d4 + x_ModelB_d4_ModelA_d4 = 1
+_C98: x_ModelB_d4_ModelC_d4 + x_ModelC_d4_ModelB_d4 = 1
+_C99: x_ModelA_a3_ModelB_a3 + x_ModelB_a3_ModelA_a3 = 1
+Bounds
+b_ModelA_a0 <= 4950
+b_ModelA_a1 <= 4500
+10 <= b_ModelA_a2 <= 4950
+b_ModelA_a3 <= 4250
+b_ModelA_a4 <= 4950
+50 <= b_ModelA_b0 <= 4950
+b_ModelA_b1 <= 4250
+b_ModelA_b2 <= 4950
+b_ModelA_b3 <= 4950
+b_ModelA_c0 <= 4950
+b_ModelA_c1 <= 4250
+b_ModelA_c2 <= 4950
+1 <= b_ModelA_d0 <= 4950
+b_ModelA_d1 <= 4500
+b_ModelA_d2 <= 4950
+b_ModelA_d3 <= 4250
+b_ModelA_d4 <= 4950
+b_ModelA_f1 <= 4500
+b_ModelA_f2 <= 4950
+b_ModelB_a0 <= 44900
+b_ModelB_a1 <= 44000
+10 <= b_ModelB_a2 <= 44900
+b_ModelB_a3 <= 43500
+b_ModelB_a4 <= 44900
+50 <= b_ModelB_b0 <= 44900
+b_ModelB_b1 <= 43500
+b_ModelB_b2 <= 44900
+b_ModelB_b3 <= 44900
+b_ModelB_c0 <= 44900
+b_ModelB_c1 <= 43500
+b_ModelB_c2 <= 44900
+1 <= b_ModelB_d0 <= 44900
+b_ModelB_d1 <= 44000
+b_ModelB_d2 <= 44900
+b_ModelB_d3 <= 43500
+b_ModelB_d4 <= 44900
+b_ModelB_f1 <= 44000
+b_ModelB_f2 <= 44900
+b_ModelC_a0 <= 9980
+b_ModelC_a1 <= 9800
+10 <= b_ModelC_a2 <= 9980
+b_ModelC_a3 <= 9700
+b_ModelC_a4 <= 9980
+50 <= b_ModelC_b0 <= 9980
+b_ModelC_b1 <= 9700
+b_ModelC_b2 <= 9980
+b_ModelC_b3 <= 9980
+b_ModelC_c0 <= 9980
+b_ModelC_c1 <= 9700
+b_ModelC_c2 <= 9980
+1 <= b_ModelC_d0 <= 9980
+b_ModelC_d1 <= 9800
+b_ModelC_d2 <= 9980
+b_ModelC_d3 <= 9700
+b_ModelC_d4 <= 9980
+b_ModelC_f1 <= 9800
+b_ModelC_f2 <= 9980
+Binaries
+x_ModelA_a0_ModelB_a0
+x_ModelA_a0_ModelC_a0
+x_ModelA_a1_ModelB_a1
+x_ModelA_a1_ModelC_a1
+x_ModelA_a2_ModelB_a2
+x_ModelA_a2_ModelC_a2
+x_ModelA_a3_ModelB_a3
+x_ModelA_a3_ModelC_a3
+x_ModelA_a4_ModelB_a4
+x_ModelA_a4_ModelC_a4
+x_ModelA_b0_ModelB_b0
+x_ModelA_b0_ModelC_b0
+x_ModelA_b1_ModelB_b1
+x_ModelA_b1_ModelC_b1
+x_ModelA_b2_ModelB_b2
+x_ModelA_b2_ModelC_b2
+x_ModelA_b3_ModelB_b3
+x_ModelA_b3_ModelC_b3
+x_ModelA_c0_ModelB_c0
+x_ModelA_c0_ModelC_c0
+x_ModelA_c1_ModelB_c1
+x_ModelA_c1_ModelC_c1
+x_ModelA_c2_ModelB_c2
+x_ModelA_c2_ModelC_c2
+x_ModelA_d0_ModelB_d0
+x_ModelA_d0_ModelC_d0
+x_ModelA_d1_ModelB_d1
+x_ModelA_d1_ModelC_d1
+x_ModelA_d2_ModelB_d2
+x_ModelA_d2_ModelC_d2
+x_ModelA_d3_ModelB_d3
+x_ModelA_d3_ModelC_d3
+x_ModelA_d4_ModelB_d4
+x_ModelA_d4_ModelC_d4
+x_ModelA_f1_ModelB_f1
+x_ModelA_f1_ModelC_f1
+x_ModelA_f2_ModelB_f2
+x_ModelA_f2_ModelC_f2
+x_ModelB_a0_ModelA_a0
+x_ModelB_a0_ModelC_a0
+x_ModelB_a1_ModelA_a1
+x_ModelB_a1_ModelC_a1
+x_ModelB_a2_ModelA_a2
+x_ModelB_a2_ModelC_a2
+x_ModelB_a3_ModelA_a3
+x_ModelB_a3_ModelC_a3
+x_ModelB_a4_ModelA_a4
+x_ModelB_a4_ModelC_a4
+x_ModelB_b0_ModelA_b0
+x_ModelB_b0_ModelC_b0
+x_ModelB_b1_ModelA_b1
+x_ModelB_b1_ModelC_b1
+x_ModelB_b2_ModelA_b2
+x_ModelB_b2_ModelC_b2
+x_ModelB_b3_ModelA_b3
+x_ModelB_b3_ModelC_b3
+x_ModelB_c0_ModelA_c0
+x_ModelB_c0_ModelC_c0
+x_ModelB_c1_ModelA_c1
+x_ModelB_c1_ModelC_c1
+x_ModelB_c2_ModelA_c2
+x_ModelB_c2_ModelC_c2
+x_ModelB_d0_ModelA_d0
+x_ModelB_d0_ModelC_d0
+x_ModelB_d1_ModelA_d1
+x_ModelB_d1_ModelC_d1
+x_ModelB_d2_ModelA_d2
+x_ModelB_d2_ModelC_d2
+x_ModelB_d3_ModelA_d3
+x_ModelB_d3_ModelC_d3
+x_ModelB_d4_ModelA_d4
+x_ModelB_d4_ModelC_d4
+x_ModelB_f1_ModelA_f1
+x_ModelB_f1_ModelC_f1
+x_ModelB_f2_ModelA_f2
+x_ModelB_f2_ModelC_f2
+x_ModelC_a0_ModelA_a0
+x_ModelC_a0_ModelB_a0
+x_ModelC_a1_ModelA_a1
+x_ModelC_a1_ModelB_a1
+x_ModelC_a2_ModelA_a2
+x_ModelC_a2_ModelB_a2
+x_ModelC_a3_ModelA_a3
+x_ModelC_a3_ModelB_a3
+x_ModelC_a4_ModelA_a4
+x_ModelC_a4_ModelB_a4
+x_ModelC_b0_ModelA_b0
+x_ModelC_b0_ModelB_b0
+x_ModelC_b1_ModelA_b1
+x_ModelC_b1_ModelB_b1
+x_ModelC_b2_ModelA_b2
+x_ModelC_b2_ModelB_b2
+x_ModelC_b3_ModelA_b3
+x_ModelC_b3_ModelB_b3
+x_ModelC_c0_ModelA_c0
+x_ModelC_c0_ModelB_c0
+x_ModelC_c1_ModelA_c1
+x_ModelC_c1_ModelB_c1
+x_ModelC_c2_ModelA_c2
+x_ModelC_c2_ModelB_c2
+x_ModelC_d0_ModelA_d0
+x_ModelC_d0_ModelB_d0
+x_ModelC_d1_ModelA_d1
+x_ModelC_d1_ModelB_d1
+x_ModelC_d2_ModelA_d2
+x_ModelC_d2_ModelB_d2
+x_ModelC_d3_ModelA_d3
+x_ModelC_d3_ModelB_d3
+x_ModelC_d4_ModelA_d4
+x_ModelC_d4_ModelB_d4
+x_ModelC_f1_ModelA_f1
+x_ModelC_f1_ModelB_f1
+x_ModelC_f2_ModelA_f2
+x_ModelC_f2_ModelB_f2
+End
