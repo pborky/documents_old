@@ -11,11 +11,11 @@ noteq(_,_).
 
 
 
-listvars(List,_) :- write('listvars: '), write(List), nl, fail.
+%listvars(List,_) :- write('listvars: '), write(List), nl, fail.
 listvars([], []).
 listvars([H|T], Vars) :- allvars(H, HVars), listvars(T, TVars), append(HVars,TVars, Vars).
 
-allvars(List,_) :- write('allvars: '), write(List), nl, fail.
+%allvars(List,_) :- write('allvars: '), write(List), nl, fail.
 allvars(T, [T]) :- var(T) , ! .
 allvars(T, Vars) :- T =.. [_|Args], listvars(Args,Vars).
 
