@@ -1,0 +1,9 @@
+digraph Default { 
+    a1 -> b [label="01"];
+    a2 -> b [label="02"];
+    b -> e2 [label="06"];
+    b [shape=hexagon,fillcolor=lightslateblue,style=filled];
+    a1 [shape=hexagon,fillcolor=salmon,style=filled]; 
+    a2 [shape=hexagon,fillcolor=salmon,style=filled]; 
+    rankdir=LR; 
+}
