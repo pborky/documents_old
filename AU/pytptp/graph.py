@@ -1,3 +1,4 @@
+# coding=utf-8
 from pytptp import Constant,Predicate
 
 ## Exceptions
@@ -92,14 +93,35 @@ class Edge:
         self.end.replaceEdge(self,edge)
         return edge
 
+class Inc:
+    def __init__(self, i, prefix):
+        self.i = i
+        self.prefix = prefix
+    def __pos__(self):
+        self.i += 1
+        return '%s%d' %(self.prefix,self.i)
+
+class Wrapper:
+    def __init__(self,d):
+        if isinstance(d,dict):
+            self.__dict__.update(d)
+        if isinstance(d,list) or isinstance(d,tuple):
+            self.__dict__.update((i,None) for i in d)
+
 class Graph:
     def __init__(self, name, dot):
         import re
-        from pytptp import Predicate
+        from pytptp import Predicate,Variable,Functor
         edge = Predicate('edge',2)
-        pt = re.compile(r'([a-zA-Z0-9]+)')
-        edges = [(Edge(name),src,dst) for name, src, dst in
-                    ( (pt.search(e.get_label()).group(1), e.get_source(), e.get_destination()) for e in dot.get_edges() )]
+        i = Inc(0,'')
+        if isinstance(dot,str):
+            (name, body), = re.findall(r'digraph\s+([\w_]+)\s+\{\s*(.*)\s*\}', dot, re.DOTALL)
+            edges = [(Edge(name),src,dst) for name, src, dst in ( (+i, src,dst) for src,dst in re.findall(r'(\w+)\s+->\s+(\w+)\s*;',body, re.DOTALL) )]
+        else:
+            pt = re.compile(r'([a-zA-Z0-9]+)')
+            #print [(e.get_source(), e.get_destination()) for e in dot.get_edges()]
+            edges = [(Edge(name),src,dst) for name, src, dst in
+                        ( (((e.get_label() is None and +i) or pt.search(e.get_label()).group(1)), e.get_source(), e.get_destination()) for e in dot.get_edges() )]
         srcs = dict()
         dsts = dict()
         nodes = set()
@@ -111,6 +133,32 @@ class Graph:
         self.name = name
         self.vertices = dict( (n, Vertex(n,None,dsts.get(n),srcs.get(n)) )  for n in nodes )
         self.edges = dict( (e.name,e.replace(edge)) for e,src,dst in edges )
+
+        w = Wrapper([
+                'edge','input','output', 'flop',
+                'diverge','signal','branch', 'path',
+                'at','want','crit','succ','less',
+                'X','Y','Z','U','V','T','T1','T2','A','B'
+            ])
+        w.path = Predicate('path',2)
+        w.edge = edge
+        w.input = Predicate('input',1)
+        w.output = Predicate('output',1)
+        w.diverge = Predicate('diverge',1)
+        w.signal = Predicate('signal',2)
+        w.branch = Predicate('branch',3)
+        w.at = Predicate('at',3)
+        w.want = Predicate('want',2)
+        w.flop = Predicate('flop',2)
+        w.crit = Predicate('crit',1)
+        w.block = Predicate('block',2)
+        w.succ = Functor('succ',1)
+        w.pred = Functor('pred',1)
+        w.less = Predicate('less',2)
+        w.X,w.Y,w.Z,w.U,w.V = Variable('X'),Variable('Y'),Variable('Z'),Variable('U'),Variable('V')
+        w.T,w.T1,w.T2 = Variable('T'),Variable('T1'),Variable('T2')
+        w.A,w.B = Variable('A'),Variable('B')
+        self.symbols = w
 
     def dot(self):
         nodes = []
@@ -132,7 +180,20 @@ class Graph:
             'nodes': nodes
         }
 
+    def writef(self,fn,data):
+        f = open(fn,'w')
+        try: f.write(str(data));
+        finally: f.close();
+        return data
     def tp(self):
+        self.writef('ltl.tpt',self.ltlAxioms())
+        self.writef('graph.tpt',self.graphAxioms())
+        self.writef('control.tpt',self.controlAxioms())
+        self.writef('t0.tpt',self.test0Axiom())
+        self.writef('t1.tpt',self.test1Conjectures())
+        self.writef('t2.tpt',self.test2Conjectures())
+        self.writef('t3.tpt',self.test3Conjectures())
+        #self.writef('control.tpt',self.controlAxioms())
         return str(self.getFormulae())
     def uni(self):
         return unicode(self.getFormulae())
@@ -140,90 +201,49 @@ class Graph:
         from pytptp import tex
         return tex(self.getFormulae())
     def getFormulae(self):
-        from pytptp import Predicate,Functor,Variable,all,axiom
-        X,Y,T,Z = Variable('X'),Variable('Y'),Variable('T'),Variable('Z')
-        # vertices are constants, and edgs are predicates
-
-        at = Predicate('at',3)  # <time>, <edge>, <node>
-        go = Predicate('go',1)  # <time>, <edge>
-        crit = Predicate('crit',2)  # <time>, <edge>
-        signal = Predicate('signal',2) # <time>, <node>
-
-        #print reduce(lambda x,y:x&y, (crit(succ(T),e) for n,e in self.edges.iteritems() ))
-
-        fmt = u'% Train movement axioms \n{0}\n\
-            \n% Collision axioms \n{1}\n\
-            \n% Signaling control \n{2}\n\
-            \n% Train on input \n{3}\n\
-            \n% Conjectures \n{4}\n\
-            \n% Negated conjectures \n{5}'
-        #return  self.ltlAxioms()+ self.graphAxioms()
-        return self.ltlAxioms()+self.graphAxioms()
-
+        return self.ltlAxioms()+self.graphAxioms()+self.controlAxioms()+self.test0Axiom()+self.test1Conjectures()+self.test2Conjectures()+self.test3Conjectures()
     def ltlAxioms(self):
-        from pytptp import Predicate,Functor,Variable,all,axiom
-        less = Predicate('less',2)
-        succ = Functor('succ',1)
-        pred = Functor('pred',1)
-        X,Y,T,Z = Variable('X'),Variable('Y'),Variable('T'),Variable('Z')
-        from pytptp import all,axiom,annot
-        f =  annot('\n\tLinear temporal logic axioms\n')
-        f += axiom('less_antisym',all(X,Y)  * ((X==Y) <= (less(X,Y) & less(Y,X)))   )
+        from pytptp import all,axiom,annot,annotate
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z
+        f =  annot('')
+        f +=  annot('Linear temporal logic axioms')
+        f += axiom('less_antisym',all(X,Y)  * ((X==Y) <= (less(X,Y) & less(Y,X)))  )
         f += axiom('less_trans',  all(X,Y,Z)* (less(X,Z) <= (less(X,Y) & less(Y,Z)))  )
-        f += axiom('les_total',   all(X,Y)  * (less(X,Y) | less(Y,X)) )
+        f += axiom('less_total',  all(X,Y)  * (less(X,Y) | less(Y,X)) )
         f += axiom('succ',        all(X)    * (less(X,succ(X)) & all(Y) * (less(Y,X) | less(succ(X),Y))),  )
         f += axiom('succ_neq',    all(X)    * (succ(X) != X) )
         #f += axiom('pred',        all(X)    * ((pred(succ(X)) == X) & (succ(pred(X)) == X)) )
         return f
     def graphAxioms(self):
-        from pytptp import axiom,conjecture,annot,all,any,Predicate,Variable,Functor,negConjecture
-        path = Predicate('path',2)
-        edge = Predicate('edge',2)
-
-        input = Predicate('input',1)
-        diverge = Predicate('diverge',1)
-
-        signal = Predicate('signal',2)
-        branch = Predicate('branch',3)
-
-        at = Predicate('at',3)
-        want = Predicate('want',2)
-        flop = Predicate('want',2)
-        crit = Predicate('crit',1)
-        block = Predicate('block',2)
-        succ = Functor('succ',1)
-        pred = Functor('pred',1)
-        p = Functor('p',2)
-        less = Predicate('less',2)
-        X,Y,Z,U,V = Variable('X'),Variable('Y'),Variable('Z'),Variable('U'),Variable('V')
-        T,T1,T2 = Variable('T'),Variable('T1'),Variable('T2')
-        A,B = Variable('A'),Variable('B')
-        a1 = self.vertices['a1']
-        a2 = self.vertices['a2']
-        e2 = self.vertices['e2']
-        b = self.vertices['b']
-        d = self.vertices['d']
-        c = self.vertices['c']
-        e1 = self.vertices['e1']
-        #d = self.vertices['d']
+        from pytptp import axiom,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
 
         posEdges = set(self.edges.values())
-        #signal_in = [signal(T,v,u.terms[1]) for v in self.vertices.values() if v.isInput() for u in v.edgesOut ]
-        #signal_div = [signal(T,v,u.terms[1]) | ~ signal(T,v,u.terms[1])
-        #              for v in self.vertices.values() if v.isDivergent() for u in v.edgesOut ]
-        #signal_con = [signal(T,v,u.terms[1]) for v in self.vertices.values() if v.isConvergent() for u in v.edgesOut ]
-        #signal_dir = [signal(T,v,u.terms[1]) for v in self.vertices.values() if v.isDirect() for u in v.edgesOut ]
+        inputNodes = [X==v for v in self.vertices.values() if v.isInput()]
+        outputNodes = [X==v for v in self.vertices.values() if v.isOutput()]
+        divergentNodes = [X==v for v in self.vertices.values() if v.isDivergent()]
 
-        conj = lambda x,y:x&y
-        f =  annot('\n\tGraph axioms\n')
+        f =  annot('')
+
+        f +=  annot('*** Axiomy nadrazi ***')
+        f +=  annot('Graf')
         f += axiom('graph', reduce(lambda x,y:x&y,(((e in posEdges) and e) or ~e for e in (edge(a,b) for a in self.vertices.values() for b in self.vertices.values()) )))
+        f +=  annot('Cesty v grafu')
         f += axiom('path_trans', all(X,Y,Z) * ( ( path(X,Z) & path(Z,Y) ) >= path(X,Y) ))
         f += axiom('path', all(X,Y) * ( ( path(X,Y) ) <= edge(X,Y) ))
-        f += axiom('input', all(X) * (input(X) == reduce(lambda x,y:x|y, ( X==v for v in self.vertices.values() if v.isInput() ) ) ) )
-        #f += axiom('output', all(X) * (output(X) == reduce(lambda x,y:x|y, ( X==v for v in self.vertices.values() if v.isOutput() ) ) ) )
-        f += axiom('diverge', all(X) * (diverge(X) == reduce(lambda x,y:x|y, ( X==v for v in self.vertices.values() if v.isDivergent() ) ) ) )
+        f +=  annot('Enumerace vstupu, vystupu a divergentnich spoju')
+        if len(inputNodes)>0:
+            f += axiom('input', all(X) * (input(X) == reduce(lambda x,y:x|y, inputNodes ) ) )
+        if len(outputNodes)>0:
+            f += axiom('output', all(X) * (output(X) == reduce(lambda x,y:x|y, outputNodes ) ) )
+        if len(divergentNodes)>0:
+            f += axiom('diverge', all(X) * (diverge(X) == reduce(lambda x,y:x|y, divergentNodes ) ) )
 
-        f += annot('\n\tMovement axioms')
+        f += annot('*** Pohyb vlaku ***')
         f += axiom('at', all(T,Y,U)*(
             at(succ(T),Y,U) == (
                 (at(T,Y,U) & (~want(T,Y) | (input(Y) & ~signal(T,Y) ))) |
@@ -232,314 +252,117 @@ class Graph:
                         (input(X) & signal(T,X))|
                         (diverge(X) & branch(T,X,Y))|
                         (~input(X)&~diverge(X))
-                    )
+                        )
+                    ))
                 ))
-            ))
         )
 
-        f += axiom('crit', all(T) *(
+        f += annot('*** Kriticke stavy ***')
+        f += annot('Srazka dvou nebo vice vlaku')
+        f += axiom('crit1', all(T) *(
             ( any(X,Y) * (
                 at(T,X,U) & (~want(T,X) | (input(Y) & ~signal(T,Y) )) &
                 any(Y,V) * (
                     at(T,Y,V) & edge(Y,X) & want(T,Y) &
                     ((input(Y) & signal(T,Y))|(diverge(Y) & branch(T,Y,X))|(~input(Y)&~diverge(Y)))
-                )
-            )) >= crit(succ(T))
-        ) )
+                    )
+                )) >= crit(succ(T))
+            ) )
 
-        f += annot('\n\tControl axioms')
-        #f += axiom('want', all(T,X,U) * (
-        #    at(T,X,U) >= (any(T1) * (less(T,T1) & (all(T2) * ( less(T1,T2) & want(T2,X) )) ))
-        #   )
-        #)
-        f += axiom('want', all(T,X,U) * ( at(T,X,U) >= want(T,X) ) )
-        #f += axiom('signal', all(T,X) * ( signal(T,X) ))
-        #f += axiom('block', all(T,X) * (
-        #    (input(X) & ~(any(Y,Z,U) * ( ~input(Y) & at(T,Y,U) & path(Y,Z) & path(X,Z)))) >= ~block(T,X)
-        #))
+        f += annot('Zmena stavu vyhyby po prijezdu vlaku')
+        f += axiom('crit2', all(T) * ( ( any(X,U) * ( diverge(X) & at(T,X,U) & (any(Y,Z) * ((Z!=Y) & branch(T,X,Y) & branch(succ(T),X,Z) ) ) ) ) >= crit(succ(T))) )
+
+        f += annot('Uviznuti vlaku na vstupu')
+        f += axiom('crit3', all(T)*( crit(T) <= any(X,U) * ( input(X) & at(T,X,U) & ~ (any(T1) * ( less(T,T1) & signal(T1,X) ) ) ) ) )
+
+        return f
+
+    def controlAxioms(self):
+        from pytptp import axiom,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
+
+        inNodes = [v  for v in self.vertices.values() if v.isInput()]
+
+        f =  annot('')
+        f += annot('Axiomy rizeni')
+
+        f += annot('"Vule" strojvudce')
+        f += axiom('want', all(T,X,U) * ( at(T,X,U) >= (any(T1) * (less(T,T1) & (all(T2) * (less(T1,T2) &  want(T1,X))) )) ) )
+        f += annot('Blokace vstupu jinym vlakem')
         f += axiom('block', all(T,Z) * ((( input(Z) & (any(X) * ( any(U)*at(T,X,U) & ~input(X) & (Z != X) & ~(any(Y) * (path(X,Y) & path(Y,Z)))) )) >= block(T,Z))))
 
-        f += axiom('signal_a1', all(T) * ( (~block(T,a1) & (any(U) * at(T,a1,U))) >= signal(T,a1) ))
-        f += axiom('signal_a2', all(T) * ( (~block(T,a2) & ~(any(U) * at(T,a1,U)) & (any(U) * at(T,a2,U))) >= signal(T,a2) ))
-        #f += axiom('signal', all(T,X) * ( block(T,X) == ~ signal(T,X) ))
+        f += annot('Casovac - je povolen pouze jeden vstup')
+        f += axiom('clock',all(T) * reduce(lambda x,y:x|y, ( reduce(lambda x,y:x&y,([flop(T,v)]+[~flop(T,u) for u in inNodes if u is not v])) for v in inNodes) ))
+
+        f += annot('Casovac - posunuti signalu na dalsi vstup')
+        if len(inNodes) > 1:
+            a = inNodes[1:]+inNodes[:1]
+            k = Inc(0,'clock_')
+            f +=  [ axiom(+k, all(T) * ((~flop(succ(T),i) & flop(succ(T),j)) <= (flop(T,i))) ) for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
+        f += annot('Povoleni k vstupu ')
+        f += axiom('signal', all(T,X) *  ( input(X) & flop(T,X) & ~block(T,X) ) >= signal(T,X) )
+
+        f += annot('Vyhybka')
         f += axiom('branch',
             all(T,Z,Y) * (( diverge(Z) & edge(Z,Y) & any(X,U) * ( at(T,X,U) & (path(X,Z)|(X==Z)) & (path(Y,U)|(Y==U)) ) ) >= branch(T,Z,Y))
         )
-
-
-
-        f += annot('\n\tConjectures')
-        f += conjecture('c1', all(T) * ( (at(T,a1,e2) & ~block(T,a1) ) >= (any(T1) * ( less(T,T1) & (T != T1) & any(U) * at(T1,e2,U) ) ) ))
-        f += conjecture('c2', all(T) * ( (at(T,a2,e2) & ~block(T,a2) & ~(any(U)*at(T,a1,U)) ) >= (any(T1) * ( less(T,T1) & (T != T1) & any(U) * at(T1,e2,U) ) ) ))
-        f += conjecture('c3', all(T) * ( any(X,U)*(at(T,X,U) & input(X)) >= ~( any(T1)*(less(T,T1) & crit(T1)) )   ) )
-        #f += conjecture('c2', all(T) * ( (at(T,a2,e2) & ~block(T,a2) & ~ (any(U)*at(T,a1,U))) >= (any(T1) * ( less(T,T1) & (T != T1) & any(U) * at(T1,e2,U) ) ) ))
-
-        #f += conjecture('c1', all(T) * ( (at(T,a2,e2) & ~block(T,a2) & ~ (any(U)*at(T,a1,U))) >= (any(T1) * ( less(T,T1) & (T != T1) & signal(T1,a2) ) ) ))
-        #f += conjecture('c1', all(T) * ( (at(T,a1,e2) & ~ (any(X,U) * ( (X==a1) &at(T,X,U))) ) >= (any(T1) * ( less(T,T1) & (T != T1) & at(T1,e2,e2)))  ) )
-        #f += conjecture('c1', all(T) * ( (at(T,a1,e2) & (all(X,U) * ( (X!=a1) >= ~at(T,X,U))) ) >= signal(T,a1) ) )
-        #f += conjecture('c1', all(T) * ( (at(T,a1,e2) & (all(X,U) * ( (X!=a1) >= ~at(T,X,U))) ) >= signal(T,a1) ) )
-        #f += conjecture('c1', all(T) * ( (at(T,a1,e2) & (all(X,U) * ( (X==a1)  | ~at(T,X,U))) ) >=
-        #                                 (any(T1) * ( less(T,T1) & (T != T1) & any(U) * at(T1,d,U)))  ) )
-        #f += conjecture('c1', all(T) * ( at(T,a1,e2) >= branch(T,d,c)  ) )
-        #f += conjecture('c1', path(a1,e2))
-
-        #f += axiom('approved_div', all(T) * reduce(conj, signal_div))
-        #f += axiom('approved_in', all(T) * reduce(conj, signal_in))
-        #f += axiom('approved_con', all(T) * reduce(conj, signal_con))
-        #f += axiom('approved_dir', all(T) * reduce(conj, signal_dir))
-        #f += axiom('graph', reduce(lambda x,y:x&y,(e for e in self.edges.values())))
-        #f += axiom('graph', reduce(lambda x,y:x&y,(((e in posEdges) and e) or ~e for e in (edge(a,b) for a in self.vertices.values() for b in self.vertices.values()) )))
-        #f += axiom('path', all(X,Y,Z) * ( path(X,Y) <= ( path(X,Z) & edge(Z,Y) ) ))
-        #f += axiom('path_tran', all(X,Y,Z) * ( path(X,Y) <= ( path(X,Z) & path(Z,Y) ) ))
-        #f += axiom('path', all(X,Y) * ( path(X,Y) <= edge(X,Y)))
-
-        #f += axiom('input', input(X) == reduce(lambda x,y:x|y, ( X==v for v in self.vertices.values() if v.isInput() ) ) )
-        #f += axiom('output', output(X) == reduce(lambda x,y:x|y, ( X==v for v in self.vertices.values() if v.isOutput() ) ) )
-
-        #f += axiom('want', all(T,X,Y) * (signal(T,Y,X) <= want(T,Y,X)) )
-        #f += axiom('at', all(T,Y,X,U) * ( at(succ(T),Y,U) == ( ( at(T,X,U) & edge(X,Y) & want(T,X) & signal(T,X) ) | ( at(T,Y,U) & ( ~want(T,Y) | ~signal(T,Y))) ) ) )
-        #f += axiom('signal', all('c1', any(T,Y) * (at(succ(T),d,Y) <= at(T,a1,Y)  )  T,Y,X) * ( signal(T,Y,X) ))
-        #f += axiom('want', all(T,X) * ( want(T,X)| (~want(T,X) & ( any(T1) * ( less(T,T1) & want(T1,X) ) ) ) )   )
-        #f += axiom('want', all(T,X,U) * ( ( ( any(T1) * ( less(T,T1) & want(T1,X) ) ) == (any(Y)*signal(T,X,Y) & at(T,X,U)) ) ) )
-        #f += axiom('want', all(T,X,U) * ( ( ( any(T1) * ( less(T,T1) & want(T1,X) ) ) <= (at(T,X,U)) ) ) )
-        #f += axiom('want', all(T,X,U) * (want(T,X) <= (at(T,X,U)) ) )
-        #for s in signal_in: f += axiom('signal_%s'%(s.terms[1]), all(T) * ( ~want(T,s.terms[1]) <= ~s ) )
-        #f += axiom('signal_excl', all(T)* ~reduce(lambda x,y:x&y,(e for e in signal_in)))
-        #f += axiom('signal_exist', any(T) * reduce(lambda x,y:x|y,(e for e in signal_in)))
-        #f += axiom('signal_always', all(T) * signal(T,a1,b))
-
-        #f += axiom('crit', all(T,X,Y,U,V) * ( crit(T,Y) <= ( at(T,X,U) & at(T,Y,V) & edge(Y,X) & want(T,Y) & ~want(T,X) ) )  )
-        #f += axiom('block', all(T,X,Z,U) * ( any(U) * ( (at(T,X,U) & path(X,U) & path(Z,U) & ~ ( any(V) * edge(V,Z) )) >= (block(T,Z)) ) ) )
-
-        #f += axiom('signal1', all(T,X,Y) * ( ~(path(Y,) & edge(X,Y)) >= ~signal(T,X,Y) ))
-        #f += axiom('signal_neg', all(T,X) * ( ~ ( any(Y) * edge(X,Y) ) >= ~signal(T,X) ))
-        #f += axiom('signal1', all(T,X,Y,Z,U) * ( ~edge(Y,Z) >= ~signal(T,Y,Z) ))
-        #f += axiom('signal2', all(T,X,Y,Z,U) * ( ( at(T,X,U) & path(X,Y) & edge(Y,Z) & path(Z,U)) >= signal(T,Y,Z) ))
-
-        #f += axiom('sinal',  )
-        #f += negConjecture('c1', all(T) * ( at(T,a1,e1) >= (any(T1,U) * ( less(T,T1) & (T != T1) & at(T1,e1,U)))  ) )
-        #f += conjecture('c1', all(T) * ( at(T,a1,e2) >= (any(T1) * ( less(T,T1) & (T != T1) & at(T1,c,e2)))  ) )
-        #f += negConjecture('c1', all(T,U) * (   (all(T1) * ( less(T1,T) & (T != T1) & at(T1,e2,U))) <= at(T,a1,U) ) )
-        #f += conjecture('c1', all(T,U) * ( (any(T1) * at(T1,e1,U)) <= at(T,a1,U)  )  )
-        #f += conjecture('c1', all(T,U) * ( (any(T1) * at(T1,d,U)) <= at(T,b,U)  )  )
-
-        #f += conjecture('c2', all(T,X,U) * ( ( ~ (any(T1,Y) * (less(T,T1) & crit(T1,Y) ))) <= at(T,X,U) )  )
-        #f += conjecture('c2', any(T,X,U,V) * ( (any(T1,Y) * ( crit(T1,Y) ) ) <= (at(T,b,U) & at(T,d,V)) )  )
-
-        #f += conjecture('c1', any(X) * (path(a1,e2)))
-        #f += conjecture('c1', any(T) * (  )  )
         return f
-    def getEnterClause(self, e):
-        a = []
-        if e.start.kind == 'SIGNAL':
-            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
-            a.append(self.getCanPassClause(e.start, 0))
-            return u'{0} & {1}'.format(*a)
-        elif e.start.kind == 'INPUT':
-            a.append(self.getIsHereClause(e.start, 0))
-            a.append(self.getCanPassClause(e.start, 0))
-            return u'{0} & {1}'.format(*a)
-        elif e.start.kind == 'DIRECT':
-            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
-            return u'{0}'.format(*a)
-        elif e.start.kind == 'CONVERGENT':
-            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
-            a.append(self.getCanPassClause(e.start, 0))
-            a.append(self.getIsHereClause(e.start.edgesIn[1], 0))
-            a.append(self.getCanPassClause(e.start, 0, True))
-            return u'({0} & {1}) | ({2} & {3})'.format(*a)
-        elif e.start.kind == 'DIVERGENT':
-            a.append(self.getIsHereClause(e.start.edgesIn[0], 0))
-            if e.start.edgesOut[0] == e:
-                a.append(self.getCanPassClause(e.start, 0))
-            elif e.start.edgesOut[1] == e:
-                a.append(self.getCanPassClause(e.start, 0, True))
-            return u'{0} & {1}'.format(*a)
-        else:
-            raise Exception('fooka')
-
-    def getLeaveClause(self, e, cannotleave=False,target=u'X'):
-        a = []
-        if e.end.kind == 'SIGNAL':
-            a.append(self.getIsHereClause(e, 0,target=target))
-            a.append(self.getCanPassClause(e.end, 0, not cannotleave))
-        elif e.end.kind == 'CONVERGENT':
-            a.append(self.getIsHereClause(e, 0,target=target))
-            if e.end.edgesIn[0] == e:
-                a.append(self.getCanPassClause(e.end, 0, not cannotleave))
-            elif e.end.edgesIn[1] == e:
-                a.append(self.getCanPassClause(e.end, 0, cannotleave))
-        else:
-            return None
-
-        return u'{0} & {1}'.format(*a)
-
-    def getBehaviorAxioms(self):
-        ax = {}
-        for e in self.edges.values():
-            n = u'ishere_{0}'.format(e.name)
-            a = []
-            a.append(self.getIsHereClause(e, 1))
-            a.append(self.getEnterClause(e))
-            c = self.getLeaveClause(e)
-            if c == None:
-                ax[n] = u'![T,X]:( {0} <=> ( {1} ) )'.format(*a)
-            else:
-                a.append(c)
-                ax[n] = u'![T,X]:( {0} <=> ( ({1}) | ({1}) ) )'.format(*a)
-        return ax 
-
-    def getCollisionAxioms(self):
-        ax = {}
-        for e in self.edges.values():
-            n = u'collision_{0}'.format(e.name)
-
-            a = []
-            a.append(self.getCollisionClause(e, 1))
-            a.append(self.getEnterClause(e))
-            c = self.getLeaveClause(e,target = u'Y')
-            if c == None:
-                continue
-            else:
-                a.append(c)
-                ax[n] = u'![T]:(?[X,Y]:( {0} <=> ( ({1}) & ({2}) ) ))'.format(*a)
-        return ax
-    
-    def getTrainOnInput(self):
-        ax = {}
-        iverticles = []
-        overticles = []
-        for v in self.vertices.values():
-            if v.kind in ['INPUT']:
-                iverticles.append(v)
-            if v.kind in ['OUTPUT']:
-                overticles.append(v)
-        s = None
-        for v in iverticles:
-            c = []
-            fmt = []
-            fmt2 = []
-            for o in overticles:
-                c.append(u'ishere_{0}(T,{1})'.format(v.name, o.name))
-                fmt.append(u'{0} | ')
-            l = len(overticles)
-            fmt[l-1] = u'{%d}' % (l-1)
-            f =  ''.join(fmt)
-            s = f.format(*c)
-            n = u'input_{0}'.format(v.name)
-            ax[n] = u'?[T]:({0})'.format(s)
-            n = u'input_{0}_ex'.format(v.name)
-            ax[n] = u'![T,X]:( ishere_{0}(T,X) => (~ ?[Y]:( (X != Y) & ishere_{0}(T,Y) ) ) )'.format(v.name)
-
-        #ax[u'zzz0'] = u'ishere(t,06,o1) & ishere(t,07,o3) & ishere(t,11,o3) '
-        s = None
-        for v in self.edges.values():
-            if s == None:
-                s = u'~ ?[Y]:ishere_{0}(T,Y)'.format(v.name)
-            else:
-                s = u'{0} & ~ ?[Y]:ishere_{1}(T,Y)'.format(s,v.name)
-        ax[u'empty'] = u'?[T]:({0})'.format(s)
-        return ax
 
 
-    def traverse(self, edge, nodeset=None, edgeset=None, back=False, targets=('INPUT')):
-        node = (back and [edge.start] or [edge.end])[0]
-        if node.kind in targets:
-            if nodeset is not None:
-                nodeset.add(node)
-            if edgeset is not None:
-                edgeset.add(edge)
-        else:
-            edges = (back and [node.edgesIn] or [node.edgesOut])[0]
-            for e in edges:
-                es = set()
-                self.traverse(e, nodeset, edgeset=es, back=back,targets=targets)
-                if len(es) > 0:
-                    if edgeset is not None:
-                        edgeset.add(edge)
-                        edgeset |= es
+    def test0Axiom(self):
+        from pytptp import axiom,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
 
-    def getSignalingByEdges(self, node, edges):
-        s = None
-        q = None
-        for e in edges:
-            if s is None:
-                s = u'![Y]:ishere_{0}(T,Y)'.format(e.name)
-            else:
-                s = u'{0} | ![Y]:ishere_{1}(T,Y)'.format(s,e.name)
-        if s is not None:
-            return u'![T]:( ({0}) => ~signal_{1}(T) )'.format(s,node.name)
+        f =  annot('')
+        f += annot('Test 0')
+        f += annot('Formalizace neni sporna i kdyz vyjede hned jak to je mozne')
+        f += axiom('t1', all(T,X,U) * ( at(T,X,U) >= want(T,X) ) )
+        return f
 
-    def getSignalingByNodes(self, node, nodes):
-        s = None
-        for n in nodes:
-            if s is None:
-                s = u'~signal_{0}(T)'.format(n.name)
-            else:
-                s = u'{0} & ~signal_{1}(T)'.format(s,n.name)
-        if s is not None:
-            return u'![T]:( signal_{0}(T) => ({1}) )'.format(node.name,s)
+    def test1Conjectures(self):
+        from pytptp import conjecture,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
 
-    def getSubgraph(self, node):
-        edgeset = set()
-        nodeset = set()
-        nodeset2 = set()
-        for e in node.edgesOut:
-            self.traverse(e, nodeset=nodeset2)
-        for n in nodeset2:
-            for e in n.edgesIn:
-                self.traverse(e, nodeset=nodeset, edgeset=edgeset, back=True)
-        if node in nodeset:
-            nodeset.remove(node)
-        return nodeset, edgeset
+        f =  annot('')
+        f += annot('Test 1')
+        f += annot('Vlak sa vzdy dostane zo vstupu (X) na definovany vystup (U)')
+        f += conjecture('t1', all(T) * (all(X,U) * (( input(X) & output(U) & at(T,X,U) & ~ (any(Y) * (~input(Y) & (any(V) * ( at(T,Y,V) )))) ) >= (any(T1) * ( less(T,T1) & (T != T1) &  at(T1,U,U) ) )) ))
+        return f
 
-    def getSignalingAxioms(self):
-        ax = {}
-        for node in self.vertices.values():
-            if node.kind in ['CONVERGENT']:
-                s = u'![T,X]:((ishere_{0}(T,X) => signal_{2}(T)) & ((~ishere_{0}(T,X) & ishere_{1}(T,X)) => ~signal_{2}(T)))'.format(
-                        node.edgesIn[0].name, node.edgesIn[1].name, node.name)
-                n = u'signal_{0}'.format(node.name)
-                ax[n] = s
-            elif node.kind in ['DIVERGENT']:
-                nodeset0 = set()
-                nodeset1 = set()
-                self.traverse(node.edgesOut[0], nodeset=nodeset0, targets=['OUTPUT'])
-                self.traverse(node.edgesOut[1], nodeset=nodeset1, targets=['OUTPUT'])
-                same = nodeset0 & nodeset1
-                diff0 = nodeset0 - nodeset1
-                diff1 = nodeset1 - nodeset0
-                for n in same | diff0: 
-                    s = u'![T]:(ishere_{0}(T,{1}) => signal_{2}(T))'.format(node.edgesIn[0].name, n.name, node.name)
-                    n = u'signal_{0}_{1}'.format(node.name,n.name)
-                    ax[n] = s
-                for n in diff1:
-                    s = u'![T]:(ishere_{0}(T,{1}) => ~signal_{2}(T))'.format(node.edgesIn[0].name, n.name, node.name)
-                    n = u'signal_{0}_{1}'.format(node.name,n.name)
-                    ax[n] = s
-            elif node.kind in ['INPUT','SIGNAL']:
-                (nodeset, edgeset) = self.getSubgraph(node)
-                n = u'signal_{0}_exclusive'.format(node.name)
-                s = self.getSignalingByNodes(node, nodeset)
-                if s is not None:
-                    ax[n] = s
-                n = u'signal_{0}'.format(node.name)
-                s = self.getSignalingByEdges(node, edgeset)
-                if s is not None:
-                    ax[n] = s
-                else:
-                    ax[n] = u'![T]:( signal_{0}(T) )'.format(node.name)
-        return ax
 
-    def getConjectures(self):
-        ax = {}
-        #ax['test'] = u'?[T,X]:(collision(T,X))'
-        #ax['test'] = u'![T,X]:(~collision(T,X))'
-        return ax
+    def test2Conjectures(self):
+        from pytptp import conjecture,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
 
-    def getNegConjectures(self):
-        ax = {}
-        #ax['test'] = u'?[T,X]:(collision(T,X))'
-        #ax['test'] = u'![T,X]:(~collision(T,X))'
-        return ax
+        f =  annot('')
+        f += annot('Test 2')
+        f += annot('Nenastane kriticky stav')
+        f += conjecture('t2', all(T) * ( all(X,U)*(at(T,X,U) & input(X) & output(U)) >= ~( any(T1)*(less(T,T1) & crit(T1)) )   ) )
+        return f
 
+    def test3Conjectures(self):
+        from pytptp import conjecture,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
+
+        f =  annot('')
+        f += annot('Test 3')
+        f += annot('Tento test funguje len pre nadrazie s 1 vstupom - flop je potom stale v platnosti')
+        f += conjecture('t3', all(T) * ( any(X) * ( (any(U,V)*(at(T,X,U) & input(X) & output(U) & at(T,V,U) & output(V) & block(T,X) & ~ (any(Y,Z) * (~input(Y) & ~output(Y) & at(T,Y,Z) ) ) )) >= ( signal((T),X) )   ) )  )
+
+        return f

@@ -1,0 +1,609 @@
+
+\documentclass[a4paper,journal]{IEEEtran}
+
+\usepackage{cite}
+% \usepackage[nocompress]{cite}
+\usepackage{ifpdf}
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.pdf}
+\else
+\usepackage[dvips]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.eps}
+\fi
+
+\usepackage[cmex10]{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\interdisplaylinepenalty=2500
+
+\usepackage[margin=15mm]{geometry}
+
+\usepackage{algorithmic}
+
+\usepackage{array}
+
+\usepackage{mdwmath}
+\usepackage{mdwtab}
+
+\usepackage{eqparbox}
+
+\usepackage[hang,small,center,bf]{caption}
+% \usepackage[tight,normalsize,sf,SF]{subfigure}
+%\usepackage[tight,footnotesize]{subfigure}
+\usepackage{subfig}
+% \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+% \usepackage[caption=false,font=footnotesize]{subfig}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage{url}
+\usepackage{fixltx2e}
+\usepackage{stfloats}
+\usepackage{ucs}
+\usepackage{multirow}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\circ$}
+\renewcommand{\labelitemiii}{$\ast$}
+
+\setlength{\textheight}{260mm}
+
+\begin{document}
+
+\title{Návrh a verifikace řídícího systému pro nádraží}
+\date{August 8, 2012}
+\author{Peter~Boráros %
+\thanks{{Peter Boráros}, CTU FEE,
+see~\url{http://www.pborky.sk/contact} for a contact infomation}}%
+
+% The paper headers
+%\markboth{Peter Boráros, Czech technical university, Faculty of Electrical Engineering, Prague, Czech Republic}{}
+
+\IEEEcompsoctitleabstractindextext{%
+\begin{abstract}
+Tento dokument popisuje řešení semestrální úlohy pro kurz a4m33au - automatické uvažování.
+Cílem je návrh a verifikace řídícího systému pro vlakové nádraží, s použitím automatického
+dokazování v logice prvního řádu.
+\end{abstract}}
+
+\maketitle
+\IEEEdisplaynotcompsoctitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+\section{Úvod}\label{sec:intro}
+Táto práce představuje návrh a verifikaci řídícího systému pro vlakové nádraží, s použitím automatického
+dokazování v logice prvního řádu.
+
+V sekci \ref{sec:intro} je popsané podrobné zadání problému (je převzaté z webových stránek kurzu). 
+V sekci \ref{sec:formal} přecházi přes jednotlivé aspekty problému, formalizuje je a přináší obecné řešení. 
+Sekce \ref{sec:imple} popisuje implementaci a způsob použití navrženého systému. V sekci 
+\ref{sec:exp} je ukážka experimentů, nad jednoduchými testovacími daty.
+
+\subsection{Specifikace problému}
+Nádraží je souvislý orientovaný graf. Uzly, z kterých nevedou šipky, nazveme výjezdy, uzly, 
+do kterých nevedou vedou šipky, nazveme vjezdy. Omezujeme se na grafy, u kterých 
+z každého vjezdu existuje cesta do každého výjezdu. Každý uzel a každá hrana mají 
+zadaný unikátní název (začínající malým písmenem).
+
+\subsubsection{Vlastnosti nádraží}
+\begin{itemize}
+	\item Každý uzel s více než jednou výstupní hranou je zároveň výhybka.
+	\item Časově variabilní prvky v nádraží jsou:
+	\begin{itemize}
+		\item pohybující se vlaky,
+		\item na vstupních uzlech řízená návěstidla a
+		\item výhybky.
+	\end{itemize}
+	\item V daném časovém okamžiku je každý vlak právě v jednom uzlu.
+	\item Vlaky se pohybují pouze ve směru orientace hran grafu (tj. nemohou couvat).
+	\item Je-li v uzlu vlak, platí, že vlak někdy do uzlu přijel (nebyl tam od nepaměti) 
+	a jednou odjede (ale není určeno, kdy - je to na ,,rozhodnutí strojvedoucího``).
+	\item Na vjezdových uzlech (a pouze tam) jsou návěstidla. Ta blokují odjezd vlaků 
+	ze vstupních uzlů: Je-li návěstidlo zavřené, vlak zůstává na vstupním uzlu; 
+	je-li otevřené, může (ale nemusí) vyjet. Vlak (strojvedoucí) vždy tato návěstidla 
+	respektuje. Každý vjezdový uzel má právě jednu výstupní hranu, není tedy nikdy výhybkou.
+	\item Každý vlak má dán výstupní uzel, do kterého chce dojet. Tento cíl se nemění 
+	celou dobu, co vlak projíždí nádražím.
+	\item Nádraží podle tohoto cíle směruje vlak pomocí přepínání výhybek. 
+	Řídící systém nádraží může libovolně nastavovat stav výhybek.
+	\item Pokud je vjezdový uzel prázdný, může se v něm kdykoliv objevit nový 
+	přijíždějící vlak (i hned po odjezdu předcházejícího).
+\end{itemize}
+
+\subsubsection{Kritické stavy v nádraží}
+V nádraží rozlišujeme tyto kritické stavy:
+\begin{itemize}
+	\item Vlak stojí v uzlu (který je zároveň výhybkou, viz výše), a dojde k přepnutí výhybky.
+	\item Dva nebo více vlaků přijede do stejného uzlu.
+	\item Vstupní návěstidlo zůstane trvale uzavřené.
+\end{itemize}
+
+\subsubsection{Vstup}
+Graf nádraží bude zadáván v následujícím formátu 
+(podmnožina jazyka DOT \cite{Graphviz}):
+
+\begin{verbatim}
+digraph nadrazi_1 { 
+  vjezd1 -> uzel1; 
+  ...
+  uzel1 -> vyjezd1; 
+  uzel1 -> vyjezd2; 
+} 
+\end{verbatim}
+
+\subsubsection{Výstup}
+Úkolem je navrhnout program, který
+\begin{itemize}
+	\item pro zadané nádraží navrhne řídící systém a zformalizuje podle uvedeného zadání;
+	\item dokáže, že navržený řídící systém pracuje správně, tj. že se nádraží nemůže dostat 
+	do kritického stavu.
+\end{itemize}
+
+\subsubsection{Automatické dokazování}
+Nádraží je modelováno v diskrétním čase. Čas je lineární, a každý časový okamžik má právě jeden následující a jeden předcházející. V každý časový okamžik si řídící systém nádraží určuje stavy výhybek a návěstidel.
+
+Úkoly, které postupně zpracuje program pro libovolné nádraží pomocí nástrojů pro automatické dokazování:
+
+\begin{itemize}
+	\item Formalizace nádraží:
+	\begin{itemize}
+		\item Zformalizovat v logice 1. řádu v jazyce TPTP ,,fyzikální chování`` nádraží, 
+		tedy jak vlaky projíždějí nádražím na základě návěstidel a ,,rozhodování strojvedoucích``. 
+		Každý predikát p závislý na čase popisující něco, co dovedeme určit, musí být popsaný nejvýše 
+		jednou formulí tvaru $p(T+1) \Leftrightarrow \phi$, kde $\phi$ je formule závislá pouze 
+		na okolnostech v čase $T$ a dřívějších (tím je syntakticky zaručena korektnost definice).
+		Do toho spadá zejména stav výhybek, zda je v daném uzlu vlak, atd. 
+		Nespadá sem především vůle strojvedoucího, kterou neznáme
+		(jen víme, že vždy nakonec s vlakem odjede).
+		\item Ukázat, že tato formalizace není sporná s přidanými podmínkami, že strojvůdce vlaku jede hned,
+		jakmile může, a že do nádraží vjede vlak vždy, jakmile může.
+	\end{itemize}
+	\item Zformalizovat návrh řídícího systému stejným způsobem jako v predešlém bodě.
+	\item Ukázat, že je výsledná formalizace nádraží a jeho řízení bezesporná.
+	\item Dokázat, že nikdy nenastane kritický stav.
+	\item Nádraží musí pouštět vlaky hned, jakmile je to možné. 
+	Je třeba dokázat pro toto nádraží, že budou-li v čase t v tomto nádraží 2 vlaky, 
+	jeden vlak na out1 a jeden na in, že se návěstidlo v in v čase t+1 otevře.
+\end{itemize}
+
+
+\section{Formalizace problému}\label{sec:formal}
+\subsection{Reprezentace grafu v logice prvního řádu}
+Vlakové nádraží je popsané orientovaným grafem. V níže popsané logické struktuře vrcholy grafu
+představují konstantné symboly (napr. vrchol $a$ je popsaný symbolem $a/0$).
+Orientované hrany jsou popsane binárním predikátem $edge/2$. Term $edge(a,b)$ říká, že v grafu je přítomna 
+hrana $\langle a,b\rangle$ a naopak neprítomnost této hrany je určena termem $\neg edge(a,b)$.
+Pro úplný popis grafu je potrebné specifikovat, které hrany jsou přítomny, a které přítomny nejsou,
+t.j.:
+\begin{equation}
+\left( \bigwedge_{\langle a,b\rangle\in G}{edge(a,b)} \right) \wedge 
+\left( \bigwedge_{\langle a,b\rangle\not\in G}{\neg edge(a,b)} \right)\;.
+\end{equation}
+
+Dále nasleduje definice orientované cesty v grafu, reprezentované predikátem $path/2$. Hrana je zároven (elementární) cesta:
+\begin{equation}
+\forall a,b: edge(a,b) \Rightarrow path(a,b)\;,
+\end{equation}
+a dále, cesta je tranzitivní:
+\begin{equation}
+	\forall a,b,c: path(a,b)\wedge path(b,c) \Rightarrow path(a,c)\;.
+	%\footnote[1]{z důvodu lepší citelnosti jsou opomenuty závorky a budeme spoléhat na pravidla asociativity }
+\end{equation}
+
+
+Jestě je potřeba popsát vstupní, výstupní a divergetní uzly.
+Predikát $input/1$ je definován:
+\begin{equation}
+\forall x: input(x) \Leftrightarrow \bigvee_{y \in in(G)} (x=y)\;,
+\end{equation}
+kde funkce $in$ vrací množinu uzlů, do kterých nevede žádná hrana. Dále predikát $output/1$:
+\begin{equation}
+\forall x: output(x) \Leftrightarrow \bigvee_{y \in out(G)} (x=y)\;,
+\end{equation}
+kde funkce $out$ vrací množinu uzlů, ze kterých nevede žádná hrana. A koněčne predikát $diverge/1$:
+\begin{equation}
+\forall x: diverge(x) \Leftrightarrow \bigvee_{y \in more(G)} (x=y)\;,
+\end{equation}
+kde funkce $more$ vrací množinu uzlů, s více než jedním potomkem.
+
+
+\subsection{Definice diskrétního času}
+Nejprve je potřebné definovat predikát lineárního uspořádaní $less$. 
+Ten je definovaný následujícímy axiomy:
+\begin{equation}\label{eq:ltlantisym}
+\forall x,y:  less\left(x,y\right) \wedge less\left(y,x\right)\Rightarrow \left(x = y\right)
+\end{equation}
+\begin{equation}\label{eq:ltltran}
+\forall x,y,z: less\left(x,y\right) \wedge less\left(y,z\right) \Rightarrow less\left(x,z\right) 
+\end{equation}
+\begin{equation}\label{eq:ltltotal}
+\forall x,y: less\left(x,y\right) \vee less\left(y,x\right)
+\end{equation}
+Vztahy (\ref{eq:ltlantisym}), (\ref{eq:ltltran}) a (\ref{eq:ltltotal}) představují antisymetrii,
+tranzitivitu a úplnost lineárního uspořádání.
+
+S pomocí výše uvedeného predikátu $less/2$ definujeme funkci $succ/1$, která představuje přímeho následníka:
+\begin{equation}
+\begin{split}
+\forall x:less\left(x,succ\left(x\right)\right) \wedge
+\left(\forall y:less\left(y,x\right) \vee 
+less\left(succ\left(x\right),y\right)\right)
+\end{split}
+\end{equation}
+a dále musí platit:
+\begin{equation}
+\forall x: succ(x) \not = x
+\end{equation}
+
+Funkci $succ$ je možné použít k vyjádření následujícího časového okamžiku.
+Napr. hodnota $succ(succ(T))$ představuje posunutí o dva okamžiky vpřed proti hodnote $T$.
+
+\subsection{Pohyb vlaku}
+Poloha a smeřování vlaku v čase jsou určeny predikátem $at/3$; term $at(t,y,u)$ říká, že v čase $t$, v uzlu $y$ je vlak směřující do
+uzlu $u$. Víme, že vlak směřující do uzlu $u$ je v nejakém uzlu $y$ v nejakém čase $succ(t)$ tehdy a jen tehdy, byl-li v daném uzlu
+v předešlém okamžiku a ,,nechtěl`` nebo nemohl z neho vyjet, anebo byl v předešlém uzlu a mohl a zároveň ,,chtěl`` vyjet:
+\begin{equation}\label{eq:move}
+\begin{split}
+\forall t,y,u:&\; at\left(succ(t),y,u\right) \Leftrightarrow\\
+&(at(t,y,u) \wedge \neg (want(t,y) \wedge \exists z:may(t,y,z))) \vee\\
+&(at(t,x,u) \wedge want(t,x) \wedge may(t,x,y))\\ 
+\end{split}
+\end{equation}
+Predikát $want/2$ představuje ,,vůli`` strojvůdce, t.j. $want(t,x)$ znamená, že v čase $t$ se ,,chce`` posunout z uzlu $x$ dále.
+Predikát $may/3$ představuje možnost pokračovat, t.j. je-li u vstupů otevřené návěstidlo, případne u divergentního spojení sepnuta výhybka v daném směru, u ostatních uzlú možnosť pokračovat není omezena - 
+vlak může vyjet jakmile strojvůdce ,,chce``.
+Term $may(t,x,y)$ znamená, že vlak může v čase $t$ postoupit z uzlu $x$, do uzlu $y$. 
+\begin{equation}
+\begin{split}
+\forall t,y,u: may(t,x,y) \Leftrightarrow &\; edge(x,y) \wedge \\
+( (input(x) \wedge &\; signal(t,x) ) \vee \\
+(diverge(x) \wedge &\; branch(t,x,y)) \vee \\
+(\neg diverge(x) \wedge &\; \neg input(t,x,y) ))
+\end{split}
+\end{equation}
+
+Dle zadání víme, že vlak do uzlu jednou přišel a taky, že jednou odjede. ,,Vůle`` strojvůdce je tedy možno definovat
+vzhledem k výskytu vlaku v nejakém uzlu:
+\begin{equation}
+\begin{split}
+&\forall t,x: ((\exists u: at(t,x,u)) \Rightarrow \\ 
+&\Rightarrow\exists t_1: less(t,t_1) \wedge (\forall t_2: less(t_1,t_2) \wedge want(t_2,x)))\;,\\
+\end{split}
+\end{equation}
+t.j. je-li vlak v uzlu $x$ a v čase $t$ tak existuje okamžik v budoucnosti, od kterého platí, že
+strojevůdce ,,chce`` odjet.
+
+Je ale taky nutné ověřit jestli je formalizace není sporná, když vlak vyjede jakmile to je možné. V našem
+případe to znamená:
+\begin{equation}
+\forall t,x: (\exists u: at(t,x,u)) \Rightarrow want(t,x)\;.
+\end{equation}
+
+\subsection{Kritické stavy}
+Kritický stav v nejakem čase $t$ je určen termem $crit(t)$. Ke kritickému stavu může dojít v 
+následujích případech:
+\subsubsection{Návěstidlo zůstane trvale uzavřené}
+\begin{equation}
+\begin{split}
+\forall t: (\exists x,u: input(x) \wedge at(t,x,u)& \;\wedge\\
+ (\neg \exists t_1: less(t,t_1) \wedge signal(t_1,x))) &\Rightarrow crit(t)
+\end{split}
+\end{equation}
+\subsubsection{Výhybka se přepne v okamžiku, kdy v uzlu je vlak}
+\begin{equation}
+\begin{split}
+\forall t: (\exists x,u: diverge(x) \wedge at(t,x,u)& \;\wedge\\
+ (\neg \exists y,z: y\not=z \wedge branch(t,x,y) & \;\wedge  \\
+ \wedge branch(succ(t),x,z) )) &\;\Rightarrow crit(succ(t))
+\end{split}
+\end{equation}
+\subsubsection{Do uzlu vjede víc než jeden vlak}
+\begin{equation}
+\begin{split}
+&\forall t: (\exists y,u: \\
+&\;(at(t,y,u) \wedge \neg (want(t,y) \wedge (\exists z: may(t,y,z)))\wedge \\
+\wedge&\;(\exists x:  at(t,x,u) \wedge want(t,x) \wedge may(t,x,y)))) \Rightarrow\\
+ \Rightarrow &\;crit(succ(t))\\
+\end{split}
+\end{equation}
+
+\subsection{Řízení}
+Řídící systém řídí nadraží signalizací na vstupu - predikát $signal/2$, 
+a překlápěním výhybky - predikát $branch/3$. Vlak smí vyjet ze vstupu $x$ a v čase $t$ 
+pouze tehdy, platí-li $signal(t,x)$.
+Platí-li $branch(t,x,y)$ vlak může projít z uzlu $x$ do uzlu $y$ (za předpokladu, že jsou spojené hranou).
+
+U řízení vstupních signálů je potřebné prihlédnout také k možnému kritickému stavu, kdy některý vstup
+zůstane trvale uzavřen. Tomu je možné predejít použitím časovače (predikát $flop/2$). 
+Povolení k výjezdu na vstupu $x$ může nastat pouze v případe platnosti $flop(t,x)$.
+Pokud má nádraží dva vstupy - $X$ a $Y$ , tak platí:
+\begin{equation}
+\forall t: (flop(t,X)\wedge\neg flop(t,Y))\vee (\neg flop(t,X)\wedge flop(t,Y))\;,
+\end{equation}
+t.j. nanejvýš jeden vstup může být aktivní.
+Pro dva stejné uzly dále platí:
+\begin{equation}
+\begin{split}
+&\forall t: flop(t,X) \Rightarrow \\
+&\Rightarrow(\neg flop(succ(t),X) \wedge flop(succ(t),Y))
+\end{split}
+\end{equation}
+a
+\begin{equation}
+\begin{split}
+&\forall t: flop(t,Y) \Rightarrow \\
+&\Rightarrow(\neg flop(succ(t),Y) \wedge flop(succ(t),X))\;,
+\end{split}
+\end{equation}
+t.j. dochází k ,,přepínání`` vstupů.
+
+Dále je potřeba vyloučit možnost kolize vlaků. 
+Predikát $block(t,x)$ říká, že daném čase $t$ je v nádraží vlak v takovém místě, 
+které je dosažitelné z daného vstupu $x$.
+ V případě, že by byl vypuštěn další vlak, mohlo by dojít ke kolizi.
+\begin{equation}
+\begin{split}
+\forall t,z:& (input(z) \wedge (\exists x,u: at(t,x,u) \wedge \neg input(t,x) \wedge\\
+\wedge&\neg (\exists y: path(x,y) \wedge path(y,z) ) ) \Rightarrow block(t,z)\\
+\end{split}
+\end{equation}
+
+Koněčně můžeme napsat axiom řízení signalizace:
+\begin{equation}
+\forall t,x: (input(x) \wedge flop(t,x) \wedge \neg block(t,x)) \Rightarrow signal(t,x)
+\end{equation}
+
+\section{Implementace}\label{sec:imple}
+V této sekci následuje popis prostředí pro automatizovanou vefifikaci popsaného problému.
+
+Vstupem pro tento systém je jednoduchý popis nádraží ve formátu DOT \cite{Graphviz} a výstupem 
+jsou logické formule ve formátu TPTP\cite{TPTP}.
+
+Systém byl vytvořen v jazyku Python 2.7.3 \cite{Python}. Dále je použitý nástroj GNU Make 3.81 \cite{GNUMake}.
+
+Pro účely této práce byla vytvořena knihovna \textbf{pytptp} pro manipulaci s derivačním stromem logických formulí.
+Formule a její elementy jsou reprezentovány objekty. Je využito přetížení aritmetických a logických operací aby byl zápis
+formulí čitelnejší. Formule může být převedena do formátu TPTP anebo jiných (napr. TEX).
+
+\section{Experimenty} \label{sec:exp}
+
+
+
+\bibliographystyle{plain}	% (uses file "plain.bst")
+\bibliography{references}
+
+\onecolumn
+\clearpage
+\appendix
+
+
+\section{}
+\subsection{}
+\subsubsection{Axiomy LTL}
+\paragraph*{}{Antisymetrie lineárního uspořádání.}
+\begin{equation}
+\begin{split}
+\forall X,Y:&\left( \left( less \left(X,Y\right) \wedge less\left(Y,X\right) \right) \Rightarrow \left(X = Y\right) \right)
+\end{split}
+\end{equation}
+\paragraph*{}{Tranzitivita lineárního uspořádání.}
+\begin{equation}
+\begin{split}
+\forall X,Y,Z:&\left( \left( less\left(X,Y\right) \wedge less\left(Y,Z\right) \right) \Rightarrow less\left(X,Z\right) \right)
+\end{split}
+\end{equation}
+\paragraph*{}{Úplnost lineárního uspořádání.}
+\begin{equation}
+\begin{split}
+\forall X,Y:&\left(less\left(X,Y\right) \vee less\left(Y,X\right)\right)
+\end{split}
+\end{equation}
+\paragraph*{}{Definice relace přímého následníka.}
+\begin{equation}
+\begin{split}
+\forall X:&\left( less\left(X,succ\left(X\right)\right) \wedge \left(\forall Y:\left(less\left(Y,X\right) \vee less\left(succ\left(X\right),Y\right)\right)\right)  \right)
+\end{split}
+\end{equation}
+\paragraph*{}{Definice relace přímého následníka.}
+\begin{equation}
+\begin{split}
+\forall X:&\left(succ\left(X\right) \neq X\right)
+\end{split}
+\end{equation}
+
+
+\subsubsection{Axiomy grafu}
+\paragraph*{}{Definice hran které jsou přítomné a nepřítomné v grafu.}
+\begin{equation}
+\begin{split} &
+\left(\bigwedge_{\langle T,H\rangle \in G}{H,T}: edge\left(T,H\right)\right) \wedge 
+\left(\bigwedge_{\langle T,H\rangle \not \in G}{H,T}: \neg edge\left(T,H\right)\right)
+\end{split}
+\end{equation}
+\paragraph*{}{Elementární cesta v grafu.}
+\begin{equation}
+\begin{split}
+\forall X,Y:&\left( edge\left(X,Y\right) \Rightarrow path\left(X,Y\right) \right)
+\end{split}
+\end{equation}
+\paragraph*{}{Tranzitivita cesty.}
+\begin{equation}
+\begin{split}
+\forall X,Y,Z:&\left(\left( path\left(X,Z\right) \wedge path\left(Z,Y\right) \right) \Rightarrow path\left(X,Y\right) \right)
+\end{split}
+\end{equation}
+\paragraph*{}{Enumerace vstupních uzlů.}
+\begin{equation}
+\begin{split}
+\forall X:&\left(input\left(X\right) \Leftrightarrow \left(\bigvee_{Y \in roots\left(G\right) }{\left(X=Y\right)} \right)\right)
+\end{split}
+\end{equation}
+\paragraph*{}{Enumerace divergentních spojení.}
+\begin{equation}
+\begin{split}
+\forall X:&\left(diverge\left(X\right) \Leftrightarrow \left(\bigvee_{
+Y \in G \wedge\left| children(Y) \right| > 1 
+}{(X=Y)} \right)\right)
+%\forall X:\left((diverge\left(X\right) \Leftrightarrow ((X = b) \vee (X = d)))\right)
+\end{split}
+\end{equation}
+
+
+\subsubsection{Axiomy pohybu}
+\paragraph*{}{Definice polohy vlaku v závislosti na předešlé poloze, vůli rušňovodiče a stavu semaforů.}
+\begin{equation}
+\begin{array}{rl}
+\forall T,Y,U: 
+	(at\left(succ\left(T\right),Y,U\right) \Leftrightarrow 
+		& \left( at\left(T,Y,U\right) \wedge \left( 
+			\neg want\left(T,Y\right) \vee 
+			\left( 
+				input\left(Y\right) \wedge \neg signal\left(T,Y\right)
+			\right) 
+		\right)
+	\right) \vee \\
+	& \qquad\vee\;(\exists X: ( 
+		at\left(T,X,U\right) \wedge edge\left(X,Y\right) \wedge want\left(T,X\right) \wedge \\ 
+		&  \qquad \qquad\qquad \wedge \; (\left(
+				input\left(X\right) \wedge signal\left(T,X\right)
+			\right) \vee \\
+		&  \qquad \qquad\qquad \quad\vee \left(
+				diverge\left(X\right) \wedge branch\left(T,X,Y\right)
+			\right) \vee \\
+		& \qquad \qquad\qquad \quad\vee \left(
+				\neg input\left(X\right) \wedge \neg diverge\left(X\right)
+			\right) \;))) \;) \\
+\end{array}
+\end{equation}
+
+
+\subsubsection{Axiomy kritického stavu}
+\paragraph*{}{Definice srážky vlaků. Vlaky se srazí, když vlak vjede na kolej, na které je jiný vlak, ktorý nemůže odjet.}
+\begin{equation}
+\begin{split}
+\forall T:
+(
+	crit\left(succ\left(T\right)\right) \Leftarrow &\;
+	\exists X,Y:(
+		at\left(T,X,U\right) \wedge 
+		( \neg want\left(T,X\right) \vee 
+			( 
+				input\left(Y\right) \wedge \neg signal\left(T,Y\right) 
+			)
+		) \wedge\\
+		&\qquad\qquad\;\wedge \exists Y,V: (  at\left(T,Y,V\right) \wedge edge\left(Y,X\right) \wedge want\left(T,Y\right) \wedge \\
+		&	\qquad\qquad\;\wedge (
+				( input\left(Y\right) \wedge signal\left(T,Y\right)  ) \vee \\
+		&		\qquad\qquad\qquad\;\vee ( diverge\left(Y\right) \wedge branch\left(T,Y,X\right) ) \vee \\
+		&		\qquad\qquad\qquad\;\vee ( \neg input\left(Y\right) \wedge \neg diverge\left(Y\right)  )
+			)
+		)
+	)
+)\\
+\end{split}
+\end{equation}
+
+
+
+\begin{equation}
+\begin{split}
+\forall T:\left((\exists X,U:\left((diverge\left(X\right) \wedge at\left(T,X,U\right) \wedge \exists Y,Z:\left(((Z \neq Y) \wedge branch\left(T,X,Y\right) \wedge branch\left(succ\left(T\right),X,Z\right))\right))\right) \Rightarrow crit\left(succ\left(T\right)\right))\right)
+\end{split}
+\end{equation}
+
+
+\begin{equation}
+\begin{split}
+(\exists T,X,U:\left((input\left(X\right) \wedge at\left(T,X,U\right) \wedge \neg \exists T1:\left((less\left(T,T1\right) \wedge signal\left(T1,X\right))\right))\right) \Rightarrow crit\left(T\right))
+\end{split}
+\end{equation}
+
+\subsubsection{Axiomy řízení}
+\paragraph*{}{Blokace vstupního uzlu vlakem, který není ve vstupním uzlu.}
+\begin{equation}
+\begin{split}
+\forall T,Z:
+(
+block\left(T,Z\right)  \Leftarrow &\;
+(
+	input\left(Z\right) \wedge \\
+	&\wedge \exists X:
+		( \neg input\left(X\right) \wedge (Z \neq X) 
+			\wedge \exists U: \left( at\left(T,X,U\right) \right) \wedge \\
+			& \qquad\qquad\wedge \neg \exists Y: \left( path\left(X,Y\right) \wedge path\left(Y,Z\right) \right) 
+		)
+)
+)
+\end{split}
+\end{equation}
+\paragraph*{}{Singalizace na 1. vstupu zněmožní výjezd vlaku, který je blokovaný.}
+\begin{equation}
+\begin{split}
+\forall T:\left( signal\left(T,a1\right) \Leftarrow ( \neg block\left(T,a1\right) \wedge \exists U:\left( at\left(T,a1,U\right) \right) ) \right)
+\end{split}
+\end{equation}
+\paragraph*{}{Singalizace na 2. vstupu zněmožní výjezd vlaku, který je blokovaný a když je na 1. vstpu čekající vlak.}
+\begin{equation}
+\begin{split}
+\forall T:\left( signal\left(T,a2\right) \Leftarrow ( \neg block\left(T,a2\right) \wedge \neg \exists U:\left(at\left(T,a1,U\right)\right) \wedge \exists U:\left(at\left(T,a2,U\right)\right) ) \right)
+\end{split}
+\end{equation}
+{(Obdobně pro 3. vstup a další vstupy.)}
+\paragraph*{}{Výhybka se nastaví do polohy takové, aby umožnila průjezd vlaku do cíle.}
+\begin{equation}
+\begin{split}
+\forall T,Z,Y:
+(
+branch\left(T,Z,Y\right) \Leftarrow &\;
+(
+diverge\left(Z\right) \wedge 
+edge\left(Z,Y\right) \wedge \\
+&\wedge \exists X,U:
+( at\left(T,X,U\right) \wedge \\
+&\qquad\qquad\wedge ( path\left(X,Z\right) \vee (X = Z) ) \wedge \\
+&\qquad\qquad\wedge ( path\left(Y,U\right) \vee (Y = U) )
+)
+)
+)\\
+\end{split}
+\end{equation}
+\paragraph*{}{Vlak vyjede jakmile je to možné.}
+\begin{equation}
+\begin{split}
+\forall T,X,U:\left((at\left(T,X,U\right) \Rightarrow want\left(T,X\right))\right)
+\end{split}
+\end{equation}
+
+\subsubsection{Domněnky}
+\paragraph*{}Je-li vlak na 1. vstupu a není blokovaný jeho výjezd, pak tento vlak někdy v budoucnosti dojede do cíle.
+\begin{equation}
+\begin{split}
+\forall T:\left(((at\left(T,a1,e2\right) \wedge \neg block\left(T,a1\right)) \Rightarrow \exists T1:\left((less\left(T,T1\right) \wedge (T \neq T1) \wedge \exists U:\left(at\left(T1,e2,U\right)\right))\right))\right)
+\end{split}
+\end{equation}
+\paragraph*{}Je-li vlak na 2. vstupu a není blokovaný jeho výjezd, pak tento vlak někdy v budoucnosti dojede do cíle.
+\begin{equation}
+\begin{split}
+\forall T:(((at\left(T,a2,e2\right) \wedge \neg block\left(T,a2\right) \wedge &\neg \exists U:\left(at\left(T,a1,U\right)\right)) \Rightarrow \\
+&\Rightarrow\exists T1:\left(less\left(T,T1\right) \wedge (T \neq T1) \wedge \exists U:\left(at\left(T1,e2,U\right)\right))\right))\\
+\end{split}
+\end{equation}
+\paragraph*{}Jsou-li vlaky na vstupu neustále, tak v budoucnu nedojde ke kolizi.
+\begin{equation}
+\begin{split}
+\forall T:\left(\exists X,U:\left((at\left(T,X,U\right) \wedge input\left(X\right)\right) \Rightarrow 
+\neg\exists T1:\left(less\left(T,T1\right) \wedge crit\left(T1\right))\right)\right)
+\end{split}
+\end{equation}
+
+
+% that's all folks
+\end{document}

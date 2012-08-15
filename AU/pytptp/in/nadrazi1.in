@@ -1,0 +1,10 @@
+digraph Default {
+    in -> d ;
+    v -> out1 ;
+    in2 -> v ;
+    b -> out2 ;
+    b -> out3 ;
+    d -> v ;
+    d -> b ;
+    in3 -> v ;
+}

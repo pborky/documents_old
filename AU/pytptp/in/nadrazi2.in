@@ -1,0 +1,5 @@
+digraph Default { 
+	a1 -> b;
+	a2 -> b;
+	b -> e2;
+}

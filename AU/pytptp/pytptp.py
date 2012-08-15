@@ -1,3 +1,4 @@
+# coding=utf-8
 __author__ = 'Peter Boraros'
 __email__ = 'pborky@pborky.sk'
 
@@ -146,37 +147,39 @@ class FOLFormula(Base):
     def __tex__(self):
         result = []
         for f in self.formulaList:
-            result += self.format(f,tex)
+            result += self.format(f,tex),
         return result
     def __add__(self, form):
-        Checks.checkIfFormulas(form)
         if isiterable(form):
-            f = None
-            for ff in form:
-                if f is None: f = self+ff
-                else: f += ff
-            return f
+            result = self
+            for f in form : result += f
+            return result
+        Checks.checkIfFormulas(form)
         if form.formulaList:
             f = FOLFormula(form.name, form.role)
         else:
             f = FOLFormula(self.name, self.role)
         if self.formulaList:
-            f.formulaList.append(self)
-        if isinstance(form,FOLFormula):
-            if form.formulaList:
-                f.formulaList.append(form)
-        elif isinstance(form,Annotation):
+            f.formulaList  += self.formulaList
+
+        if isinstance(form,Annotation):
             f.formulaList.append(form)
+        elif isinstance(form,FOLFormula):
+            if form.formulaList:
+                f.formulaList += form.formulaList
         else:
             f.formulaList.append((self.name,self.role,form))
         return f
-    def format(self,form,uni=str):
+    def format(self,form,fnc=str):
+        if isinstance(form,Annotation):
+            if fnc is tex: return u''
+            else:fnc(form)
         if isinstance(form,FOLFormula) or isinstance(form,Annotation):
-            return uni(form)
+            return fnc(form)
         else:
-            if uni is tex: return [u'%s' % uni(form[2])]
-            elif uni is unicode: return u'> %s' % uni(form[2])
-            else: return 'fof( %s, %s,\n\t%s\n).' % tuple(uni(f) for f in form)
+            if fnc is tex: return u'%s' % fnc(form[2])
+            elif fnc is unicode: return u'> %s' % fnc(form[2])
+            else: return 'fof( %s, %s,\n\t%s\n).' % tuple(fnc(f) for f in form)
 class Annotation(FOLFormula):
     def __init__(self, annotation):
         FOLFormula.__init__(self, 'noname', 'annot')
@@ -187,7 +190,7 @@ class Annotation(FOLFormula):
     def __unicode__(self):
         return u'/* %s */' % self.annot
     def __tex__(self):
-        return u'/* %s */' % tex(self.annot)
+        return u'/**/'
 
 class Compoud(Base):
     def __init__(self, name, arity):
@@ -282,11 +285,11 @@ class AnnotatedFormula(Formula):
         self.form = form
         self.annot = annotation
     def __str__(self):
-        return '/* %s */ %s' % (self.annot,self.form)
+        return '%s %s' % (self.annot,self.form)
     def __unicode__(self):
-        return u'/* %s */ %s' % (self.annot,self.form)
+        return u'%s %s' % (self.annot,self.form)
     def __tex__(self):
-        return u'/* %s */ %s' % (tex(self.annot),tex(self.form))
+        return u'%s %s' % (tex(self.annot),tex(self.form))
 class Atom(Formula):
     def __init__(self, name, form=None):
         Formula.__init__(self, name, form)
