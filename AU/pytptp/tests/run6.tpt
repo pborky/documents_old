@@ -1,5 +1,0 @@
-include('out/ltl.tpt').
-include('out/graph.tpt').
-include('out/control.tpt').
-include('out/t0.tpt').
-include('out/t3.tpt').
