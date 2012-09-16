@@ -115,8 +115,8 @@ class Graph:
         edge = Predicate('edge',2)
         i = Inc(0,'')
         if isinstance(dot,str):
-            (name, body), = re.findall(r'digraph\s+([\w_]+)\s+\{\s*(.*)\s*\}', dot, re.DOTALL)
-            edges = [(Edge(name),src,dst) for name, src, dst in ( (+i, src,dst) for src,dst in re.findall(r'(\w+)\s+->\s+(\w+)\s*;',body, re.DOTALL) )]
+            (name, body), = re.findall(r'digraph\s+([\w_]+)\s*\{\s*(.*)\s*\}', dot, re.DOTALL)
+            edges = [(Edge(name),src,dst) for name, src, dst in ( (+i, src,dst) for src,dst in re.findall(r'(\w+)\s*->\s*(\w+)\s*',body, re.DOTALL) )]
         else:
             pt = re.compile(r'([a-zA-Z0-9]+)')
             #print [(e.get_source(), e.get_destination()) for e in dot.get_edges()]
@@ -180,20 +180,20 @@ class Graph:
             'nodes': nodes
         }
 
-    def writef(self,fn,data):
-        f = open(fn,'w')
+    def writef(self,out,fn,data):
+        f = open('%s/%s.tpt'%(out,fn),'w')
         try: f.write(str(data));
         finally: f.close();
         return data
+    def functions(self):
+        return (self.ltlAxioms,self.ltlAxiomsNoModel,self.graphAxioms,self.controlAxioms,self.controlAxiomsAsap,self.controlAxiomsAsapNoClock,self.test1Conjectures,self.test2Conjectures,self.test3Conjectures)
+    def functions2(self):
+        return (self.ltlAxioms,self.graphAxioms,self.controlAxioms,self.test1Conjectures,self.test2Conjectures,self.test3Conjectures)
     def tp(self):
-        self.writef('ltl.tpt',self.ltlAxioms())
-        self.writef('graph.tpt',self.graphAxioms())
-        self.writef('control.tpt',self.controlAxioms())
-        self.writef('t0.tpt',self.test0Axiom())
-        self.writef('t1.tpt',self.test1Conjectures())
-        self.writef('t2.tpt',self.test2Conjectures())
-        self.writef('t3.tpt',self.test3Conjectures())
-        #self.writef('control.tpt',self.controlAxioms())
+        out = 'out/'
+        for fnc in self.functions():
+            fn,data = fnc()
+            self.writef(out,fn,data)
         return str(self.getFormulae())
     def uni(self):
         return unicode(self.getFormulae())
@@ -201,8 +201,27 @@ class Graph:
         from pytptp import tex
         return tex(self.getFormulae())
     def getFormulae(self):
-        return self.ltlAxioms()+self.graphAxioms()+self.controlAxioms()+self.test0Axiom()+self.test1Conjectures()+self.test2Conjectures()+self.test3Conjectures()
+        from pytptp import tex
+        f = None
+        for fnc in self.functions2():
+            fn,data=fnc()
+            if f is None: f = data
+            else: f+= data
+        return f
     def ltlAxioms(self):
+        from pytptp import all,axiom,annot,annotate
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z
+        f =  annot('')
+        f +=  annot('Linear temporal logic axioms')
+        f += axiom('less_antisym',all(X,Y)  * ((X==Y) <= (less(X,Y) & less(Y,X)))  )
+        f += axiom('less_trans',  all(X,Y,Z)* (less(X,Z) <= (less(X,Y) & less(Y,Z)))  )
+        f += axiom('less_total',  all(X,Y)  * (less(X,Y) | less(Y,X)) )
+        f += axiom('succ',        all(X)    * (less(X,succ(X)) & all(Y) * (less(Y,X) | less(succ(X),Y))),  )
+        #f += axiom('succ_neq',    all(X)    * (succ(X) != X) )
+        #f += axiom('pred',        all(X)    * ((pred(succ(X)) == X) & (succ(pred(X)) == X)) )
+        return 'ltl',f
+    def ltlAxiomsNoModel(self):
         from pytptp import all,axiom,annot,annotate
         s  = self.symbols
         less,succ,pred,X,Y,T,Z =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z
@@ -214,7 +233,7 @@ class Graph:
         f += axiom('succ',        all(X)    * (less(X,succ(X)) & all(Y) * (less(Y,X) | less(succ(X),Y))),  )
         f += axiom('succ_neq',    all(X)    * (succ(X) != X) )
         #f += axiom('pred',        all(X)    * ((pred(succ(X)) == X) & (succ(pred(X)) == X)) )
-        return f
+        return 'ltl_full',f
     def graphAxioms(self):
         from pytptp import axiom,annot,all,any
         s  = self.symbols
@@ -238,11 +257,16 @@ class Graph:
         f +=  annot('Enumerace vstupu, vystupu a divergentnich spoju')
         if len(inputNodes)>0:
             f += axiom('input', all(X) * (input(X) == reduce(lambda x,y:x|y, inputNodes ) ) )
+        else:
+            f +=  axiom('diverge', all(X) * (~input(X) ) )
         if len(outputNodes)>0:
             f += axiom('output', all(X) * (output(X) == reduce(lambda x,y:x|y, outputNodes ) ) )
+        else:
+            f +=  axiom('diverge', all(X) * (~output(X) ) )
         if len(divergentNodes)>0:
             f += axiom('diverge', all(X) * (diverge(X) == reduce(lambda x,y:x|y, divergentNodes ) ) )
-
+        else:
+            f +=  axiom('diverge', all(X) * (~diverge(X) ) )
         f += annot('*** Pohyb vlaku ***')
         f += axiom('at', all(T,Y,U)*(
             at(succ(T),Y,U) == (
@@ -256,6 +280,11 @@ class Graph:
                     ))
                 ))
         )
+
+        f += annot('"Vule" strojvudce')
+        #f += axiom('want', all(T,X,U) * ( at(T,X,U) >= (input(X) & want(T,X)) | (any(T1) * (less(T,T1) & (all(T2) * (less(T1,T2) &  want(T2,X))) )) ) )
+        f += axiom('want1', all(T,X,U) * ( (at(T,X,U)&input(X)&signal(T,X)) >= want(T,X) ) )
+        f += axiom('want2', all(T,X,U) * ( (at(T,X,U)&~input(X)) >= (any(T1) * (less(T,T1) & want(T1,X) )) ) )
 
         f += annot('*** Kriticke stavy ***')
         f += annot('Srazka dvou nebo vice vlaku')
@@ -275,7 +304,8 @@ class Graph:
         f += annot('Uviznuti vlaku na vstupu')
         f += axiom('crit3', all(T)*( crit(T) <= any(X,U) * ( input(X) & at(T,X,U) & ~ (any(T1) * ( less(T,T1) & signal(T1,X) ) ) ) ) )
 
-        return f
+
+        return 'graph',f
 
     def controlAxioms(self):
         from pytptp import axiom,annot,all,any
@@ -289,19 +319,63 @@ class Graph:
         f =  annot('')
         f += annot('Axiomy rizeni')
 
-        f += annot('"Vule" strojvudce')
-        f += axiom('want', all(T,X,U) * ( at(T,X,U) >= (any(T1) * (less(T,T1) & (all(T2) * (less(T1,T2) &  want(T1,X))) )) ) )
         f += annot('Blokace vstupu jinym vlakem')
-        f += axiom('block', all(T,Z) * ((( input(Z) & (any(X) * ( any(U)*at(T,X,U) & ~input(X) & (Z != X) & ~(any(Y) * (path(X,Y) & path(Y,Z)))) )) >= block(T,Z))))
+        f += axiom('block', all(T,Z) * ((( input(Z) & (any(X,U) * ( at(T,X,U) & ~input(X) & (Z != X) & ~(any(Y) * (path(X,Y) & path(Y,Z)))) )) >= block(T,Z))))
 
         f += annot('Casovac - je povolen pouze jeden vstup')
-        f += axiom('clock',all(T) * reduce(lambda x,y:x|y, ( reduce(lambda x,y:x&y,([flop(T,v)]+[~flop(T,u) for u in inNodes if u is not v])) for v in inNodes) ))
+        f += axiom('clock',all(T) * reduce(lambda x,y:x|y, ( reduce(lambda x,y:x&y,(~flop(T,u) for u in inNodes if u is not v),flop(T,v)) for v in inNodes) ))
 
         f += annot('Casovac - posunuti signalu na dalsi vstup')
         if len(inNodes) > 1:
             a = inNodes[1:]+inNodes[:1]
             k = Inc(0,'clock_')
-            f +=  [ axiom(+k, all(T) * ((~flop(succ(T),i) & flop(succ(T),j)) <= (flop(T,i))) ) for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+            #f +=  [ axiom(
+            #    +k, all(T) * ( (reduce(lambda x,y:x&y,(~flop(succ(T),u) for u in inNodes if u is not j),flop(succ(T),j))) <= (flop(T,i)) )
+            # for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
+            f +=  [ axiom( +k, all(T) * ( flop(succ(T),j) <= (flop(T,i)) ) ) for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
+
+        f += annot('Povoleni k vstupu ')
+        f += axiom('signal', all(T,X) *  ( input(X) & flop(T,X) & ~block(T,X) ) >= signal(T,X) )
+
+        f += annot('Vyhybka')
+        f += axiom('branch',
+            all(T,Z,Y) * (( diverge(Z) & edge(Z,Y) & any(X,U) * (output(U) & at(T,X,U) & (path(X,Z)|(X==Z)) & (path(Y,U)|(Y==U)) ) ) >= branch(T,Z,Y))
+        )
+        return 'control',f
+
+    def controlAxiomsAsap(self):
+        from pytptp import axiom,annot,all,any
+        s  = self.symbols
+        less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
+        path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
+        T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
+
+        inNodes = [v  for v in self.vertices.values() if v.isInput()]
+
+        f =  annot('')
+        f += annot('Axiomy rizeni')
+
+        f += annot('Formalizace neni sporna i kdyz vyjede hned jak to je mozne')
+        f += axiom('want2', all(T,X,U) * ((at(T,X,U) & ~input(X) ) >= want(T,X)) )
+
+        f += annot('Blokace vstupu jinym vlakem')
+        f += axiom('block', all(T,Z) * ((( input(Z) & (any(X) * ( any(U)*at(T,X,U) & ~input(X) & (Z != X) & ~(any(Y) * (path(X,Y) & path(Y,Z)))) )) >= block(T,Z))))
+
+        f += annot('Casovac - je povolen pouze jeden vstup')
+        f += axiom('clock',all(T) * reduce(lambda x,y:x|y, ( reduce(lambda x,y:x&y,(~flop(T,u) for u in inNodes if u is not v),flop(T,v)) for v in inNodes) ))
+
+        f += annot('Casovac - posunuti signalu na dalsi vstup')
+        if len(inNodes) > 1:
+            a = inNodes[1:]+inNodes[:1]
+            k = Inc(0,'clock_')
+            #f +=  [ axiom(
+            #    +k, all(T) * ( (reduce(lambda x,y:x&y,(~flop(succ(T),u) for u in inNodes if u is not j),flop(succ(T),j))) <= (flop(T,i)) )
+            # for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
+            f +=  [ axiom( +k, all(T) * ( flop(succ(T),j) <= (flop(T,i)) ) ) for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
 
         f += annot('Povoleni k vstupu ')
         f += axiom('signal', all(T,X) *  ( input(X) & flop(T,X) & ~block(T,X) ) >= signal(T,X) )
@@ -310,21 +384,46 @@ class Graph:
         f += axiom('branch',
             all(T,Z,Y) * (( diverge(Z) & edge(Z,Y) & any(X,U) * ( at(T,X,U) & (path(X,Z)|(X==Z)) & (path(Y,U)|(Y==U)) ) ) >= branch(T,Z,Y))
         )
-        return f
-
-
-    def test0Axiom(self):
+        return 'control_asap', f
+    def controlAxiomsAsapNoClock(self):
         from pytptp import axiom,annot,all,any
         s  = self.symbols
         less,succ,pred,X,Y,T,Z,U,V =  s.less,s.succ,s.pred,s.X,s.Y,s.T,s.Z,s.U,s.V
         path,edge,input,output,diverge,signal,branch,at,want,crit,block,flop = s.path,s.edge,s.input,s.output,s.diverge,s.signal,s.branch,s.at,s.want,s.crit,s.block,s.flop
         T,T1,T2,A,B = s.T,s.T1,s.T2,s.A,s.B
 
+        inNodes = [v  for v in self.vertices.values() if v.isInput()]
+
         f =  annot('')
-        f += annot('Test 0')
+        f += annot('Axiomy rizeni')
+
         f += annot('Formalizace neni sporna i kdyz vyjede hned jak to je mozne')
-        f += axiom('t1', all(T,X,U) * ( at(T,X,U) >= want(T,X) ) )
-        return f
+        f += axiom('want2', all(T,X,U) * ((at(T,X,U) & ~input(X) ) >= want(T,X)) )
+
+        f += annot('Blokace vstupu jinym vlakem')
+        f += axiom('block', all(T,Z) * ((( input(Z) & (any(X) * ( any(U)*at(T,X,U) & ~input(X) & (Z != X) & ~(any(Y) * (path(X,Y) & path(Y,Z)))) )) >= block(T,Z))))
+
+        f += annot('Casovac - je povolen pouze jeden vstup')
+        f += axiom('clock',all(T) * reduce(lambda x,y:x|y, ( reduce(lambda x,y:x&y,(~flop(T,u) for u in inNodes if u is not v),flop(T,v)) for v in inNodes) ))
+
+        if len(inNodes) > 1:
+            a = inNodes[1:]+inNodes[:1]
+            k = Inc(0,'clock_')
+            f += annot('Casovac - posunuti signalu na dalsi vstup')
+            #f +=  [ axiom(
+            #    +k, all(T) * ( (reduce(lambda x,y:x&y,(~flop(succ(T),u) for u in inNodes if u is not j),flop(succ(T),j))) <= (flop(T,i)) )
+            # for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
+            #f +=  [ axiom( +k, all(T) * ( flop(succ(T),j) <= (flop(T,i)) ) ) for i,j in ( (inNodes[i],a[i]) for i in range(len(inNodes)) ) ]
+
+        f += annot('Povoleni k vstupu ')
+        f += axiom('signal', all(T,X) *  ( input(X) & flop(T,X) & ~block(T,X) ) >= signal(T,X) )
+
+        f += annot('Vyhybka')
+        f += axiom('branch',
+            all(T,Z,Y) * (( diverge(Z) & edge(Z,Y) & any(X,U) * ( at(T,X,U) & (path(X,Z)|(X==Z)) & (path(Y,U)|(Y==U)) ) ) >= branch(T,Z,Y))
+        )
+        return 'control_noclock',f
 
     def test1Conjectures(self):
         from pytptp import conjecture,annot,all,any
@@ -336,8 +435,10 @@ class Graph:
         f =  annot('')
         f += annot('Test 1')
         f += annot('Vlak sa vzdy dostane zo vstupu (X) na definovany vystup (U)')
-        f += conjecture('t1', all(T) * (all(X,U) * (( input(X) & output(U) & at(T,X,U) & ~ (any(Y) * (~input(Y) & (any(V) * ( at(T,Y,V) )))) ) >= (any(T1) * ( less(T,T1) & (T != T1) &  at(T1,U,U) ) )) ))
-        return f
+        #f += conjecture('t1', all(T,X,U) * (( input(X) & output(U) & at(T,X,U) & (all(Y) * (input(Y) | ~ (any(V) * ( at(T,Y,V) )))) ) >=
+        #                                    (any(T1) * ( less(T,T1) &  at(T1,U,U) ) ) ))
+        f += conjecture('t1', all(T,X,U) * (( input(X) & output(U) & path(X,U) & at(T,X,U)  ) >= (any(T1) * ( less(T,T1) &  at(T1,U,U) ) ) ))
+        return 't1',f
 
 
     def test2Conjectures(self):
@@ -351,7 +452,7 @@ class Graph:
         f += annot('Test 2')
         f += annot('Nenastane kriticky stav')
         f += conjecture('t2', all(T) * ( all(X,U)*(at(T,X,U) & input(X) & output(U)) >= ~( any(T1)*(less(T,T1) & crit(T1)) )   ) )
-        return f
+        return 't2',f
 
     def test3Conjectures(self):
         from pytptp import conjecture,annot,all,any
@@ -363,6 +464,10 @@ class Graph:
         f =  annot('')
         f += annot('Test 3')
         f += annot('Tento test funguje len pre nadrazie s 1 vstupom - flop je potom stale v platnosti')
-        f += conjecture('t3', all(T) * ( any(X) * ( (any(U,V)*(at(T,X,U) & input(X) & output(U) & at(T,V,U) & output(V) & block(T,X) & ~ (any(Y,Z) * (~input(Y) & ~output(Y) & at(T,Y,Z) ) ) )) >= ( signal((T),X) )   ) )  )
+        f += conjecture('t3', all(T,X) * ( (input(X) & any(U,V) * (output(U) & output(V) & at(T,X,U) & at(T,V,V) & path(X,V))) >= (signal(succ(T),X)) ))
+        #f += conjecture('t3', all(T,X) * ( (input(X) & any(U,V) * (output(U) & output(V) & at(T,X,U) & at(T,V,V) & path(X,V))) >= (any(T1) * (less(T,T1) & signal(T1,X))) ))
+        #f += conjecture('t3', all(T,X) * ( (input(X) & any(U,V) * (output(U) & output(V) & at(T,X,U) & at(T,V,V) & path(X,V) & ~ (any(Y,Z) * (at(T,Y,Z) & (X!=Y)& (V!=Y))))) >=( signal(succ(T),X) )  ))
 
-        return f
+        #f += conjecture('t3', all(T) * ( any(X) * ( (any(U,V)*(at(T,X,U) & input(X) & output(U) & at(T,V,U) & output(V) & block(T,X) & ~ (any(Y,Z) * (~input(Y) & ~output(Y) & at(T,Y,Z) ) ) )) >= ( signal(succ(T),X) )   ) )  )
+
+        return 't3',f

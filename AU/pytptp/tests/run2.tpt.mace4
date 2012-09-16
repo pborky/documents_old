@@ -1,0 +1,4 @@
+include('out/ltl.tpt').
+include('out/graph.tpt').
+include('out/control_noclock.tpt').
+

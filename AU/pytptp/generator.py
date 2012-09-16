@@ -15,7 +15,7 @@ EQ_FMT = u'''
 \\end{equation}
 '''
 TEX_FMT = u'''
-\\documentclass[landscape,a4paper]{article}
+\\documentclass[landscape,a3paper]{article}
 
 \\usepackage[cmex10]{amsmath}
 \\usepackage{amsfonts}

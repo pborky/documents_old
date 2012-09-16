@@ -186,11 +186,11 @@ class Annotation(FOLFormula):
         Checks.checkAnnontation(annotation)
         self.annot = annotation
     def __str__(self):
-        return '/* %s */' % self.annot
+        return '%% %s ' % self.annot
     def __unicode__(self):
-        return u'/* %s */' % self.annot
+        return u'%% %s ' % self.annot
     def __tex__(self):
-        return u'/**/'
+        return u'%%'
 
 class Compoud(Base):
     def __init__(self, name, arity):

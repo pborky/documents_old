@@ -1,0 +1,4 @@
+include('out/ltl_full.tpt').
+include('out/graph.tpt').
+include('out/control_asap.tpt').
+include('out/t3.tpt').

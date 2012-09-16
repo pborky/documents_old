@@ -1,0 +1,2 @@
+include('out/ltl.tpt').
+include('out/graph.tpt').
