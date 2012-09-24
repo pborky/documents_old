@@ -1,0 +1,221 @@
+%%*************************************************************************
+%%
+%% Network Anomaly Detection by Means of Spectral Analysis
+%% V1.2
+%% 2012/09/17
+%% by Peter Boraros
+%% See http://www.pborky.sk/contact for current contact information.
+%%
+%%*************************************************************************
+%%
+%% Legal Notice:
+%%
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%%
+%% This work by Peter Boraros is licensed under a 
+%% Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+%% http://creativecommons.org/licenses/by-nc-sa/3.0/
+%%
+%%*************************************************************************
+
+%<------------------------------ headers ------------------------------------>
+\newcommand{\Title}{Network Anomaly Detection by Means of Spectral Analysis}
+\newcommand{\TitleCs}{Detekce anom\'{a}li\'{i} v po\v{c}\'{i}ta\v{c}ov\'{e} s\'{i}ti pomoc\'{i} spektr\'{a}ln\'{i} anal\'{y}zy}
+\newcommand{\Keywords}{Anomaly Detection, Spectral Analysis, Network Security}
+\newcommand{\KeywordsCs}{detekce anom\'{a}li\'{i}, spektr\'{a}ln\'{i} anal\'{y}za, bezpe\v{c}nost po\v{c}\'{i}ta\v{c}ov\'{y}ch s\'{i}t\'{i}}
+\newcommand{\AuthorName}{Bc. Peter Bor\'{a}ros}
+\newcommand{\SupervisorName}{Ing. Martin Reh\'{a}k, PhD.}
+\newcommand{\SupervisorEmail}{rehakmar@fel.cvut.cz}
+\newcommand{\IssuedIn}{Prague}
+\newcommand{\Department}{Department of Cybernetics}
+\newcommand{\DepartmentCs}{Katedra kybernetiky}
+\newcommand{\Thanks}{Na tomto m\'{i}st\v{e} mohou b\'{y}t naps\'{a}na p\v{r}\'{i}padn\'{a} pod\v{e}kov\'{a}n\'{i} %%
+(vedouc\'{i}mu pr\'{a}ce, konzultantovi, tomu kdo p\o{u}j\v{c}il software, literaturu, %%
+poskytl data apod.).}
+
+%<------------------------------         ------------------------------------>
+
+\documentclass[a4paper,twoside,english,english,openright,cleardoublepage=empty,BCOR10mm,DIV11]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{varioref}
+\usepackage{wrapfig}
+\usepackage{fancybox}
+\usepackage{calc}
+\usepackage{framed}
+\usepackage{url}
+
+%\usepackage{graphicx}
+
+\usepackage{ifpdf}
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.pdf}
+\else
+\usepackage[dvips]{graphicx}
+\graphicspath{{./img/}}
+\DeclareGraphicsExtensions{.eps}
+\fi
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\providecommand{\LyX}{L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
+\newcommand{\lyxline}[1][1pt]{%
+  \par\noindent%
+  \rule[.5ex]{\linewidth}{#1}\par}
+\newcommand{\noun}[1]{\textsc{#1}}
+%% Special footnote code from the package 'stblftnt.sty'
+%% Author: Robin Fairbairns -- Last revised Dec 13 1996
+\let\SF@@footnote\footnote
+\def\footnote{\ifx\protect\@typeset@protect
+    \expandafter\SF@@footnote
+  \else
+    \expandafter\SF@gobble@opt
+  \fi
+}
+\expandafter\def\csname SF@gobble@opt \endcsname{\@ifnextchar[%]
+  \SF@gobble@twobracket
+  \@gobble
+}
+\edef\SF@gobble@opt{\noexpand\protect
+  \expandafter\noexpand\csname SF@gobble@opt \endcsname}
+\def\SF@gobble@twobracket[#1]#2{}
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%<-------------------------------společná nastavení------------------------------>
+%\usepackage[czech]{babel}%počeštění názvů (Obsah, Kapitola, Literatura atp.)
+\usepackage[]{hyperref} %odkazy v  pdf jsou klikací s barevnými rámečky
+%\usepackage[urlcolor=blue]{hyperref}
+%\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib} %balíček pro citace literatury  
+\usepackage{hypernat}%interakce mezi hyperref a natbib
+\hypersetup{   % Nastavení polí PDF dokumentu 
+pdftitle={\Title},%   
+pdfauthor={\AuthorName},%  
+pdfsubject={Diploma thesis [draft]},%   
+pdfkeywords={\Keywords}%
+}
+\usepackage{multicol}
+
+%<-----------------------------volání stylů----------------------------------------->
+% (znak % je označení komentáře: co je za ním, není aktivní)
+%<------------------------------------písmo----------------------------------------->
+%\usepackage{packages/bc-latinmodern}
+%\usepackage{packages/bc-times}
+\usepackage{packages/bc-palatino}
+%\usepackage{packages/bc-iwona}
+%\usepackage{packages/bc-helvetika}
+
+
+%<------------------------------záhlaví stránek------------------------------------>
+%\usepackage{packages/bc-headings}
+%\usepackage{packages/bc-fancyhdr}
+
+%<------------------------------hlavičky kapitol------------------------------------>
+%\usepackage{packages/bc-neueskapitel}
+%\usepackage{packages/bc-fancychap}
+
+\makeatother
+
+\usepackage{babel}
+
+
+
+\begin{document}
+~\thispagestyle{empty}\begin{center}\pagenumbering{roman}\vspace{10mm}
+
+
+\textsf{\textsc{\noun{\LARGE Czech Technical University in Prague}}}\\
+\vspace{0.5em}
+\textsf{\textsc{\noun{\LARGE Faculty of Electrical Engineering}}}\\
+\vspace*{1em}
+\textsf{\textsc{\noun{\Large \Department}}}\vspace{15mm}
+
+
+\includegraphics[width=0.3\textwidth]{lev}\vspace{15mm}
+
+\textsf{\textsc{\noun{\huge Diploma Thesis [draft]}}}{\huge \par}
+
+\vspace{10mm}
+
+
+\textsf{\textsc{\noun{\LARGE \Title}}}{\LARGE \par}
+
+%\vspace{10mm}
+\vspace*{\fill}
+
+\textsf{\textsc{\noun{\large \AuthorName}}}{\large \par}
+\textsf{\textsc{\noun{\large (Supervisor: \SupervisorName)}}}{\large \par}
+
+\vspace{10mm}
+
+\textsf{\textsc{\noun{\large \today}}}{\large \par}
+
+
+\end{center} 
+
+%\vspace*{\fill}
+
+
+\vspace{10mm}
+
+\clearpage{}
+{\small \thispagestyle{plain}\addcontentsline{toc}{chapter}{Abstract} }{\small \par}
+{\small \textbf{Abstract} \input{ch/00_abstract} }{\small \par}
+\vspace{5mm}
+{\small \textbf{Keywords} \Keywords}{\small \par}
+\vspace{5mm}
+\clearpage{}
+%\cleardoublepage{}
+\thispagestyle{empty}{\small \tableofcontents{}% vkládá automaticky generovaný obsah dokumentu
+\cleardoublepage{}
+%\clearpage{}
+}{\small \par}
+
+\include{ch/01_introduction}
+
+\include{ch/02_anomaly_theory}
+
+\include{ch/03_network_security}
+
+\include{ch/04_proposed_methods}
+
+\include{ch/05_experiments}
+
+\include{ch/06_conclusion}
+
+
+\bibliographystyle{plain}
+\bibliography{references}
+~\\
+~\\
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+%\cleardoublepage{}
+\clearpage{}
+
+\include{ch/99_appendices}
+
+\end{document}
