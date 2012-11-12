@@ -1,10 +1,254 @@
 
-\chapter{Proposed Methods (TBD)}
+\chapter{Proposed Method}
 
-\section{Frequency Spectrum}
+\emph{He et al.} \cite{he2004spectral} showed that the different layers of the network
+protocols inprint distinct patterns in a frequency spectrum. 
+Further work of \emph{Chen} and \emph{Hwang} \cite{chen2007spectral}
+used the features derived %TODO use better word
+from frequency spectrum to classify malicious and normal traffic.
+They noticed that transport protocols (transmission control protocol --
+TCP and user datagram protocol - UDP) 
+have distinct frequency spectrum and pover spectral density. 
+They exploited this property to identify low-rate attacks on TCP protocol.
+%an reduction of service (RoS) attacks.
+%TODO more writing about features used
+\emph{Wright et al.} \cite{wright2006inferring} researched methods based on 
+hidden Markov models to classify different application protocols embeded in 
+encrypted application layer.
+They developed classification method, able to classify different 
+application protocols multiplexed in single encrypted packet flow.
+\emph{Dusi et al.} \cite{dusi2009tunnel} brought an statistical approach 
+to detect an tunnel inside application layer.
+In the paper they described different tunneling techniques and designed 
+statistical pattern recognition classifier to identify them.
 
-\section{Graph Spectrum}
+Our goal is to involve statistical analysis of the frequency components of a 
+time-domain signal (spectral analysis) to detection of the tunneled 
+connection in application layer.
+Our idea is that legitimate connection, that is not missusing application protocol, 
+imprints specific patterns in the 
+power spectral density that are distinct from spectral density 
+of the other unwanted protocols tunneled through application layer. 
 
-\section{Principal Component Analysis}
+In experiments we focused on the application protocols that are most 
+spread in computer networks and that are thus most widely miss-used. 
+In particular we will analyze protocol HTTP and its encrypted version -- HTTPS. 
+Most of the network gateways allow only usage of network protocols HTTP or HTTPS. 
+As protocol HTTPS uses encryption, the gateway is unable to detect miss-use by 
+analyzing content and thus it is unable to enforce policy restrictions.
 
+Even though it is not possible to analyze payload of particular packets in 
+ecrypted connection, it is possible to observe the time of the packet transit, 
+its size, direction, source and destination endpoint, etc. 
+This data is denoted as packet traces and it is extracted from unencrypted 
+part of the packet. 
+The goal is to develop feature creation and pattern recognition method for 
+the network packet traces involving spectral analysis.
+The method is suppoded to infer different application protocols of 
+the network traffic only by observation of the packet traces.
 
+\section{Data Collection}
+
+The input data for our method consits of timestamped packet traces. 
+Following information has been used from the captured packet data:
+\begin{itemize}
+	\item packet \emph{timestamp}, i.e. the time of the pass trought the capturing gateway,
+	\item identification of source and destination endpoint 
+	(i.e. \emph{source address } and \emph{port},
+	\emph{destination address}  and \emph{port}
+	\footnote{in literature 4-tuple of the  \emph{source address} and 
+	\emph{port} and  \emph{destination address} and \emph{port} is 
+	denoted as \emph{quad} %TODO cite
+	}) and tranmission \emph{protocol} -- we use this infomation (5-tuple) 
+	as a key to identify packet \emph{flow},
+	\item \emph{size} of packet`s payload,
+	\item packet \emph{direction} \footnote{we embed \emph{direction information} 
+	into the \emph{size} parameter using negative size  
+	if packet travels from destination to source and otherwise positive},
+\end{itemize}
+
+\subsection{Training Dataset}
+
+%TODO move to section 5
+A \texttt{tcpdump} software \cite{jacobson2009tcpdump}  has been used to 
+capture packet data in experimental testbed. 
+Testbed consist of three or more peers \emph{A}, \emph{B}, \emph{C}, \emph{D}  etc. 
+Peer \emph{A} (a client) is connected with each other using secure tunnel 
+to the destination TCP port 443 (destination is on the peers \emph{B},  \emph{C}, ...).
+Peer \emph{B} serves virtual private network service and provides network address
+translation from the tunnel to the internet.
+Peers \emph{C}, \emph{D}, etc. are able to serve single service on the end of tunnel 
+(such as HTTP server, telnet, file tranfer service, VOIP, ...).
+The traffic tunneled trough peer \emph{B} consist varying number of connections 
+and different protocols,
+while the others are tunneling single application protocol.
+
+The peer \emph{A} generates traffic to other peers simultaneously, 
+mimicking typical behavior of the client of particular application protocol 
+(i.e. web browser).
+%In addition connections to HTTPS servers are performed from peer \emph{A} directly.
+Packet capturing is set up on peer \emph{A} intercepting and storing every packet.
+Captured packet flows are then labeled using name of known the application service. 
+
+\subsection{Evaluation Dataset%
+\footnote{Evaluation dataset is used during 
+assesment of the method on real data.
+As we have some old packet trace data, we want to somehow compare it with training samples.
+My idea is to prove that exctracted features are epoch invariant by means
+statistical goodnes-of-fit test.
+On the other hand older protocols can behave in diferent way and thus the 
+normal models derived from current data would be
+underestimated during assesment proces.
+}%
+}
+The data used for evaluation of proposed method, consists of public packet
+traces obtained at....\emph{(to be discussed)}
+mixed with simulated and anotated packet traces captured in our testbed.
+Before mixing, statistical test has been performed.
+The test procedure first extracts and tansforms features
+(denoted here as $\vec{f}$) by using our proposed method 
+and then compares distribution of features with respect to 
+the label -- $Pr\left[ \vec{f} | label \right] $.
+
+Labeling of the obtained dataset is obtained by inferring application 
+protocol using destination port.
+Since the public dataset can contain malicious connections, 
+the result of this statistical test will underestimate the real fitness.
+%TODO why?
+
+\section{Feature Creation and Pattern Definition}
+%\subsection{Feature exctraction}
+For a specified flow $f$ the packet arrival process $x_f\left[t\right]$ 
+(or simply \emph{packet process})  is defined as a count of packet arrivals 
+at given timespan $I = \left\langle \frac{t}{s}, \frac{t+1}{s} \right)$:
+\begin{equation}\label{packetprocess}
+	 \forall t \in \mathcal{N} : x_f\left[t\right] = \left| 
+	\left\lbrace p : f = flow(p) \wedge timestamp(p) \in I \right\rbrace \right|\, .
+\end{equation}
+where $s$ is the sample rate, function $flow(p)$  yields the \emph{flow} 5-tuple 
+and function $timestamp(p)$  yields the \emph{timestamp} of given packet $p$. 
+\footnote{
+This is very important formula, we need to focus on it; according 
+to \emph{Dusi et al.} \cite{dusi2009tunnel}
+zero-length packets are ulikely to be induced by application, 
+so we can exclude them here; in addition
+they extract incomming and outgoing  stream separately -- 
+I think it is good idea to work with in- and out- streams separately 
+and compute cross-correlation function instead of auto-correlation function.
+The idea of usage I/O cross-correlation function $R_{io}\left(\tau\right)$ 
+instead of auto-correlation is that $R_{io}\left(\tau\right)$ (at the specific 
+time-lag $\tau$) would enforce the typical request-response round-trip. 
+Questionable is, how to physically interpret the resulting spectral components and if the Wiener-Kitchin theorem is applicable.
+}
+
+According to a Wiener–Khinchin %TODO reference
+theorem the power spectral density $S_{xx}(f)$ is obtained by application of discrete-time 
+Fourier transform $\mathcal{F}_{\cdot}(f)$ on autocorrelation function 
+of the packet process $R_{xx}\left[\tau\right]$:
+
+\begin{equation}\label{eq:corr}
+R_{xx}\left[\tau\right] = E[x\left[t\right]x\left[t+\tau\right]]\, , 
+\end{equation}
+
+\begin{equation}\label{eq:psd}
+\begin{split}
+S_{xx}(f) = \mathcal{F}_{R_{xx}}\left(f\right) = \sum_{\tau=-\infty}^{\infty} 
+\left( R_{xx}\left[\tau\right] \exp\left( -\imath 2\pi f\tau \right)\right) \\ 
+\forall f \in \left\langle -\frac{s}{2},\frac{s}{2} \right\rangle\, , 
+\end{split}
+\end{equation}
+
+where $\tau$ is the time-lag, $E\left[\cdot\right]$ is expected value of a random variable and 
+$f$ is the frequency. The autocorrelation function is capable of enforcing periodicity.
+Equations (\ref{eq:corr}) and (\ref{eq:psd}) hold under assumption that packet process is
+\emph{wide-sense stationary random proces}.
+
+As the last assumption seems to be false for infinite time span in network  traffic, 
+we involved an \emph{windowing function}  $w(n)$ and 
+\emph{discrete Fourier tranform} instead of discrete-time 
+Fourier transform. Rectangular windowing is defined as follows:
+\begin{equation}
+w(n) = \left\lbrace \begin{array}{l} 
+1, \mbox{ if } n\in \left\langle 0, M \right) \\ 
+0, \mbox{ otherwise} \end{array}\right. \,.
+\end{equation}
+Windowing function is nonzero inside specified interval $\left\langle 0, M \right)$ 
+otherwise it is zero. 
+Parameter  $M$ is length of sub-sequence selected from packet arrival proces. 
+We iteratively apply windowing function to the whole sequence generating 
+non-overlapping adjancent sequence of windows. 
+We identify the particular window in this sequence with upper index -- 
+e.g. $S_{xx}^i$ is a power spectral density function of an $i$-th window.
+Thus, we rewrite equations (\ref{eq:corr}) and (\ref{eq:psd}) for non-overlapping 
+windows as follows:
+\begin{equation}\label{eq:corr2}
+R_{xx}^i\left[m\right] = \frac{1}{M} \sum_{t=0}^{M} x\left[t+iM\right]x\left[t+m+iM\right] \, , 
+\end{equation}
+\begin{equation}\label{eq:psd2}
+\begin{split}
+S_{xx}^i(k) = \mathcal{F}_{R_{xx}^i}\left(k\right) = \sum_{m=0}^{M-1}
+\left( R_{xx}^i \left[m\right] w(m) \exp\left( -\imath 2\pi m\frac{k}{M} \right)\right)\\
+\forall k \in \left\{ 0,1,2,...,M-1 \right\}\, . 
+\end{split}
+\end{equation}
+Note that the windowing function is inherent in equations (\ref{eq:corr2}) and (\ref{eq:psd2})
+by using limitted ranges of sumation, and domain of definition of the power spectral density.
+
+By involving windowing function we introduced
+\emph{spectral leakge}. Use of diferent windowing function, e.g. \emph{Hann} 
+(see equation \ref{eq:hann}),
+%or \emph{Hamming} (\ref{eq:hamm}) 
+could be appropiate in decreasing leakage.
+\begin{equation}\label{eq:hann}
+w(n) = \left\lbrace \begin{array}{l} 
+0.5\left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right), \mbox{ if } n\in \left\langle 
+0, M \right) \\ 0, \mbox{ otherwise} \end{array}\right. \,.
+\end{equation}
+%\begin{equation}\label{eq:hamm}
+%w(n) = \left\lbrace \begin{array}{l} 
+%0.54 - 0.46\cos \left ( \frac{2\pi n}{N-1} \right), \mbox{ if } n\in \left\langle 0, M \right) \\
+% 0, \mbox{ otherwise} \end{array}\right. \,.
+%\end{equation}
+Furthermore if the parameter $M$ is too high the packet proces is unlikely to be stationary, 
+on the other hand selecting too low value causes that the spectrum is sensitive
+to transient phenomena on the network. %TODO why? 
+
+The sampling rate $s$ must be selected according to the Nyquist theorem. 
+Too low value entails aliasing%
+\footnote{The aliasing is caused by folding of the frequencies above Nyquist frequency
+$\frac{s}{2}$ symmetrically below this frequency. Thus this two frequencies are undistinguishable.
+To properly reconstruct the signal that contain no frequency higher than $f_{max}$ 
+the sample rate is bounded by $s > 2f_{max}$.}%
+, while too high value incurs data storage and processing overhead. 
+
+%\subsection{Pattern definition}
+By the application of the Fourier transform original features has been mapped into new space.
+We denote features in new space as \emph{spectral components} (or \emph{frequency components}).
+Temporal context of the features has been altered. 
+In new feature space the temporal context is determined by sequence
+of the detection windows of size $M$. 
+At the level of the detection window a temporal notion is decomposed 
+into tuple of temporal functions parametrised by \emph{spectral components}.
+Although temporal aspect is still present it has not been used in further analysis.
+Anomalies in new feature space are thus regarded to as \emph{point anomalies}. %TODO ?
+%The rationale is that the new features decomppsed desired temporal aspects 
+%of the original sequential data into declarative form.
+
+There are few parameters affecting quality of the  features: %TODO what?
+the smaple rate $s$ and the window length $M$. 
+In addition, \emph{spectral components} can be subject to further feature extraction 
+or construction, comprising combination of extisting features or discarding irrelevant, 
+redundant  or noisy%
+\footnote{In case of low signal-to-noise ratio, a feature is typically not usefull 
+for discriminative outcome.}%
+ones based on the domain knowledge (e.g. sum of a lower resp. a upper half of the 
+spectral components resulting in two features a low- and a high-frequency power densities;
+or retaining specific spectral features known for its relation to 
+periodic stochatic processes to be in research interest).
+
+This aspects and process of seeking of proper parameters are subject of further 
+research and they are discussed in \emph{chapter \ref{sec:experiments}}.
+
+\section{Pattern Recognition}
+
+\section{Assessment and Interpretation of Results}
