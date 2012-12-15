@@ -1,41 +1,55 @@
 
 \chapter{Proposed Method}
 
-\emph{He et al.} \cite{he2004spectral} showed that the different layers of the network
-protocols inprint distinct patterns in a frequency spectrum. 
-Further work of \emph{Chen} and \emph{Hwang} \cite{chen2007spectral}
+In this section we dervive anomaly detection method based on spectral decomposition
+of time-domain signal.
+Our goal is to involve statistical analysis of the frequency components of a 
+time-domain signal for detection of the malicious behavior.
+%\emph{tunneling protocol} %malicous traffic
+%in an application layer as well as 
+
+On the high-frequency scale our method ought to be capable of detection of the
+\emph{tunneling protocols} in application layer, while on the very low frequency scale
+our method is intended to be capable to detect anomalous behavior in wider time contexts.
+
+Tunneling protocol refer to encapsulation of one network 
+protocol in payload of the other. By using tuneling protocol a malicious agent can 
+transfer data  belonging to prohibited protocol over a network, bypassing 
+a security policies. Our hypotesis is that specific application protocol imprints 
+specific pattern in a power spectral density distribution. If the tunneling protocol 
+is in use, these patterns are different and anomalous behavior can be detected.
+
+The periodicity can be analyzed on different scales, while tunneling protocol
+violates normal pattern on higher frequency scales, we are also concerned about anomalous
+patterns in very low frequency scales. This other patterns come up not of violation 
+of the standard protocols, but of departure from the typical behavior or the habits. 
+E.g. an mallware communicating with the remote server using the HTTP protocol 
+does not violate the application protocol. 
+But by exchanging information in regular manner, not depending on time of the day,
+its behavior will be distint from the behavior of the typical web user who uses the network
+in a way, periodic manner.
+
+\name{He et al.} \cite{he2004spectral} showed that the different layers of the network
+protocols inprint distinct patterns in a power spectral density distribution. 
+Further work of \name{Chen} and \name{Hwang} \cite{chen2007spectral}
 used the features derived %TODO use better word
 from frequency spectrum to classify malicious and normal traffic.
 They noticed that transport protocols (transmission control protocol --
 TCP and user datagram protocol - UDP) 
-have distinct frequency spectrum and pover spectral density. 
-They exploited this property to identify low-rate attacks on TCP protocol.
+have distinct power spectral density distribution. 
+They exploited this property to identify low-rate denial-of-service (DoS)
+attacks on TCP protocol. %TODO on TCP protocol?
 %an reduction of service (RoS) attacks.
 %TODO more writing about features used
-\emph{Wright et al.} \cite{wright2006inferring} researched methods based on 
+\name{Wright et al.} \cite{wright2006inferring} researched methods based on 
 hidden Markov models to classify different application protocols embeded in 
 encrypted application layer.
 They developed classification method, able to classify different 
 application protocols multiplexed in single encrypted packet flow.
-\emph{Dusi et al.} \cite{dusi2009tunnel} brought an statistical approach 
+\name{Dusi et al.} brought an statistical approach 
 to detect an tunnel inside application layer.
-In the paper they described different tunneling techniques and designed 
+In  \cite{dusi2009tunnel}  they described different tunneling techniques and designed 
 statistical pattern recognition classifier to identify them.
-
-Our goal is to involve statistical analysis of the frequency components of a 
-time-domain signal (spectral analysis) to detection of the tunneled 
-connection in application layer.
-Our idea is that legitimate connection, that is not missusing application protocol, 
-imprints specific patterns in the 
-power spectral density that are distinct from spectral density 
-of the other unwanted protocols tunneled through application layer. 
-
-In experiments we focused on the application protocols that are most 
-spread in computer networks and that are thus most widely miss-used. 
-In particular we will analyze protocol HTTP and its encrypted version -- HTTPS. 
-Most of the network gateways allow only usage of network protocols HTTP or HTTPS. 
-As protocol HTTPS uses encryption, the gateway is unable to detect miss-use by 
-analyzing content and thus it is unable to enforce policy restrictions.
 
 Even though it is not possible to analyze payload of particular packets in 
 ecrypted connection, it is possible to observe the time of the packet transit, 
@@ -44,33 +58,64 @@ This data is denoted as packet traces and it is extracted from unencrypted
 part of the packet. 
 The goal is to develop feature creation and pattern recognition method for 
 the network packet traces involving spectral analysis.
-The method is suppoded to infer different application protocols of 
-the network traffic only by observation of the packet traces.
+The method is supposed to detect tunneling protocols only by observation 
+of the packet traces.
 
 \section{Data Collection}
 
-The input data for our method consits of timestamped packet traces. 
-Following information has been used from the captured packet data:
+The input data for our method consists of a timestamped \emph{packet traces} or a
+timestamped \emph{traffic flow} statistics. 
+
+Both can be obtained by capturing
+network packet headers. While first one stores each packet (or the packet header)
+as a single record,
+other one contains total count of the packets and ammount of bytes for 
+related sequence of the packets. Relation between packets is determined depending 
+on the traffic flow protocol. E.g. for Transmission Control Protocol (TCP) relation is 
+determined using following information: capturing interface, source and destination IP address,
+source and destination port. 
+%
+%or Cisco standard \emph{NetFlow}%
+%\footnote{
+%Cisco standard definest one record (a flow) in Netflow format as a unidirectional sequence of
+%packets that share following values: ingress interface; source IP address; destination 
+%IP address; IP protocol; source port for UDP or TCP, 0 for other protocols;
+%destination port for UDP or TCP, type and code for ICMP, or 0 for other protocols;
+%type of service (TOS).
+%} 
+%protocol. As NetFlow datasets contains only statistics of particular network packet flows, 
+%it can be generated from the packet trace data. In practice the NetFlow data is generated by 
+%network active components as firewals, routers or swithes. 
+%
+
+Due to differences in described formats, we extract following attributes 
+from packet trace or traffic flow data in our experiments, 
+to allow usage of unified processing methods:
 \begin{itemize}
-	\item packet \emph{timestamp}, i.e. the time of the pass trought the capturing gateway,
-	\item identification of source and destination endpoint 
-	(i.e. \emph{source address } and \emph{port},
-	\emph{destination address}  and \emph{port}
-	\footnote{in literature 4-tuple of the  \emph{source address} and 
-	\emph{port} and  \emph{destination address} and \emph{port} is 
-	denoted as \emph{quad} %TODO cite
-	}) and tranmission \emph{protocol} -- we use this infomation (5-tuple) 
-	as a key to identify packet \emph{flow},
-	\item \emph{size} of packet`s payload,
-	\item packet \emph{direction} \footnote{we embed \emph{direction information} 
+	\item packet or packet flow \emph{timestamp}, i.e. the time when the (first) packet passed
+	trought the capturing gateway,
+	\item tranmission \emph{protocol} speciffication and identification of 
+	source and destination endpoint 
+	(i.e. for TCP and UDP protocols it is \emph{source address} and \emph{port}, 
+	\emph{destination address}  and \emph{port}),
+	\item \emph{size} of packet`s payload or total size of the packets in case of flow data,
+	\item \emph{count} of the packets (for packet trace data it is always one),
+	\item \emph{direction}%
+	\footnote{we embed \emph{direction information} 
 	into the \emph{size} parameter using negative size  
-	if packet travels from destination to source and otherwise positive},
+	if packet travels from destination to source and otherwise positive} %
+	with respect to initial packet whithin given flow,
 \end{itemize}
+
+We further require that traffic flow data are allways captured periodically in defined time span.
+The traffic flow that outstays longer that this capturing period is ended split into two flows.
+We can look at this process as on a sampling process. We consider the flow capturing period
+is the lower bound for the sampling period.  
 
 \subsection{Training Dataset}
 
 %TODO move to section 5
-A \texttt{tcpdump} software \cite{jacobson2009tcpdump}  has been used to 
+A \code{tcpdump} software \cite{jacobson2009tcpdump}  has been used to 
 capture packet data in experimental testbed. 
 Testbed consist of three or more peers \emph{A}, \emph{B}, \emph{C}, \emph{D}  etc. 
 Peer \emph{A} (a client) is connected with each other using secure tunnel 
@@ -122,7 +167,7 @@ For a specified flow $f$ the packet arrival process $x_f\left[t\right]$
 (or simply \emph{packet process})  is defined as a count of packet arrivals 
 at given timespan $I = \left\langle \frac{t}{s}, \frac{t+1}{s} \right)$:
 \begin{equation}\label{packetprocess}
-	 \forall t \in \mathcal{N} : x_f\left[t\right] = \left| 
+	 \forall t \in \mathbb{N} : x_f\left[t\right] = \left| 
 	\left\lbrace p : f = flow(p) \wedge timestamp(p) \in I \right\rbrace \right|\, .
 \end{equation}
 where $s$ is the sample rate, function $flow(p)$  yields the \emph{flow} 5-tuple 
@@ -138,7 +183,8 @@ and compute cross-correlation function instead of auto-correlation function.
 The idea of usage I/O cross-correlation function $R_{io}\left(\tau\right)$ 
 instead of auto-correlation is that $R_{io}\left(\tau\right)$ (at the specific 
 time-lag $\tau$) would enforce the typical request-response round-trip. 
-Questionable is, how to physically interpret the resulting spectral components and if the Wiener-Kitchin theorem is applicable.
+Questionable is, how to physically interpret the resulting spectral components 
+and if the Wiener-Kitchin theorem is applicable.
 }
 
 According to a Wiener–Khinchin %TODO reference
@@ -165,7 +211,7 @@ Equations (\ref{eq:corr}) and (\ref{eq:psd}) hold under assumption that packet p
 
 As the last assumption seems to be false for infinite time span in network  traffic, 
 we involved an \emph{windowing function}  $w(n)$ and 
-\emph{discrete Fourier tranform} instead of discrete-time 
+\emph{discrete Fourier transform} instead of discrete-time 
 Fourier transform. Rectangular windowing is defined as follows:
 \begin{equation}
 w(n) = \left\lbrace \begin{array}{l} 
@@ -195,7 +241,7 @@ Note that the windowing function is inherent in equations (\ref{eq:corr2}) and (
 by using limitted ranges of sumation, and domain of definition of the power spectral density.
 
 By involving windowing function we introduced
-\emph{spectral leakge}. Use of diferent windowing function, e.g. \emph{Hann} 
+\emph{spectral leakge}. Use of apodization function, e.g. \emph{Hann} %TODO explain 
 (see equation \ref{eq:hann}),
 %or \emph{Hamming} (\ref{eq:hamm}) 
 could be appropiate in decreasing leakage.
@@ -237,7 +283,7 @@ Anomalies in new feature space are thus regarded to as \emph{point anomalies}. %
 There are few parameters affecting quality of the  features: %TODO what?
 the smaple rate $s$ and the window length $M$. 
 In addition, \emph{spectral components} can be subject to further feature extraction 
-or construction, comprising combination of extisting features or discarding irrelevant, 
+comprising combination of extisting features or discarding irrelevant, 
 redundant  or noisy%
 \footnote{In case of low signal-to-noise ratio, a feature is typically not usefull 
 for discriminative outcome.}%
@@ -249,6 +295,6 @@ periodic stochatic processes to be in research interest).
 This aspects and process of seeking of proper parameters are subject of further 
 research and they are discussed in \emph{chapter \ref{sec:experiments}}.
 
-\section{Pattern Recognition}
+\section{Anomalous Pattern Recognition}
 
 \section{Assessment and Interpretation of Results}

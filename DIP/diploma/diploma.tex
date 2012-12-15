@@ -21,27 +21,8 @@
 %%
 %%*************************************************************************
 
-%<------------------------------ headers ------------------------------------>
-\newcommand{\Subject}{Diploma Thesis}
-\newcommand{\Title}{Network Anomaly Detection by Means of Spectral Analysis}
-\newcommand{\TitleCs}{Detekce anom\'{a}li\'{i} v po\v{c}\'{i}ta\v{c}ov\'{e} s\'{i}ti pomoc\'{i} spektr\'{a}ln\'{i} anal\'{y}zy}
-\newcommand{\Keywords}{Anomaly Detection, Spectral Analysis, Network Security}
-\newcommand{\KeywordsCs}{detekce anom\'{a}li\'{i}, spektr\'{a}ln\'{i} anal\'{y}za, bezpe\v{c}nost po\v{c}\'{i}ta\v{c}ov\'{y}ch s\'{i}t\'{i}}
-\newcommand{\AuthorName}{Bc. Peter Bor\'{a}ros}
-\newcommand{\SupervisorName}{Ing. Martin Reh\'{a}k, PhD.}
-\newcommand{\SupervisorEmail}{rehakmar@fel.cvut.cz}
-\newcommand{\IssuedIn}{Prague}
-\newcommand{\Department}{Department of Cybernetics}
-\newcommand{\DepartmentCs}{Katedra kybernetiky}
-\newcommand{\Thanks}{Na tomto m\'{i}st\v{e} mohou b\'{y}t naps\'{a}na p\v{r}\'{i}padn\'{a} pod\v{e}kov\'{a}n\'{i} %%
-(vedouc\'{i}mu pr\'{a}ce, konzultantovi, tomu kdo p\r{u}j\v{c}il software, literaturu, %%
-poskytl data apod.).}
-
-%<------------------------------         ------------------------------------>
-
+%<------------------------------base template and packages------------------------------>
 \documentclass[a4paper,twoside,english,english,openright,cleardoublepage=empty,BCOR10mm,DIV11]{scrreprt}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{varioref}
@@ -52,67 +33,25 @@ poskytl data apod.).}
 \usepackage{url}
 \usepackage{amssymb,amsmath}
 
-%\usepackage{graphicx}
-
 \usepackage{ifpdf}
 \ifpdf
 \usepackage[pdftex]{graphicx}
-\graphicspath{{./img/}}
+%\graphicspath{{./img/}}
 \DeclareGraphicsExtensions{.pdf}
 \else
 \usepackage[dvips]{graphicx}
-\graphicspath{{./img/}}
+%\graphicspath{{./img/}}
 \DeclareGraphicsExtensions{.eps}
 \fi
+\usepackage{color}
 
-\makeatletter
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
-\providecommand{\LyX}{L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
-\newcommand{\lyxline}[1][1pt]{%
-  \par\noindent%
-  \rule[.5ex]{\linewidth}{#1}\par}
-\newcommand{\noun}[1]{\textsc{#1}}
-%% Special footnote code from the package 'stblftnt.sty'
-%% Author: Robin Fairbairns -- Last revised Dec 13 1996
-\let\SF@@footnote\footnote
-\def\footnote{\ifx\protect\@typeset@protect
-    \expandafter\SF@@footnote
-  \else
-    \expandafter\SF@gobble@opt
-  \fi
-}
-\expandafter\def\csname SF@gobble@opt \endcsname{\@ifnextchar[%]
-  \SF@gobble@twobracket
-  \@gobble
-}
-\edef\SF@gobble@opt{\noexpand\protect
-  \expandafter\noexpand\csname SF@gobble@opt \endcsname}
-\def\SF@gobble@twobracket[#1]#2{}
-%% Because html converters don't know tabularnewline
-\providecommand{\tabularnewline}{\\}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
-\newenvironment{lyxcode}
-{\begin{list}{}{
-\setlength{\rightmargin}{\leftmargin}
-\setlength{\listparindent}{0pt}% needed for AMS classes
-\raggedright
-\setlength{\itemsep}{0pt}
-\setlength{\parsep}{0pt}
-\normalfont\ttfamily}%
- \item[]}
-{\end{list}}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%<-------------------------------headers----------------------------------------->
+\usepackage{headers}
 %<-------------------------------společná nastavení------------------------------>
-%\usepackage[czech]{babel}%počeštění názvů (Obsah, Kapitola, Literatura atp.)
-\usepackage[]{hyperref} %odkazy v  pdf jsou klikací s barevnými rámečky
-%\usepackage[urlcolor=blue]{hyperref}
-%\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks]{hyperref}
+\usepackage[hyphenbreaks]{breakurl}
 \usepackage[numbers,sort&compress]{natbib} %balíček pro citace literatury  
 \usepackage{hypernat}%interakce mezi hyperref a natbib
-\newcommand{\BibTeX}{{\sc Bib}\TeX}%BibTeX logo
 \hypersetup{   % Nastavení polí PDF dokumentu 
 pdftitle={\Title},%   
 pdfauthor={\AuthorName},%  
@@ -121,135 +60,124 @@ pdfkeywords={\Keywords}%
 }
 \usepackage{multicol}
 
+%% include whole pdfpages (only if using pdflatex)
+\ifpdf
+\usepackage[final]{pdfpages}
+\fi
+%% fix page layout
+\usepackage[a4paper,left=37mm,right=28mm,top=37mm,bottom=40mm]{geometry}
+
 %<-----------------------------volání stylů----------------------------------------->
-% (znak % je označení komentáře: co je za ním, není aktivní)
 %<------------------------------------písmo----------------------------------------->
 %\usepackage{packages/bc-latinmodern}
 %\usepackage{packages/bc-times}
-\usepackage{packages/bc-palatino}
-%\usepackage{packages/bc-iwona}
+%\usepackage{packages/bc-palatino}
+\usepackage{packages/bc-iwona}
 %\usepackage{packages/bc-helvetika}
-
-
-%<------------------------------záhlaví stránek------------------------------------>
+%<------------------------------záhlaví stránek------------------------------------->
 %\usepackage{packages/bc-headings}
 \usepackage{packages/bc-fancyhdr}
-
 %<------------------------------hlavičky kapitol------------------------------------>
-%\usepackage{packages/bc-neueskapitel}
-\usepackage{packages/bc-fancychap}
+\usepackage{packages/bc-neueskapitel}
+%\usepackage{packages/bc-fancychap}
 
-\makeatother
+%<------------------------------user macros----------------------------------------->
+\usepackage{packages/mypkg}
 
-\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 
 
+%% only chapters and sections in toc
+\setcounter{tocdepth}{1} 
 
 \begin{document}
-~\thispagestyle{empty}{\small ~\vfill{}
-}{\small \par}
 
-\noindent {\small \Thanks \newpage{}}{\small \par}
+%<------------------------------title page------------------------------------------>
+\cleardoublepage{}~\thispagestyle{empty}
+\input{ch/00_title}
 
-~\thispagestyle{empty}\vfill{}
-%Tato stránka je tzv. protititul a je graficky součástí titulní stránky.
-%Nechte ji prázdnou, nebo na ni umístěte vhodnou fotografii či ilustraci.
+%<------------------------------assignent pages---------------------------------->
+\cleardoublepage{}\thispagestyle{empty}%
+\ifpdf%
+\includepdf[pages=1]{img/assignment-en}%
+\else%
+\newgeometry{left=5mm,top=5mm,right=5mm,bottom=5mm}%
+\includegraphics[width=\textwidth]{img/assignment-en}%
+\restoregeometry
+\fi
 
-\cleardoublepage{}~\thispagestyle{empty}\begin{center}\pagenumbering{roman}\vspace{10mm}
+\cleardoublepage{}\thispagestyle{empty}%
+\ifpdf%
+\includepdf[pages=1]{img/assignment-cs}%
+\else%
+\newgeometry{left=5mm,top=5mm,right=5mm,bottom=5mm}%
+\includegraphics[width=\textwidth]{img/assignment-cs}%
+\restoregeometry
+\fi
 
-
-\textsf{\textsc{\noun{\LARGE Czech Technical University in Prague}}}\\
-\vspace{0.5em}
-\textsf{\textsc{\noun{\LARGE Faculty of Electrical Engineering}}}\\
-\vspace*{1em}
-\textsf{\textsc{\noun{\Large \Department}}}\vspace{15mm}
-
-
-\includegraphics[width=0.3\textwidth]{lev}\vspace{15mm}
-
-\textsf{\textsc{\noun{\huge \Subject}}}{\huge \par}
-
-\vspace{15mm}
-
-
-\textsf{\textsc{\noun{\LARGE \Title}}}{\LARGE \par}
-
-
-\vspace{10mm}
+%<------------------------------declaration page-------------------------------->
+\cleardoublepage{}~\thispagestyle{empty}
 
 
-\end{center} 
+\vspace{\fill}\par
 
-\vspace*{\fill}
+\noindent {\Large \bf Prohlášení autora práce \par}
 
+\bigskip{} 
+\noindent {\small Prohlašuji, že jsem p\v redloženou práci vypracoval samostatn\v e 
+a~že jsem uvedl veškeré použité informační zdroje v~souladu s~Metodickým pokynem 
+o~dodržování etických princip\r u~p\v ri p\v ríprav\v e vysokoškolských záv\v erečných 
+prací. \par}
 
-\vspace{10mm}
+\bigskip{}
 
+\noindent {\small V Praze dne \the\day.\the\month.\the\year.\hspace{\fill} \AuthorName \par}
 
-\begin{description}
-\item [{{\large Author:}}] \noindent \textsf{\large \AuthorName}{\large \par}
-\item [{{\large Supervisor:}}] \noindent \textsf{\large \SupervisorName}%
-{\large \hfill{}}\textsf{\large \IssuedIn, \the\year}{\large{}
-}{\large \par}
-\end{description}
-\clearpage{}
-
-{\small \thispagestyle{plain}\addcontentsline{toc}{chapter}{Abstract} }{\small \par}
-
-\noindent {\small ~\vfill{}
-}{\small \par}
-
-\begin{description}
-\item [{{\small Název~práce:}}] \noindent {\small \TitleCs}{\small \par}
-\item [{{\small Autor:}}] \noindent {\small \AuthorName}{\small \par}
-\item [{{\small Katedra~(ústav):}}] \noindent {\small \DepartmentCs}{\small \par}
-\item [{{\small Vedoucí~diplomové~práce:}}] \noindent {\small \SupervisorName}
-\item [{{\small e-mail~vedoucího:}}] \noindent {\small \SupervisorEmail}\\
-{\small \par}
-\item [{{\small Abstrakt}}] \noindent {\small \input{ch/00_abstract_cs} }{\small \par}
-\item [{{\small Klíčová~slova:}}] \noindent {\small \KeywordsCs}\\
-{\small \lyxline{\small}}{\small \par}
-\item [{{\small Title:}}] \noindent {\small \Title}{\small \par}
-\item [{{\small Author:}}] \noindent {\small \AuthorName}{\small \par}
-\item [{{\small Department:}}] \noindent {\small \Department}{\small \par}
-\item [{{\small Supervisor:}}] \noindent {\small \SupervisorName}{\small \par}
-\item [{{\small Supervisor's~e-mail~address:}}] \noindent {\small \SupervisorEmail}\\
-{\small \par}
-\item [{{\small Abstract}}] \noindent {\small \input{ch/00_abstract} }{\small \par}
-\item [{{\small Keywords:}}] \noindent {\small \Keywords}{\small \par}
-\end{description}
-\cleardoublepage{}\thispagestyle{empty}~{\small \addcontentsline{toc}{chapter}{Assignment of the Work} }{\small \par}
-
-
-
+\bigskip{}
 \newpage{}\thispagestyle{empty}~
 
+%<------------------------------thanks page----------------------------------------->
+\cleardoublepage{}~\thispagestyle{empty}
+\vspace{\fill} \par
+\noindent {\Large \bf Acknowlegement \par}
+\bigskip{}
+\noindent {\small \Thanks \newpage{} \small \par}
+\bigskip{}
 
-\newpage{}\thispagestyle{plain}
+%<------------------------------abstract page--------------------------------------->
+\cleardoublepage{}~\thispagestyle{plain}{\small \addcontentsline{toc}{chapter}{Abstract} \par}
 
-{\small %\setcounter{page}{3} % nastavení číslování stránek
-\ }{\small \par}
+\vspace{\fill}\par
 
-\noindent {\small \vfill{}
- % nastavuje dynamické umístění následujícího textu do spodní části stránky
-~}{\small \par}
+\begin{description}
+\item [Název~práce:] \noindent \TitleCs \par
+\item [Autor:] \noindent \AuthorName ~
+  ({\bf e-mail:} \href{mailto:\AuthorEmail}{\AuthorEmail}) \par
+\item [Katedra~(ústav):] \noindent \DepartmentCs \par
+\item [Vedoucí~diplomové~práce:] \noindent \SupervisorName  ~
+  ({\bf e-mail:} \href{mailto:\SupervisorEmail}{\SupervisorEmail}) \par
+\item \par
+\item [Abstrakt:] \noindent \input{ch/00_abstract_cs} \par
+\item [Klíčová~slova:] \noindent \KeywordsCs \\ \par
+{\rule[.5ex]{\linewidth}{1pt}}\par
+\item [Title:] \noindent \Title \par
+\item [Author:] \noindent \AuthorName ~
+  ({\bf e-mail:} \href{mailto:\AuthorEmail}{\AuthorEmail}) \par
+\item [Department:] \noindent \Department \par
+\item [Thesis Supervisor:] \noindent \SupervisorName ~
+  ({\bf e-mail:} \href{mailto:\SupervisorEmail}{\SupervisorEmail})  \par
+\item \par
+\item [Abstract:] \noindent \input{ch/00_abstract} \par
+\item [Keywords:] \noindent \Keywords \par
+\end{description}
 
-\noindent {\small Prohlašuji, že jsem svou diplomovou práci napsal(a)
-samostatně a výhradně s použitím citovaných pramenů. Souhlasím se
-zapůjčováním práce a jejím zveřejňováním.}{\small \par}
+%<------------------------------toc page------------------------------------->
+\cleardoublepage{}\thispagestyle{empty}\tableofcontents{}
 
-{\small \bigskip{}
-}\noindent {\small{} V Praze dne \today\hspace{\fill} \AuthorName}\\
-{\small{} % doplňte patřičné datum, jméno a příjmení
-}{\small \par}
 
-{\small %%%   Výtisk pak na tomto míste nezapomeňte PODEPSAT!
-%%%                                         *********
-}{\small \par}
-
-\cleardoublepage{}\thispagestyle{empty}{\small \tableofcontents{}% vkládá automaticky generovaný obsah dokumentu
-\cleardoublepage{}}{\small \par}
-
+%<------------------------------content--------------------------------------->
+\cleardoublepage{}
 \include{ch/01_introduction}
 
 \include{ch/02_anomaly_theory}
@@ -262,15 +190,16 @@ zapůjčováním práce a jejím zveřejňováním.}{\small \par}
 
 \include{ch/06_conclusion}
 
-\bibliographystyle{plain}
+%<------------------------------bibliography--------------------------------------->
+\bibliographystyle{ieeetr}
+\cleardoublepage{}
+\addcontentsline{toc}{chapter}{Bibliography}
 \bibliography{references}
-~\\
-~\\
 
-\addcontentsline{toc}{chapter}{Bibliography} 
 
 \cleardoublepage{}
 
+%<------------------------------appendix--------------------------------------->
 \include{ch/99_appendices}
 
 \end{document}

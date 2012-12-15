@@ -1,0 +1,50 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\providecommand{\LyX}{L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
+
+%% Special footnote code from the package 'stblftnt.sty'
+%% Author: Robin Fairbairns -- Last revised Dec 13 1996
+\let\SF@@footnote\footnote
+\def\footnote{\ifx\protect\@typeset@protect
+    \expandafter\SF@@footnote
+  \else
+    \expandafter\SF@gobble@opt
+  \fi
+}
+\expandafter\def\csname SF@gobble@opt \endcsname{\@ifnextchar[%]
+  \SF@gobble@twobracket
+  \@gobble
+}
+\edef\SF@gobble@opt{\noexpand\protect
+  \expandafter\noexpand\csname SF@gobble@opt \endcsname}
+\def\SF@gobble@twobracket[#1]#2{}
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+
+\newcommand{\hugetitle}[1]{{\huge \sc \sf {#1}}}
+\newcommand{\LARGEtitle}[1]{{\LARGE \sc \sf {#1}}}
+\newcommand{\Largetitle}[1]{{\Large \sc \sf {#1}}}
+\newcommand{\normaltitle}[1]{{\sc \sf {#1}}}
+\newcommand{\boldtitle}[1]{{\sc \sf \bf {#1}}}
+\newcommand{\code}[1]{{\tt #1}}
+\newcommand{\name}[1]{{\it #1}}
+%\newcommand{\bold}[1]{\textbf{#1}}
+
+
+
+\definecolor{logocolor}{RGB}{0,118,192}
+

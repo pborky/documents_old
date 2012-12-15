@@ -4,10 +4,11 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhead{} %clear all header fields
-\renewcommand{\sectionmark}[1]{\markright{\small\textsc{#1}}} %hlavièka je v kapitálkách
-\renewcommand{\chaptermark}[1]{\markboth{\small\textsc{#1}}{}}
-\fancyhead[LE]{\slshape \leftmark} %kapitola je vlevo
-\fancyhead[RO]{\slshape \rightmark} %sekce je vpravo
+\fancyfoot{} % clean all footer fields
+\renewcommand{\chaptermark}[1]{\markboth{{\small\sc #1}}{}} % only chapter caption
+\fancyhead[LE]{{\small\sc\Title}} % titleon left even
+\fancyhead[RO]{{\small\sc\leftmark}} % chapter on right odd
+\fancyfoot[LE,RO]{{\small \thepage}} % number on outer side
 %<------------------------------------------------------>
 
 

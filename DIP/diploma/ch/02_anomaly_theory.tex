@@ -73,7 +73,7 @@ In \emph{spatial data} presence of \emph{metric}%
 	similarity between elements of the set. Metric is required to satisfy axioms of
 	\emph{coincidence}, \emph{symmetry} and \emph{triangle inequality}.
 	A metric space is mathematical structure $(X,d)$, where $X$ is a set and function  
-	$d:X \times X \rightarrow \mathbf{R}$ is a metric. 
+	$d:X \times X \rightarrow \mathbb{R}$ is a metric. 
 } %
 is required. 
 The metric determines an neighbourhood of each data instance. The examples of metrics are
@@ -94,7 +94,7 @@ The \emph{graph data} instances are represented by graph structure%
 	comprising a set of vertices $V$ with set of edges $E$.
 	Edges can be two-element subsets of  $V$ (undirected graph) or ordered pairs 
 	of elements of $V$ (directed graph).
-	In addition if \emph{weight function} -- $w:E\rightarrow \mathbf{R} $ is defined, 
+	In addition if \emph{weight function} -- $w:E\rightarrow \mathbb{R} $ is defined, 
 	assigning a number (e.g. weight, price, etc.) to each edge, we call structure
 	$G=\left( V,E,w \right)$ a \emph{weighted graph}.
 }%
@@ -117,16 +117,16 @@ from models and hence might elude undetected in detection process.
 Based on presence of the relationship between data instances and problem formulation, anomalies
 can be divided into \emph{point anomalies}, \emph{contextual anomalies} and \emph{collective anomalies}.
 
-\subsection{Point anomalies.} In the simplest case, if an individual data instance is considered as
+\textbf{Point anomalies.} In the simplest case, if an individual data instance is considered as
 anomalous with respect to the rest of data. No information about relationship between data instances
 is assumed. This type of anomaly is target of most of the research studies.
 %TODO include examples and pictures
 
-\subsection{Contextual anomalies.} In many cases, an context is present in data set. 
+\textbf{Contextual anomalies.} In many cases, an context is present in data set. 
 Context is induced by the structure of the data. In case a data instance is anomalous only whithin
 a given context, it is called \emph{contextual anomaly}. 
 The notion of the context has to be specified within problem formulation. 
-By introducing the context in the data features are divided to \emph{contextual features}
+By introducing the context in data, the features are divided to \emph{contextual features}
 and \emph{behavioral features}.
 
 The \emph{contexutal features} are used to determine the context for 
@@ -140,41 +140,85 @@ may be considered as anomalous or non-anomalous in a different contexts.
 
 %TODO some graphics
 
-\subsection{Collective anomalies.} If a collection of related data instances is anomalous with respect
+\textbf{Collective anomalies.} If a collection of related data instances is anomalous with respect
 entire dataset it is called \emph{collective anomaly}. The collective anomaly is defined only 
 in data set where an relationship among instances are related, e.g. in sequence data, graph data or
 spatial data.
-
 \paragraph*{}
 It is important to note that \emph{point anomalies} can occur in any data set, while 
 \emph{contextual anomalies} depend on notion of the context and its definition in problem formulation, 
 and \emph{collective anomalies} are relevant for data where relationship among instances is defined
 (e.g. distance metric). So by taking in account the context information a point or collective anomaly
 detection problem can be converted into contextual anomaly detection problem.
-%TODO example needed 
+%TODO example needed
 
 \section{Techniques}
 
-Typically, the outputs produced by anomaly detection techniques are one of the following two types:
+Availability of the data labeling singnificantly affects usability of particular anomaly technique. 
+Based on extent, in which labels are present in data, following modes of operation of anomaly detection 
+techniques are available: \emph{supervised}, \emph{semi-supervised} and \emph{unsupervised}.
+
+\textbf{Supervised anomaly detection} assumes availability of labeled data, for normal and also for 
+anomaly class. This approach has two major issues. First is that it requires model for both -- the normal
+and the anomalous instances. As the anomalous instances are less frequent it takes huge effort to 
+obtain and to label data instances for all possible anomalous behaviors. Secondly it is an problem of
+imbalanced class distribution, that has been addressed by several studies, e.g. \cite{chawla2004editorial},
+\cite{phua2004minority} or \cite{joshi2002predicting}.
+%TODO explain the problem of imbalanced class distribution
+
+\textbf{Semi-Supervised anomaly detection} assumes availability of data labels only for one class. 
+Generaly, it is not easy nor possible to model anomalies as this might entail previously unseen 
+catastrophic event, to be predicted using the given method.
+Thus the wast majority of {semi-spervised} techniques model normal behavior.
+
+\textbf{Unsupervised anomaly detection} do not require training data. The unsupervised 
+techniques are based on assumption that normal instances are more frequent or have densier distribution
+than anomalous.	
+
+
+Typically, the output produced by anomaly detection technique are \emph{scores} or \emph{labels}.
+%
+\textbf{Score} is assigned to each data instance depending on the degree to which that instance is 
+considered as anomaly.
+\textbf{Label} is assigned to each data instance to distinguish normal or anomalous instance.
+
+Based on used method, techniques can be divided to following categories: \emph{classification},
+\emph{nearest neighbor}, \emph{clustering}, \emph{statistical}, \emph{information teoretic},
+\emph{spectral decomposition}%
+\footnote{
+	\emph{Spectral decomposition} refer to cannonical decomposition provided under 
+	\emph{spectral theorem}, called also \emph{eigendecomposition}.
+	However, in present work we are concerned with different decomposition -- a 
+	\emph{Fourier transform} which is part of spectral theory as well. 
+	The \emph{Fourier transform} is used 
+	in field of statistical signal processing to transform time-domain signal into frequency-domain.
+	
+}%
+, etc. Some of the techniques are inherently \emph{unsupervised}, e.g. \emph{nearest neighbor} and 
+\emph{clustering} based.
 \begin{itemize}
-	\item \textbf{Scores.} Assigning score to each data instance depending on the degree to which 
-	that instance is considered as anomaly.
-	\item \textbf{Labels.} Techniques in this category assign a label (normal or anomalous) to 
-	each test instance.
+	\item clasification 
+	\begin{itemize}
+		\item rule 
+		\item bayesian network 
+		\item support vector machines
+		\item neural networks
+	\end{itemize}
+	\item nearest neighbor
+	\begin{itemize}
+		\item density  
+		\item distance
+	\end{itemize}
+	\item clustering
+	\item statistical
+	\begin{itemize}
+		\item parametric  
+		\item nonparametric
+	\end{itemize}
+	\item information theoretic
+	\item spectral decomposition
 \end{itemize}
 
-
-
-Extent in which labels are present in data, can significantly affect mode of operation 
-anomaly detection technique:
-
-\begin{itemize}
-	\item \textbf{Supervised anomaly detection} sssumes availability of labeled data, for normal
-	and also for anomaly class. % imbalanced class distribution
-	\item \textbf{Semi-Supervised anomaly detection} assumes availability of data labels only for
-	normal class. % I many cases it is not easy to model anomalies
-	\item \textbf{Unsupervised anomaly detection} do not require training data. The unsupervised 
-	techniques are based on assumption that normal data are more frequent in data than anomalous.	
-\end{itemize}
+\section{Evaluation of Outlier Detection}
 
 \section{Application domain}
