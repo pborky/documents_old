@@ -94,23 +94,32 @@ to allow usage of unified processing methods:
 \begin{itemize}
 	\item packet or packet flow \emph{timestamp}, i.e. the time when the (first) packet passed
 	trought the capturing gateway,
-	\item tranmission \emph{protocol} speciffication and identification of 
-	source and destination endpoint 
-	(i.e. for TCP and UDP protocols it is \emph{source address} and \emph{port}, 
+	\item \emph{flow 5-tuple} -- i.e. tranmission \emph{protocol} speciffication and identification of 
+	source and destination endpoint
+	(e.g. for the TCP or the UDP protocols it is \emph{source address} and \emph{port}, 
 	\emph{destination address}  and \emph{port}),
-	\item \emph{size} of packet`s payload or total size of the packets in case of flow data,
+	\item \emph{size} of packet`s payload or \emph{total size} of the packets in case of flow data,
 	\item \emph{count} of the packets (for packet trace data it is always one),
 	\item \emph{direction}%
-	\footnote{we embed \emph{direction information} 
-	into the \emph{size} parameter using negative size  
-	if packet travels from destination to source and otherwise positive} %
+	\footnote{%
+		We embed \emph{direction information} 
+		into the \emph{size} parameter using negative size  
+		if packets travel from destination to source and otherwise positive.%
+	} %
 	with respect to initial packet whithin given flow,
 \end{itemize}
 
+We define source endpoint as the endpoint that initiates connection and the destination edpoint 
+as the endpoint that  accepts the connection. %TODO what?
+Inbound and outbound packets are distinguished
+by direction attribude. 
+
 We further require that traffic flow data are allways captured periodically in defined time span.
-The traffic flow that outstays longer that this capturing period is ended split into two flows.
-We can look at this process as on a sampling process. We consider the flow capturing period
-is the lower bound for the sampling period.  
+We can look at this process as a sampling process. We consider the flow capturing period
+is lower bound for the sampling period. This can of course cause alliasing as the original
+signal contains higher frequency components than the sampling frequency induced by data capturing 
+process. For packet trace data there is no upper bound on the sampling frequency induced by 
+capturing process, but higher sampling frequency raises the memory and processig time requirements.
 
 \subsection{Training Dataset}
 
@@ -162,34 +171,58 @@ the result of this statistical test will underestimate the real fitness.
 %TODO why?
 
 \section{Feature Creation and Pattern Definition}
-%\subsection{Feature exctraction}
+
+\subsection{Stochastic process}
+% TODO some flesh here
+
 For a specified flow $f$ the packet arrival process $x_f\left[t\right]$ 
 (or simply \emph{packet process})  is defined as a count of packet arrivals 
 at given timespan $I = \left\langle \frac{t}{s}, \frac{t+1}{s} \right)$:
 \begin{equation}\label{packetprocess}
-	 \forall t \in \mathbb{N} : x_f\left[t\right] = \left| 
-	\left\lbrace p : f = flow(p) \wedge timestamp(p) \in I \right\rbrace \right|\, .
+\begin{split}
+	 x_f\left[t\right] = \left| 
+	\left\lbrace p : f = flow(p) \wedge time(p) \in I \right\rbrace \right|\\
+	\forall t \in \mathbb{N}\, ,
+\end{split}
 \end{equation}
 where $s$ is the sample rate, function $flow(p)$  yields the \emph{flow} 5-tuple 
-and function $timestamp(p)$  yields the \emph{timestamp} of given packet $p$. 
-\footnote{
-This is very important formula, we need to focus on it; according 
-to \emph{Dusi et al.} \cite{dusi2009tunnel}
-zero-length packets are ulikely to be induced by application, 
-so we can exclude them here; in addition
-they extract incomming and outgoing  stream separately -- 
-I think it is good idea to work with in- and out- streams separately 
-and compute cross-correlation function instead of auto-correlation function.
-The idea of usage I/O cross-correlation function $R_{io}\left(\tau\right)$ 
-instead of auto-correlation is that $R_{io}\left(\tau\right)$ (at the specific 
-time-lag $\tau$) would enforce the typical request-response round-trip. 
-Questionable is, how to physically interpret the resulting spectral components 
-and if the Wiener-Kitchin theorem is applicable.
-}
+and function $time(p)$  yields the \emph{timestamp} of given packet $p$. 
+We can also define packet process for inbound and outbound flows separately:
+\begin{equation}\label{xpacketprocess}
+\begin{split}
+  x_{f,d}\left[t\right] = \left| 
+  \left\lbrace p : flow(p) = f \wedge dir(p) = d \wedge time(p) \in I  \right\rbrace \right|\\
+  \forall t \in \mathbb{N}\, ,
+\end{split}
+\end{equation}%
+where $dir(p)$ yields a direction of the packet. 
 
-According to a Wiener–Khinchin %TODO reference
-theorem the power spectral density $S_{xx}(f)$ is obtained by application of discrete-time 
-Fourier transform $\mathcal{F}_{\cdot}(f)$ on autocorrelation function 
+Note that we will refer to single flow and to avoid confusion
+we will denote packet process as $x$ and the inbound and
+outbound packet processes as $i$ and $o$  in equations. 
+%\footnote{
+%This is very important formula, we need to focus on it; according 
+%to \emph{Dusi et al.} \cite{dusi2009tunnel}
+%zero-length packets are ulikely to be induced by application, 
+%so we can exclude them here; in addition
+%they extract incomming and outgoing  stream separately -- 
+%I think it is good idea to work with in- and out- streams separately 
+%and compute cross-correlation function instead of auto-correlation function.
+%The idea of usage I/O cross-correlation function $R_{io}\left(\tau\right)$ 
+%instead of auto-correlation is that $R_{io}\left(\tau\right)$ (at the specific 
+%time-lag $\tau$) would enforce the typical request-response round-trip. 
+%Questionable is, how to physically interpret the resulting spectral components 
+%and if the Wiener-Kitchin theorem is applicable.
+%}
+
+
+\subsection{Spectral density estimation}
+% TODO some flesh here -  more about wiener-kitchine theorem and sampling theorem
+
+According to a Wiener–Khinchine %TODO reference
+theorem the power spectral density $S_{xx}(f)$ (PSD) of the wide-sense stationary 
+stochastic process is obtained by application of discrete-time 
+Fourier transform $\mathcal{F}_{\cdot}(\omega)$ on autocorrelation function 
 of the packet process $R_{xx}\left[\tau\right]$:
 
 \begin{equation}\label{eq:corr}
@@ -198,21 +231,44 @@ R_{xx}\left[\tau\right] = E[x\left[t\right]x\left[t+\tau\right]]\, ,
 
 \begin{equation}\label{eq:psd}
 \begin{split}
-S_{xx}(f) = \mathcal{F}_{R_{xx}}\left(f\right) = \sum_{\tau=-\infty}^{\infty} 
-\left( R_{xx}\left[\tau\right] \exp\left( -\imath 2\pi f\tau \right)\right) \\ 
+S_{xx}(\omega) = \mathcal{F}_{R_{xx}}\left(\omega\right) = \sum_{\tau=-\infty}^{\infty} 
+\left( R_{xx}\left[\tau\right] \exp\left( -\imath \omega\tau \right)\right) \\ 
 \forall f \in \left\langle -\frac{s}{2},\frac{s}{2} \right\rangle\, , 
 \end{split}
 \end{equation}
 
-where $\tau$ is the time-lag, $E\left[\cdot\right]$ is expected value of a random variable and 
-$f$ is the frequency. The autocorrelation function is capable of enforcing periodicity.
-Equations (\ref{eq:corr}) and (\ref{eq:psd}) hold under assumption that packet process is
-\emph{wide-sense stationary random proces}.
+where $\tau$ is the time-lag, $E\left[\cdot\right]$ is expected value of a random variable, $\imath$
+is the imaginary unit and $\omega$ is the angular frequency $\omega= 2\pi f$. 
+%The autocorrelation function is capable of enforcing periodicity. %TODO really?
 
-As the last assumption seems to be false for infinite time span in network  traffic, 
-we involved an \emph{windowing function}  $w(n)$ and 
-\emph{discrete Fourier transform} instead of discrete-time 
-Fourier transform. Rectangular windowing is defined as follows:
+Analyzing the inbound and outboud packet process can lead to definition of the cross spectral
+density\cite{penny2000signal}.
+As the power spectral density is Fourier tranform of the autocorrelation function of the 
+stochastic process cross spectral density is the fourier transform is the fourier transform
+of the cross-correlation function of two stochastic processes. The cross spectral density is
+complex as because the cross-correlation function is not symmetric. 
+For inbound and outbound packet process we define cross-correlation function $R_{io}$ 
+as well as the cross-spectral density $S_{io}$ as follos:
+
+\begin{equation}\label{eq:xcorr}
+R_{io}\left[\tau\right] = E[x_{in}\left[t\right]x_{out}\left[t+\tau\right]]\, , 
+\end{equation}
+
+\begin{equation}\label{eq:xpsd}
+\begin{split}
+S_{io}(\omega) = \mathcal{F}_{R_{io}}\left(\omega\right) = \sum_{\tau=-\infty}^{\infty} 
+\left( R_{io}\left[\tau\right] \exp\left( -\imath \omega\tau \right)\right) \\ 
+\forall f \in \left\langle -\frac{s}{2},\frac{s}{2} \right\rangle\, , 
+\end{split}
+\end{equation}
+
+Equations (\ref{eq:corr}), (\ref{eq:psd}), (\ref{eq:xcorr}) and (\ref{eq:xpsd}) 
+hold under assumption that packet process is \emph{wide-sense stationary random proces}.
+This asssumption seems to be false for infinite time span in network traffic.
+Furthermore the time span is usually limited to finite number of samples.
+For practical reasons we involved an \emph{windowing function} $w(n)$ and 
+\emph{discrete Fourier transform} instead of discrete-time Fourier transform. 
+The simplest windowing function -- a rectangular windowing is defined as follows:
 \begin{equation}
 w(n) = \left\lbrace \begin{array}{l} 
 1, \mbox{ if } n\in \left\langle 0, M \right) \\ 
@@ -221,6 +277,35 @@ w(n) = \left\lbrace \begin{array}{l}
 Windowing function is nonzero inside specified interval $\left\langle 0, M \right)$ 
 otherwise it is zero. 
 Parameter  $M$ is length of sub-sequence selected from packet arrival proces. 
+If the parameter $M$ is too high the packet proces is unlikely to be stationary, 
+on the other hand selecting too low value causes spectral leakage, i.e. the energy 
+of the main lobe of a spectral response "leaks" to the sidelobes distorting the 
+spectral responses \cite{kay1981spectrum} (figure \ref{fig:leakage_rect}). 
+
+\begin{figure}[h!]%
+  \centering
+        \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{img/leakage_rect_1000}
+                \caption{$n_{sampl}=1000$}
+                \label{fig:leakage_rect_1000}
+        \end{subfigure}%
+        ~ \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{img/leakage_rect_25}
+                \caption{$n_{sampl}=25$}
+                \label{fig:leakage_rect_25}
+        \end{subfigure}%
+  \caption{\small Portion of the discrete-time Fourier transform (DTFT) of a rectangularly
+  windowed sinusoid. The unit on x-axis is an Discrete fourier transform (DFT) bin.
+  The red dots show values returned by DFT. It is visible that for decreased widows size
+  the leakage is high.}
+  \label{fig:leakage_rect}
+\end{figure}
+
+the spectrum is sensitive 
+to transient phenomena on the network. %TODO why? 
+
 We iteratively apply windowing function to the whole sequence generating 
 non-overlapping adjancent sequence of windows. 
 We identify the particular window in this sequence with upper index -- 
@@ -255,9 +340,6 @@ w(n) = \left\lbrace \begin{array}{l}
 %0.54 - 0.46\cos \left ( \frac{2\pi n}{N-1} \right), \mbox{ if } n\in \left\langle 0, M \right) \\
 % 0, \mbox{ otherwise} \end{array}\right. \,.
 %\end{equation}
-Furthermore if the parameter $M$ is too high the packet proces is unlikely to be stationary, 
-on the other hand selecting too low value causes that the spectrum is sensitive
-to transient phenomena on the network. %TODO why? 
 
 The sampling rate $s$ must be selected according to the Nyquist theorem. 
 Too low value entails aliasing%
