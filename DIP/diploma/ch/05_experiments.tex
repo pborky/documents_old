@@ -1,5 +1,125 @@
 \chapter{Experiments}\label{sec:experiments}
 
+In this part we describe an experimentation with the method described in chapter
+\ref{ch:method}. Software \code{pynfsa} has been created for
+experimentation purposes.The software has been developed using 
+Python Programming Language ver.~2.7.3
+(see~\cite{rossum2011python} for reference manual).
+
+\section{Data gathering}
+
+For training and evaluation purposes several datasets has been used. We took in account
+\emph{packet trace} data as well as \emph{traffic flow statistics}. 
+
+For the capure and storage of the packet \emph{trace data} we use \code{pcap} format.
+This format is used by open-source library \code{libpcap} \cite{jacobson2009libpcap}, 
+that is available for wide range of platforms (Windows, Linux, BSD, ...) and 
+has bindings to several programming laguages (C, perl, python, ...).
+
+For \emph{traffic flow statistics}  Cisco Systems developed an 
+\code{NetFlow} format and communication protocol.
+It has now wide range of equivalent implementations, e.g. \code{JFlow} 
+(developped by Juniper Networks), and there also exists software to generate 
+\code{NetFlow} from \code{pcap} files.
+
+\emph{Cisco Systems NetFlow v. 9}  protocol is published in RFC3954 \cite{claise2007rfc}.
+It contains information about NetFlow data gathering and exchange process, as well
+as the specification of data attributes contained within dataset.
+However the specification is extensive, and for our experiments we use only negligable 
+subset of the attributes as has been defined in section \ref{sec:collect}.
+
+As for internal representation of the data we use integer matrices,
+our experimental software uses \code{HDF5} suite \cite{folk2011overview}
+for an internal representation of the data. This suite consits of several 
+open-source libraries, tools and bindings to various languages.
+%this is irrelevantIt is used also by Matlab or Mathematica.
+Our experimantal software is capable of conversion from \code{pcap} or \code{NetFlow} 
+formats to integer-matrix representation in \code{HDF5} files.
+
+\subsection{Simulation}
+Virtual testbed has been used to simulate traffic in low scale.
+A \code{tcpdump} \cite{jacobson2009tcpdump} software has been used to 
+capture packet data in experimental testbed.
+Testbed consist of three or more virtual host computers. Communication between
+them has been routed trought one of them where \code{tcpdump} has been used
+to capture the communication in the tesbed. The \code{tcpdump} captures every
+packet passing trough the interfaces and stores it in file of \code{pcap} format.
+ Each captured
+packet has been truncated to 200 bytes before storing as we are not concerned with
+payloads of the packets in our analysis.
+
+Various scenarios has been simulated in the testbed  in small scale: 
+file tranfers, telnet and VPN  connections
+using HTTP and HTTPS tunneling, as well as the experimental mallware-like 
+software execution%
+\footnote{
+    In this case the malware has been sending information to remote server
+    using HTTP or HTTPS protocols. The amount of data were
+    inverse proportional to delay between transmissions and the delay 
+    has been chosen at random.
+}%
+. This data has been mixed with data obtained from the publis sources, 
+e.g. CAIDA Anonymized Internet Traces \cite{caida2011trace}.
+
+\subsection{Anonymized public data}
+There are wide range of datasets available in public domain, however improper 
+selection of dataset can bias the results of the experiments. 
+
+By reseraching in papers related to IDS systems, references to public datasets has been found.
+We took into consideration few of them:
+
+\emph{DARPA Intrusion Detection Data Sets} \cite{darpa1999ids} are dataset captred in artificial
+environmnet simulated in laboratory. \name{McHugh}  raised critics against this datasets about
+the extent to which the data is appropiate for evaluation of IDS systems.
+He noticed that the architecture has been developed from the attacker's point of view which
+can lead in biased evaluation.
+
+One of the most used datasets are published by \emph{The Cooperative Association for Internet 
+Data Analysis (CAIDA)}. Published datasets, that are in our interest are 
+\emph{CAIDA Anonymized Internet Traces 2011} \cite{caida2011trace},
+captured at internet backbone links in Chicago, US.
+The data contains timestamped anonymized packet headers in \code{pcap} format.
+
+\subsection{NetFlow}
+
+NetFlow data has been provided by team of present work supervisor. The data were organized
+in text files. The text files has been produced using \code{nfdump} \cite{haag2006netflow}
+software. The output format contains one record per line and each records contains following
+information about single flow:
+\begin{itemize}
+\item start of the flow (timestamp in millisecond resolution),
+\item duration of the flow (given in millisecond resolution),
+\item protocol,
+\item source IP address,
+\item destination IP address,
+\item source port (for TCP and UDP protocols, zero for other protocols),
+\item destination port (for TCP and UDP protocols, type and code for ICMP, 
+	zero for other protocols),
+\item TCP flags in text format,
+\item Type of Service (ToS),
+\item packet count,
+\item total bytes.
+\end{itemize}
+
+The data has been collected at university routers and switches and contains %TODO  specify how many
+amount of flows.
+
+\subsection{Labeling}
+
+Labeling of the data is performed in manual manner involving expert knowledge.
+For the simulated traffic the labels are easy to assign as they are known during the simulation.
+Labeling the gathered data requires huge effort. Especially or the data obtained at high 
+wolumes at Internet backbone. An approach often used, is to use the state-of-the-art
+intrusion detection system to perform analysis and obtain labeling from its output. 
+However the labelling the can be biased especially for new unknown malicious behaviors
+that is subject to research.
+
+The labeling of the data is needed for training in case of supervised or semi-supervised
+anomaly detection methods and it is always needed for evaluation of the performance of methods
+(even unsupervised).
+
+
+
 \cite{rossum2011python,oliphant2006numpy,pedregosa2011scikit}
 
 In experiments we focused on the application protocols that are most 
@@ -19,7 +139,7 @@ Only few of the network communication participants have been analysed, as most o
 
 \section{Definitions}
 \subsection{Network traffic, gathering the data}
-It is possible to represent a network traffic by set of flows distributed in time. The flow is a sequence of packets having  similar attributes. Packets are exchanged usually among network endpoints. Attributes taken under consideration are at least: source and destination endpoint address, port and protocol. Mentioned attributes usualy delimitate flows.
+It is possible to represent a network traffic by set of flows distributed in time. The flow is a sequence of packets having  similar attributes. Packets are exchanged usually among network endpoints. Attributes taken under consideration are at least: source and destination endpoint address, port and protocol. Mentioned attributes usualy delimitate flows.11.9.2012. The RFCs are now stored in SVN in the doc reposi
 
 In order to evaluate anomaly rate of paticular flow other properties ought to be taken in account. Especially number of packets and bytes, starting and ending time (time-stamp of the first or the last packet in the flow).
 

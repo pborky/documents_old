@@ -1,5 +1,5 @@
 
-\chapter{Proposed Method}
+\chapter{Proposed Method}\label{ch:method}
 
 In this section we dervive anomaly detection method based on spectral decomposition
 of time-domain signal.
@@ -61,7 +61,7 @@ the network packet traces involving spectral analysis.
 The method is supposed to detect tunneling protocols only by observation 
 of the packet traces.
 
-\section{Data Collection}
+\section{Data Collection}\label{sec:collect}
 
 The input data for our method consists of a timestamped \emph{packet traces} or a
 timestamped \emph{traffic flow} statistics. 
@@ -121,56 +121,8 @@ signal contains higher frequency components than the sampling frequency induced 
 process. For packet trace data there is no upper bound on the sampling frequency induced by 
 capturing process, but higher sampling frequency raises the memory and processig time requirements.
 
-\subsection{Training Dataset}
 
-%TODO move to section 5
-A \code{tcpdump} software \cite{jacobson2009tcpdump}  has been used to 
-capture packet data in experimental testbed. 
-Testbed consist of three or more peers \emph{A}, \emph{B}, \emph{C}, \emph{D}  etc. 
-Peer \emph{A} (a client) is connected with each other using secure tunnel 
-to the destination TCP port 443 (destination is on the peers \emph{B},  \emph{C}, ...).
-Peer \emph{B} serves virtual private network service and provides network address
-translation from the tunnel to the internet.
-Peers \emph{C}, \emph{D}, etc. are able to serve single service on the end of tunnel 
-(such as HTTP server, telnet, file tranfer service, VOIP, ...).
-The traffic tunneled trough peer \emph{B} consist varying number of connections 
-and different protocols,
-while the others are tunneling single application protocol.
-
-The peer \emph{A} generates traffic to other peers simultaneously, 
-mimicking typical behavior of the client of particular application protocol 
-(i.e. web browser).
-%In addition connections to HTTPS servers are performed from peer \emph{A} directly.
-Packet capturing is set up on peer \emph{A} intercepting and storing every packet.
-Captured packet flows are then labeled using name of known the application service. 
-
-\subsection{Evaluation Dataset%
-\footnote{Evaluation dataset is used during 
-assesment of the method on real data.
-As we have some old packet trace data, we want to somehow compare it with training samples.
-My idea is to prove that exctracted features are epoch invariant by means
-statistical goodnes-of-fit test.
-On the other hand older protocols can behave in diferent way and thus the 
-normal models derived from current data would be
-underestimated during assesment proces.
-}%
-}
-The data used for evaluation of proposed method, consists of public packet
-traces obtained at....\emph{(to be discussed)}
-mixed with simulated and anotated packet traces captured in our testbed.
-Before mixing, statistical test has been performed.
-The test procedure first extracts and tansforms features
-(denoted here as $\vec{f}$) by using our proposed method 
-and then compares distribution of features with respect to 
-the label -- $Pr\left[ \vec{f} | label \right] $.
-
-Labeling of the obtained dataset is obtained by inferring application 
-protocol using destination port.
-Since the public dataset can contain malicious connections, 
-the result of this statistical test will underestimate the real fitness.
-%TODO why?
-
-\section{Feature Creation and Pattern Definition}
+\section{Feature Creation}
 
 \subsection{Stochastic process}
 % TODO some flesh here
@@ -199,7 +151,7 @@ where $dir(p)$ yields a direction of the packet.
 
 Note that we will refer to single flow and to avoid confusion
 we will denote packet process as $x$ and the inbound and
-outbound packet processes as $i$ and $o$  in equations. 
+outbound packet processes as $x_{in}$ and $x_{out}$  in equations. 
 %\footnote{
 %This is very important formula, we need to focus on it; according 
 %to \emph{Dusi et al.} \cite{dusi2009tunnel}
@@ -216,7 +168,7 @@ outbound packet processes as $i$ and $o$  in equations.
 %}
 
 
-\subsection{Spectral density estimation}
+\subsection{Spectral density estimation}\label{sec:psd}
 % TODO some flesh here -  more about wiener-kitchine theorem and sampling theorem
 
 According to a Wiener–Khinchine %TODO reference
@@ -280,31 +232,30 @@ Parameter  $M$ is length of sub-sequence selected from packet arrival proces.
 If the parameter $M$ is too high the packet proces is unlikely to be stationary, 
 on the other hand selecting too low value causes spectral leakage, i.e. the energy 
 of the main lobe of a spectral response "leaks" to the sidelobes distorting the 
-spectral responses \cite{kay1981spectrum} (figure \ref{fig:leakage_rect}). 
+spectral responses \cite{kay1981spectrum} 
+(fig.~\ref{fig:leakage_rect_1000},~\ref{fig:leakage_rect_25}). 
 
 \begin{figure}[h!]%
   \centering
         \begin{subfigure}[b]{0.5\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{img/leakage_rect_1000}
-                \caption{$n_{sampl}=1000$}
+                \caption{rectangular, $M=1000$}
                 \label{fig:leakage_rect_1000}
         \end{subfigure}%
         ~ \begin{subfigure}[b]{0.5\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{img/leakage_rect_25}
-                \caption{$n_{sampl}=25$}
+                \caption{rectangular, $M=25$}
                 \label{fig:leakage_rect_25}
         \end{subfigure}%
-  \caption{\small Portion of the discrete-time Fourier transform (DTFT) of a rectangularly
-  windowed sinusoid. The unit on x-axis is an Discrete fourier transform (DFT) bin.
-  The red dots show values returned by DFT. It is visible that for decreased widows size
-  the leakage is high.}
+  \caption{\small Detail of the discrete-time Fourier transform (DTFT) of a sinusoid 
+  with rectangular  windowing.
+  The unit on x-axis is an Discrete fourier transform (DFT) bin.
+  The red dots show values returned by DFT. It is visible that for decreased widow
+   size (fig.~\ref{fig:leakage_rect_25}) the distortion is higher.}
   \label{fig:leakage_rect}
 \end{figure}
-
-the spectrum is sensitive 
-to transient phenomena on the network. %TODO why? 
 
 We iteratively apply windowing function to the whole sequence generating 
 non-overlapping adjancent sequence of windows. 
@@ -313,7 +264,8 @@ e.g. $S_{xx}^i$ is a power spectral density function of an $i$-th window.
 Thus, we rewrite equations (\ref{eq:corr}) and (\ref{eq:psd}) for non-overlapping 
 windows as follows:
 \begin{equation}\label{eq:corr2}
-R_{xx}^i\left[m\right] = \frac{1}{M} \sum_{t=0}^{M} x\left[t+iM\right]x\left[t+m+iM\right] \, , 
+R_{xx}^i\left[m\right] = \frac{1}{M} \sum_{t=0}^{M}
+ x\left[t+iM\right]x\left[t+m+iM\right] \, , 
 \end{equation}
 \begin{equation}\label{eq:psd2}
 \begin{split}
@@ -322,61 +274,177 @@ S_{xx}^i(k) = \mathcal{F}_{R_{xx}^i}\left(k\right) = \sum_{m=0}^{M-1}
 \forall k \in \left\{ 0,1,2,...,M-1 \right\}\, . 
 \end{split}
 \end{equation}
+and similarly for cross spectral density:
+\begin{equation}\label{eq:xcorr2}
+R_{io}^i\left[m\right] = \frac{1}{M} \sum_{t=0}^{M} 
+ x_{in}\left[t+iM\right]x_{out}\left[t+m+iM\right] \, , 
+\end{equation}
+\begin{equation}\label{eq:xpsd2}
+\begin{split}
+S_{io}^i(k) = \mathcal{F}_{R_{io}^i}\left(k\right) = \sum_{m=0}^{M-1}
+\left( R_{io}^i \left[m\right] w(m) \exp\left( -\imath 2\pi m\frac{k}{M} \right)\right)\\
+\forall k \in \left\{ 0,1,2,...,M-1 \right\}\, . 
+\end{split}
+\end{equation}
 Note that the windowing function is inherent in equations (\ref{eq:corr2}) and (\ref{eq:psd2})
 by using limitted ranges of sumation, and domain of definition of the power spectral density.
 
+\begin{figure}[h!]%
+  \centering
+        \begin{subfigure}[b]{0.5\textwidth}e
+                \centering
+                \includegraphics[width=\textwidth]{img/leakage_hamming_1000}
+                \caption{hamming, $M=1000$}
+                \label{fig:leakage_hamming_1000}
+        \end{subfigure}%
+        ~ \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{img/leakage_hamming_25}
+                \caption{hamming, $M=25$}
+                \label{fig:leakage_hamming_25}
+        \end{subfigure}%
+  \caption{\small Detail of the discrete-time Fourier transform (DTFT) of a sinusoid 
+  with hamming windowing.
+  The unit on x-axis is an Discrete fourier transform (DFT) bin.
+  The red dots show values returned by DFT. It is visible that for decreased widow
+   size (fig.~\ref{fig:leakage_hamming_25}) the distortion is higher.}
+  \label{fig:leakage_hamming}
+\end{figure}
+
 By involving windowing function we introduced
-\emph{spectral leakge}. Use of apodization function, e.g. \emph{Hann} %TODO explain 
-(see equation \ref{eq:hann}),
+\emph{spectral leakge}. Use of apodization function, e.g. \emph{Hamming} %TODO explain 
+(see fig.~\ref{fig:leakage_hamming_1000} and \ref{fig:leakage_hamming_25}),
 %or \emph{Hamming} (\ref{eq:hamm}) 
-could be appropiate in decreasing leakage.
-\begin{equation}\label{eq:hann}
-w(n) = \left\lbrace \begin{array}{l} 
-0.5\left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right), \mbox{ if } n\in \left\langle 
-0, M \right) \\ 0, \mbox{ otherwise} \end{array}\right. \,.
-\end{equation}
-%\begin{equation}\label{eq:hamm}
+could be appropiate in decreasing leakage:
+%\begin{equation}\label{eq:hann}
 %w(n) = \left\lbrace \begin{array}{l} 
-%0.54 - 0.46\cos \left ( \frac{2\pi n}{N-1} \right), \mbox{ if } n\in \left\langle 0, M \right) \\
-% 0, \mbox{ otherwise} \end{array}\right. \,.
+%0.5\left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right), \mbox{ if } n\in \left\langle 
+%0, M \right) \\ 0, \mbox{ otherwise} \end{array}\right. \,.
 %\end{equation}
+\begin{equation}\label{eq:hamm}
+w(n) = \left\lbrace \begin{array}{l} 
+0.54 - 0.46\cos \left ( \frac{2\pi n}{N-1} \right), \mbox{ if } n\in \left\langle 0, M \right) \\
+ 0, \mbox{ otherwise} \end{array}\right. \,.
+\end{equation}
+The hamming window still allows to leak the power to nearby DFT bins as the
+main lobe is wider, but the attenuation of in side lobes is higher.
+Even the hamming window cannot provide good results for the low values of the $M$ 
+parameter. In addition there is allways tradeoff between effective bandwidth and
+sidelobe attenuation. \name{Yoon} et al. \cite{yoon2009butterworth} windowing technique 
+involving a Buttleworth filter to overcome the problems with reduction of bandwith 
+while elevating sidelobe attenuation.
 
 The sampling rate $s$ must be selected according to the Nyquist theorem. 
 Too low value entails aliasing%
-\footnote{The aliasing is caused by folding of the frequencies above Nyquist frequency
-$\frac{s}{2}$ symmetrically below this frequency. Thus this two frequencies are undistinguishable.
-To properly reconstruct the signal that contain no frequency higher than $f_{max}$ 
-the sample rate is bounded by $s > 2f_{max}$.}%
+\footnote{
+    The aliasing is caused by folding of the frequencies above Nyquist frequency
+    $\frac{s}{2}$ symmetrically below this frequency. 
+    To properly reconstruct the signal that contain no frequency higher than $f_{max}$ 
+    the sample rate is bounded by $s > 2f_{max}$.
+}%
 , while too high value incurs data storage and processing overhead. 
 
 %\subsection{Pattern definition}
-By the application of the Fourier transform original features has been mapped into new space.
+By application of the Fourier transform original features has been mapped into new space.
 We denote features in new space as \emph{spectral components} (or \emph{frequency components}).
 Temporal context of the features has been altered. 
 In new feature space the temporal context is determined by sequence
 of the detection windows of size $M$. 
-At the level of the detection window a temporal notion is decomposed 
-into tuple of temporal functions parametrised by \emph{spectral components}.
-Although temporal aspect is still present it has not been used in further analysis.
-Anomalies in new feature space are thus regarded to as \emph{point anomalies}. %TODO ?
-%The rationale is that the new features decomppsed desired temporal aspects 
-%of the original sequential data into declarative form.
+%At the level of the detection window a temporal notion is decomposed 
+%into tuple of temporal functions parametrised by \emph{spectral components}.
+
+The determination of the changes in spectrum in local time context is related to short-term
+Fourier analysis or short-term Fourier transform. Whereas this approach introduces
+resolution problems wavelet transform or multiresolutional analysis can be used for
+time-frequency analysis. We are not concerned with temporal context at this point.
+Although temporal aspect is still present it has not been used in further analysis 
+in present work. Anomalies in new feature space are thus regarded to as \emph{point anomalies}. 
+
+\subsection{Summary}
 
 There are few parameters affecting quality of the  features: %TODO what?
-the smaple rate $s$ and the window length $M$. 
+the sample rate $s$ and the window length $M$. 
 In addition, \emph{spectral components} can be subject to further feature extraction 
 comprising combination of extisting features or discarding irrelevant, 
 redundant  or noisy%
-\footnote{In case of low signal-to-noise ratio, a feature is typically not usefull 
-for discriminative outcome.}%
-ones based on the domain knowledge (e.g. sum of a lower resp. a upper half of the 
-spectral components resulting in two features a low- and a high-frequency power densities;
-or retaining specific spectral features known for its relation to 
-periodic stochatic processes to be in research interest).
+\footnote{
+    In case of low signal-to-noise ratio, a feature is typically not usefull 
+    for discriminative outcome.
+} %
+ones using data-mining methods or based on the empirical domain knowledge.
 
 This aspects and process of seeking of proper parameters are subject of further 
 research and they are discussed in \emph{chapter \ref{sec:experiments}}.
 
-\section{Anomalous Pattern Recognition}
+\section{Model Estimation and Anomaly Detection}
+
+In order to detect anomalies a model of normal or anomalous behavior or even both
+must be constructed. The naive approach is to estimate an multivariate gaussian 
+model under assumption of \emph{central limit theorem}. This approach encounters 
+serveral problems. The most notable is the curse of dimensionality - 
+an phenomena occuring when analyzing data in high-dimensional spaces.
+The statistical view on this problem is that by applying tranformations 
+to increase dimensionality the data becomes sparse. It is problem to 
+have statisticaly significat outcome as the amount data needed is emerging
+exponentially with dimensionality. Of course usage of exponentially larger
+
+Another facet of mentioned naive approach is assuption of central limit theorem, 
+meaning that the data instances are independent and identically distributed. 
+In addition, to obtain an sound and reliable result sufficient number of data instances 
+must be present. This is often problem as the data instances that are related to anomalies 
+are less common in data. Additional data instances can be artificially simulated in order 
+to enable ability to construct an reliable model. Introducing  systmatic errors during 
+simulation can lead to biased model estimator. %In addition simulation of annomalous
+%intances can bias the model as it affects the extent in which are such instances present in data.
+
+The solution to course of dimensionality is to reduce dimensionality of the feature space.
+This can refer to finding manifold of denser data in original sparse feature space.
+Reduction of dimensionality is then proces of estimation of topological properties of such 
+manifold and the estimation of relations between data instances on the topological surface. 
+Another approach is to use empirical domain knowledge to infer relations in the
+data to perform transformation in lower dimansional space.
+
+Spectral density of a signal in time domain represents continous decomposition of signal to
+periodic components present in the original signal. Altought it is continous function in
+practice only estimations are available. In section \ref{sec:psd} we derived descrete estimator
+based on auto-correlation function. The analyzed signal is connected to stochastic processes
+that occur in computer network. The frequency distribution of signals in such a system is 
+affected by many attributes. Our assumption is that te stochastic processs in computer network
+are not dynamic. It is false thougth to try to pick an specific characteristic frequency component
+and treat it as a discriminative feature for specific undelaying process. As example already 
+explored by \name{He} et al. \cite{he2004spectral} when an saturated link is changing its 
+speed the characteristic frequency changes as well.
+
+\name{Chen} et al. \cite{chen2007tcp} presented an apaproach where modeled distribution
+of a standard deviation over spectral densities and also multivariate distribution over
+frequency bands. Their model used diagonal covariance matrix. They performed hypotesis 
+testing in order to classify an cut off specific type of denial-of-service (DoS) attacks.
+
+In present work we consider both methods of statistical analysis of the spectral density as feasible.
+In our approach we involve multivariate Gaussian distribution to construct the model 
+and Mahalanobis distance to measure deviation of the tested samples from the model.
+
+\subsection{Feature Extraction}
+
+The fourier transform of the autocorrelation function is real and symmetric.
+ The reason is that periods in input data turn into positive and negative
+components. As negative components contains same information as the postive they 
+can be discarded. We also discard zero component.
+
+Let us denote the unbiased estimator of the variance of the spectral density
+
+\begin{equation}\label{eq:sdev}
+\begin{split}
+s^i = \sqrt{ \frac{1}{\frac{M}{2}-2} \sum_{k=1}^{\frac{M}{2}-1} \left( S_{xx}^i\left(k\right) - 
+\overline{S_{xx}^i} \right)^2 }  \, , 
+\end{split}
+\end{equation}
+where $\overline{S_{xx}^i} $ is the mean value of the obserations and $M$ is the
+count of the spectral comoponents. First half are posive components.
+
+
+%TODO frequency bands and multivariate gaussian distribution
+
+\subsection{Model Estimation}
 
 \section{Assessment and Interpretation of Results}
