@@ -21,7 +21,7 @@
 %%
 %%*************************************************************************
 
-%<------------------------------base template and packages------------------------->
+%<------------------------------base template and packages------------------------------>
 \documentclass[a4paper,twoside,english,english,openright,cleardoublepage=empty,BCOR10mm,DIV11]{scrreprt}
 
 \usepackage{array} 
@@ -46,15 +46,17 @@
 \usepackage{subcaption}
  
 \usepackage{multicol}
+\usepackage{multirow}
 \usepackage{color}
 \usepackage[firstpage]{draftwatermark}
 \SetWatermarkText{Draft}
 \SetWatermarkScale{1.8}
 \SetWatermarkColor[gray]{0.8}
+\usepackage[toc,title]{appendix}
 
-%<------------------------------ headers ------------------------------------>
+%<-------------------------------headers----------------------------------------->
 \usepackage{headers}
-%<-------------------------------společná nastavení-------------------------------->
+%<-------------------------------společná nastavení------------------------------>
 \usepackage[colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks]{hyperref}
 \usepackage[hyphenbreaks]{breakurl}
 \usepackage[numbers,sort&compress]{natbib} %balíček pro citace literatury  
@@ -65,6 +67,13 @@ pdfauthor={\AuthorName},%
 pdfsubject={\Subject},%   
 pdfkeywords={\Keywords}%
 }
+
+%% include whole pdfpages (only if using pdflatex)
+\ifpdf
+\usepackage[final]{pdfpages}
+\fi
+%% fix page layout
+\usepackage[a4paper,left=37mm,right=28mm,top=37mm,bottom=40mm]{geometry}
 
 %<-----------------------------volání stylů----------------------------------------->
 % (znak % je označení komentáře: co je za ním, není aktivní)
@@ -93,9 +102,7 @@ pdfkeywords={\Keywords}%
 
 
 %% only chapters and sections in toc
-\setcounter{tocdepth}{1} 
-%% fix page layout
-\usepackage[a4paper,left=37mm,right=28mm,top=37mm,bottom=40mm]{geometry} 
+\setcounter{tocdepth}{1}
 
 \begin{document}
 
@@ -129,7 +136,7 @@ pdfkeywords={\Keywords}%
 
 \include{ch/02_anomaly_theory}
 
-\include{ch/03_network_security}
+%\include{ch/03_network_security}
 
 \include{ch/04_proposed_methods}
 

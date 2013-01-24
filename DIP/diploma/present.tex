@@ -1,0 +1,626 @@
+%%*************************************************************************
+%%
+%% Network Anomaly Detection by Means of Spectral Analysis
+%% V1.2
+%% 2013/01/03
+%% by Peter Boraros
+%% See http://www.pborky.sk/contact for current contact information.
+%%
+%%*************************************************************************
+%%
+%% Legal Notice:
+%%
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%%
+%% This work by Peter Boraros is licensed under a 
+%% Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+%% http://creativecommons.org/licenses/by-nc-sa/3.0/
+%%
+%%*************************************************************************
+
+\documentclass{beamer}
+
+\usepackage[utf8x]{inputenc}
+
+
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{varioref}
+\usepackage{wrapfig}
+\usepackage{fancybox}
+\usepackage{calc}
+\usepackage{framed}
+\usepackage{url}
+\usepackage{amssymb,amsmath}
+
+\usepackage{graphicx}
+%\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\renewcommand{\figurename}{Fig}
+\usepackage{caption}
+\usepackage{subcaption}
+ 
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{color}
+\usepackage{soul}
+%<-------------------------------headers----------------------------------------->
+\usepackage{headers}
+%<-------------------------------společná nastavení------------------------------>
+\usepackage{hyperref}
+%\usepackage[hyphenbreaks]{breakurl}
+\usepackage[numbers,sort&compress]{natbib} %balíček pro citace literatury  
+\usepackage{hypernat}%interakce mezi hyperref a natbib
+\hypersetup{   % Nastavení polí PDF dokumentu 
+pdftitle={\Title},%   
+pdfauthor={\AuthorName},%  
+pdfsubject={\Subject},%   
+pdfkeywords={\Keywords}%
+}
+
+%% include whole pdfpages (only if using pdflatex)
+\ifpdf
+\usepackage[final]{pdfpages}
+\fi
+
+%<------------------------------user macros----------------------------------------->
+\usepackage{packages/mypkg}
+
+\usepackage[T1]{fontenc}
+%\usepackage[utf8]{inputenc}
+
+\usetheme{Warsaw}
+
+\title{\Title}
+\subtitle{\Subject}
+\author{\AuthorName}
+\date{January 24, 2013}
+%\institute{}
+% for bibtex
+\newcommand{\newblock}{}
+
+\begin{document}
+
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+\begin{frame}{Outline}
+\tableofcontents%[pausesections]
+\end{frame}
+
+\section{Introduction}
+
+\subsection{Motivation}
+
+\begin{frame}{Assignment}
+\begin{center}
+The goal of this thesis is to design and implement an anomaly detection method 
+based on spectral analysis.
+In particular, use the proposed method to distinguish normal and anomalous 
+network traffic and evaluate the
+properties of this method on real network traffic data.
+\end{center}
+\end{frame}
+
+\begin{frame}{Why spectral analysis?}
+\begin{itemize}
+	\item<1-> study the periodic behavior of malicious vs. legitimate agents
+	\item<2-> distinguish the legitimate behavior from malicious 
+	based on statistical properties of frequency spectrum
+	\item<3-> assumption that statistical anomaly is induced by malicious behavior, 
+	and malicious behavior induces anomalous observation
+\end{itemize}
+\end{frame}
+
+\subsection{Input data}
+
+\begin{frame}{Input data}
+\begin{itemize}
+	\item<1-> observation of sending and receiving packets
+	\item<2-> temporal context of the packets
+	\begin{itemize}
+		\item<2-> timestamp
+	\end{itemize}
+	\item<3-> "spatial" context of the packets
+	\begin{itemize}
+		\item<3-> flow identification: \alert<4->{source \& destination endpoint, protocol}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Input data -- spatial context (identification of flows)}
+\begin{itemize}
+	\item<2-> we are interested in HTTP(S) $\Rightarrow$ 
+	\begin{itemize}
+		\item<3-> always TCP
+		\item<4-> not allways reuses existing socket
+	\end{itemize}	
+	\item<1,2|only@1,2> {src. IP addr. \& port}, {dest. IP addr. \& port},
+					protocol (TCP, UDP, ICMP, ...)
+	\item<3|only@3> {src. IP addr. \& port}, {dest. IP addr. \& port},
+					\alert{\st{protocol (TCP, UDP, ICMP, ...)}}
+	\item<4|only@4> {src. IP addr. \& \alert{\st{port}}}, {dest. IP addr. \& port}
+	\item<5|only@5> {src. IP addr.}, {dest. IP addr. \& port}
+	\item<6|only@6> {\color{red} src. IP addr} (client), {dest. IP addr \& port}
+	\item<7|only@7> {\color{red} src. IP addr} (client), {\color{green} dest. IP addr \& port} (server)
+\end{itemize}
+\begin{center}
+	\begin{figure}[h] %
+		\includegraphics<1,2,3,4,5>[width=60mm]{img/cloud}
+		\includegraphics<6>[width=60mm]{img/cloud1}
+		\includegraphics<7>[width=60mm]{img/cloud2}
+		\label{fit_et}
+	\end{figure}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Input data -- packet matrix}
+\begin{itemize}
+	\item<2-> \textbf{libpcap}\footnote<2-|only@2->{open source library used by: wireshark, tcpdump 
+	\cite{jacobson2009tcpdump}, ...} 
+		-- captures every single packet
+	\begin{itemize}
+		\item<2-> trucation of the packet payload
+	\end{itemize}
+	\item<3-> \textbf{netflow}\footnote<3-|only@2->{protocol introduced by Cisco in \cite{claise2007rfc}} 
+		-- captures statistics about flows
+	\begin{itemize}
+		\item<3-> only packet statistics are captured at given sampling interval
+	\end{itemize}
+\end{itemize}
+\begin{center}
+{\small
+\begin{tabular}{c|c|c|c|c}
+\multicolumn{1}{c|}{\textbf{spatial}} &
+\multicolumn{1}{c|}{\textbf{temporal}} &
+\multicolumn{2}{c}{\textbf{behavioral}}\\
+$\wrapan{\text{src.IP, dst.IP, dst.port}}$ & timestamp [ms] & {bytes} & {packets} \\
+\hline
+$\left\langle 167797783 , 3222593812 , 80 \right\rangle$ & 1353685821602660 & \only<2>{406}\only<3->{5450} & \only<2>{1}\only<3->{10} \\
+$\left\langle 179580632 , 179580226 , 3128 \right\rangle$ & 1353685824241826 & \only<2>{103}\only<3->{23900} & \only<2>{1}\only<3->{187} \\
+$\left\langle 167797783 , 2915182441 , 443 \right\rangle$ & 1353685824242867 & \only<2>{898}\only<3->{12569} & \only<2>{1}\only<3->{66} \\
+$\left\langle 167797783 , 2915190380 , 993 \right\rangle$ & 1353685824351661 & \only<2>{37}\only<3->{102} & \only<2>{1}\only<3->{3} \\
+1,
+\end{tabular}
+}
+\end{center}
+\end{frame}
+
+\section{Proposed method}
+
+\subsection{Stochastic packet process}
+
+\begin{frame}{Stochastic packet process -- sampling}
+\begin{block}{Packet process}
+%\begin{center}
+For given flow $f$ we define a packet process $x_f\wrapsq{t}$ as
+%\end{center}
+\begin{equation}\label{packetprocess}
+\begin{split}
+	 x_f\left[t\right] = \left| 
+	\left\lbrace p : f = flow(p) \wedge time(p) \in I_t \right\rbrace \right|\\
+	\forall t \in \mathbb{N}\, ,
+\end{split}
+\end{equation}
+%\begin{center}
+where $I_t = \left\langle \frac{t}{s}, \frac{t+1}{s} \right)$  is timespan,
+$s$ is the sample rate, function $flow(p)$  yields the \emph{flow identification}
+and function $time(p)$  yields the \emph{timestamp} of given packet $p$. 
+%\end{center}
+\end{block}
+\end{frame}
+
+\subsection{Power spectral density}
+\begin{frame}{Power spectral density -- Wiener–Khinchine theorem}
+\begin{block}{Wiener–Khinchine theorem}
+%\begin{center}
+Power spectral density $S_{xx}(\omega)$ of the wide-sense stationary 
+stochastic process is obtained by application of discrete-time 
+Fourier transform $\mathcal{F}_{\cdot}(\omega)$ on autocorrelation function 
+of the packet process $R_{xx}\left[\tau\right]$:
+%\end{center}
+\begin{equation}\label{eq:corr}
+R_{xx}\left[\tau\right] = E[x\left[t\right]x\left[t+\tau\right]]\, , 
+\end{equation}
+\begin{equation}\label{eq:psd}
+\begin{split}
+S_{xx}(\omega) = \mathcal{F}_{R_{xx}}\left(\omega\right) = \sum_{\tau=-\infty}^{\infty} 
+\left( R_{xx}\left[\tau\right] \exp\left( -\imath \omega\tau \right)\right) \\ 
+\forall \omega \in \left\langle -\pi s,\pi s \right\rangle\, , 
+\end{split}
+\end{equation}
+%\begin{center}
+where $\tau$ is the time-lag, $E\left[\cdot\right]$ is expected value of a random variable, $\imath$
+is the imaginary unit and $\omega$ is the angular frequency $\omega= 2\pi f$. 
+%\end{center}
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Power spectral density -- windowing}
+\begin{itemize}
+	\item<1-7|only@1-7> assumption of \emph{wide-sense stationary stochastic proces}
+	\item<2-8|only@1-8> seems to be false for \textbf{infinite} time span
+	\item<3-9|only@1-9> time span is naturaly limited to finite number of samples
+	\item<4-> $\Rightarrow$ \textbf{windowing function} $w(n)$
+\begin{equation}
+w(n) = \left\lbrace \begin{array}{l} 
+1, \mbox{ if } n\in \left\langle 0, M \right) \\ 
+0, \mbox{ otherwise} \end{array}\right. \,
+\end{equation}
+	\item<5->  $M$ is length of sub-sequence selected from packet process
+	\begin{itemize}
+		\item<6-> if $M$ is too high the packet proces is unlikely to be stationary
+		\item<7-> selecting too low value causes spectral leakage i.e. the energy 
+of the main lobe of a spectral response "leaks" to the sidelobes distorting the 
+spectral responses
+	\end{itemize}
+	\item<8-> iteratively apply windowing function to the whole sequence
+	\item<9-> compute power spectral density $S_{xx}^\wrappa{i}\wrappa{k}$ in each iteration 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Power spectral density -- windowing}
+\begin{block}{Power spectral density with windowing}
+Power spectral density $S_{xx}^\wrappa{i}\wrappa{k}$ in $i$-th iteration:
+\begin{equation}\label{eq:corr2}
+R_{xx}^\wrappa{i}\left[m\right] = \frac{1}{M} \sum_{t=0}^{M}
+ x\left[t+iM\right]x\left[t+m+iM\right] \, , 
+\end{equation}
+\begin{equation}\label{eq:psd2}
+\begin{split}
+S_{xx}^\wrappa{i}(k) = \mathcal{F}_{R_{xx}^\wrappa{i}}\left(k\right) = \sum_{m=0}^{M-1}
+\left( R_{xx}^\wrappa{i} \left[m\right] w(m) \exp\left( -\imath 2\pi m\frac{k}{M} \right)\right)\\
+\forall k \in \left\{ 0,1,2,...,M-1 \right\}\, . 
+\end{split}
+\end{equation}
+\end{block}
+\begin{itemize}
+\item<2> sample set: $\mathbf{X} = \wrapsq{S_{xx}^\wrappa{i}\wrappa{k}}_{i\in \mathbb{N},k \in \left\{ 0,1,2,...,M-1 \right\}}$
+\end{itemize}
+\end{frame}
+
+\subsection{Feature extraction}
+\begin{frame}{Feature extraction}
+\begin{itemize}
+	\item<1-> sample set: $\mathbf{X} = \wrapsq{S_{xx}^\wrappa{i}\wrappa{k}}_{i\in \mathbb{N},k \in \left\{ 0,1,2,...,M-1 \right\}}$
+	\item<2-> data instance is one row in matrix $\mathbf{X}$
+	\item<3-> decrease dimensionality of data instances
+	\begin{itemize}
+		\item<4-> frequency band filters (BF) $\mathbf{X_t} = \mathbf{A} \mathbf{X}$
+		\item<5-> moments of data instances (M) $\overline{\mathbf{M}} = \left[ \frac{1}{n} \sum_{i=1}^n\mathbf{x}_i^k\right]_{k=1\dots m}$ \\
+		
+		\item<6-> \alert<11>{principal component analysis (PCA)}
+		\begin{itemize}
+			\item<7-> retaining first $m$ principal components
+			\item<8-> first $m$ eigenvectors $\mathbf{E} = \left[ e_i^\top \right]_{i=1}^m$
+			\item<9-> transformed sample $\mathbf{X_t} = \mathbf{E} \mathbf{X}$
+			\item<10-> explained variance $q_m = \frac{\sum_{i=1}^m\lambda_i}{\sum_{j=1}^n\lambda_j} $
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\subsection{Model}
+\begin{frame}{Model}
+\begin{itemize}
+	\item<1-> Gaussian distribution $f_{\mathbf x}(x_1,\ldots,x_m)\, =
+\frac{1}{(2\pi)^{m/2}|\boldsymbol\Sigma|^{1/2}}
+\exp\left(-\frac{1}{2}({\mathbf x}-{\boldsymbol\mu})^T{\boldsymbol\Sigma}^{-1}({\mathbf x}-{\boldsymbol\mu})
+\right),
+$
+	\begin{itemize}
+	\item<2-> assuming central limit theorem (i.i.d. instances)
+	\item<3-> maximum-likelihood estimator (MLE) of the covariance matrix
+	\item<4-> use of diagonal  covariance matrix in case of PCA is appropiate
+	\begin{itemize}
+		\item<4-> number of parameters decreases from $m^2+m\rightarrow 2m$
+		\item<5-> $\Rightarrow$ decreases also sample cardinality needed
+	\end{itemize}
+	\item<6-> \alert<8>{Mahalanobis test statistic $y^2 = \wrappa{\mathbf{x} - \overline{\mathbf{x}}}{\boldsymbol\Sigma}^{-1}\wrappa{\mathbf{x} - \overline{\mathbf{x}}}^\top$}
+	\item<7-> Grubbs test using Student`s $t$-distribution ${y^2} > y^2_\Theta$ where $ y^2_\Theta = \frac{N-1}{\sqrt{N}}\sqrt{\frac{t^2_{0.5\alpha/N,N-2}}{N-2+t^2_{0.5\alpha/N,N-2}}}$ at significance level $t^2_{0.5\alpha/N,N-2}$
+	\end{itemize}
+	\item<9-> Gausian mixture model (GMM)
+	\begin{itemize}
+	\item<10-> equally weighted
+	\item<11-> ``raw score`` is the log-probability under GMM model
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Experiments}
+\subsection{Evaluation}
+
+\begin{frame}{Evaluation -- ROC analysis}
+
+
+\begin{itemize}
+	\item<1-5|only@1-5> Receiver Operator Characteristic
+	\item<2-6,8|only@2-6,8> \alert<8>{requires labeled training and testing samples}
+	\item<3-> plot of the true positive rate $r_{tp}$ vs. false positive rate $r_{fp}$
+	\item<4-5|only@4-5>[]
+{\small
+\begin{center}
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc}
+        	%& Sample is anomalous & Sample is normal \\ \hline
+        	& $H_0$ is true (P)	& $H_0$ is false (N) \\ \hline
+        	reject $H_0$ & false negative (FN) & true negative (TN) \\
+        	fail to reject $H_0$ & true positive (TP) & false positive (FP) \\ %\hline
+        \end{tabular}
+    \end{center}
+    \label{tbl:hypo}
+\end{table}
+\end{center}
+}
+	\item<4-5|only@4-5>[] $H_0$ refutation it test statistic $y^2 > y^2_\Theta$
+	\item<5|only@5> $r_{tp} = \frac{{tp}}{{tp}+{fn}}  $ and $r_{fp} = \frac{{fp}}{{fp}+{tn}}$
+	\item<6-|only@6->[]
+\begin{center}
+	\begin{figure}[h] %
+		\includegraphics[width=60mm]{img/roc_space}
+		\label{roc_space}
+	\end{figure}
+\end{center}
+	
+	\item<6-|only@6-> both $r_{tp}$ and $r_{fp}$ are functions of threshold $y^2_\Theta$
+	\item<7|only@7> measure of performance Area Under Curve -- AUC statistic
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Evaluation -- stratified k-fold cross-validation}
+
+\begin{itemize}
+	\item<1->[]
+\begin{center}
+	\begin{figure}[h] %
+		\includegraphics[width=60mm]{img/crossval}
+		\label{crossval}
+	\end{figure}
+\end{center}
+	\item<1-> divide sample to disjoint subsamples at random
+	\item<2-> stratified -- the distribution of labels is uniform over the folds
+	\item<3-> measure of performance \only<4>{ -- sample mean of the AUC statistics }
+	\only<4->{$\overline{\mu}_{AUC} = \frac{1}{k}\sum_{i=1}^k AUC_i$}
+	\begin{itemize}
+		\item<5-> biased measure (underestimate)
+	\end{itemize}
+	\item<6-> ``measure of robustness`` \only<7>{ -- standard deviation of the sample }
+	\only<7->{$s_{AUC}^2 = \sqrt {\frac 1n \sum_{i=1}^k \left(AUC_i - \overline{\mu}_{AUC} \right)^ 2}$}
+	\begin{itemize}
+		\item<8-> lack of labeled data and misslabeled data
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\subsection{Sample}
+
+\begin{frame}{Input data}
+ \begin{itemize}
+ 	\item<1-> non-public captured data (packet trace \& netflow)
+	\item<2-> simulated attacks (packet trace)
+	\begin{itemize}
+		\item<3-> \emph{woodpecker} -- malware
+		\item<4-> \emph{OpenVpn} -- virtual private network using HTTP connect
+		\item<5-> \emph{httptunnel} -- encapsulate payload in HTTP requests
+	\end{itemize}
+	\item<6-> brief of used datasets 
+ {\small
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{r|cc}
+        	\textbf{Dataset identification} & \textbf{flow}	&  \textbf{trace} \\ \hline
+        	{Source data format} & \code{NetFlow}	&  \code{PCAP} \\ 
+        	Duration [day] &  $\sim$  14 &  $\sim$  7 \\
+        	Number of labeled flows [-] & 774677 & 1148\\
+        	Sample rate [Hz] & 0.0033 & 100  \\
+        	Window size [samples] & 284 & 200  \\ %TODO
+        	Window size  [hour; second] & $\sim$ 24 & 2  \\
+        \end{tabular}
+    \end{center}
+    \label{tbl:datasets}
+\end{table}
+}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Sample}
+\begin{itemize}
+	\item<1-> sample: 
+	$\mathbf{X} = \wrapsq{S_{xx}^\wrappa{i}\wrappa{k}}_{i\in \mathbb{N},k \in \left\{ 0,1,2,...,M-1 \right\}}$
+	\item<2-> brief of sample labeling
+{\small
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|ccc}
+        	& \multicolumn{2}{ c| }{Number of instances}&&&\\
+        	\textbf{annotaion} & \textbf{trace}& \textbf{flow}& model	&  negative & positive \\ \hline
+        	\emph{http} & 21249 &7183& x & x & - \\
+        	\emph{vpn} & 128026 &210& - & - & x \\
+        	\emph{httptunnel} & 14064 &20& - & - & x \\ %TODO
+        	\emph{woodpecker} & 160054 &400& - & - & x \\
+        \end{tabular}
+    \end{center}
+    \label{tbl:classes}
+\end{table}
+}
+\end{itemize}
+\end{frame}
+
+\subsection{Implementation}
+
+
+\begin{frame}{Experimental software PyNfSA}
+\begin{itemize}
+	\item<1-> integrates packet manipulation libraries (libpcap \cite{jacobson2009libpcap}, scapy) ...
+	\item<2->[] ... with  scientific tools and databases (numpy \cite{oliphant2006numpy}, 
+	scikits \cite{pedregosa2011scikit}, pytables -- an array database based on HDF5 toolkit)
+	\item<3-> uses HDF5 array database to store data (same as Matlab)
+	\begin{itemize}
+		\item<4-> converts RAW packet, netflow data to Matlab-compatible format
+		\item<5-> enables batch processing, stores partial results
+	\end{itemize}	
+	\item<6-> support for online packet captures 
+	\begin{itemize}
+		\item<7->	requires escalation of privileges
+	\end{itemize}
+	\item<8-> fully functional on unix-like operating systems
+	\item<9->  suppoosed to work on other operating systems 
+	\item<10-> available at \cite{boraros2012pynfsa} under open-source license
+\end{itemize}
+\end{frame}
+
+\subsection{Measurements}
+
+\begin{frame}{Dimesionality reduction}
+\begin{itemize}
+	\item Sample mean and standard deviation of the AUC ROC when discriminating 
+    \emph{http} from \emph{woodpecker}, \emph{httptunnel} and \emph{vpn}.
+    Comparison of different dimensionality reduction techniques.
+{\small
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         & $\overline{AUC}$ &  \alert<2>{$s_{AUC}$} & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+
+M(var,curt,skew) & 0.479 & \alert<2>{0.011}  & 0.643 & 0.004\\ \hline
+\alert<3->{PCA(dim=3)} & \alert<3->{0.760} & \alert<2->{0.085} & \alert<3->{0.779} & \alert<3->{0.002}\\ \hline
+PCA(dim=1) & 0.616 & \alert<2>{0.011}& 0.751 & 0.004\\ \hline
+BF(bands=10) & 0.323 & \alert<2>{0.016} & 0.754 & 0.003\\ \hline
+BF(bands=5) & 0.468 & \alert<2>{0.113} & 0.768 & 0.003\\ \hline
+BF(bands=2) & 0.712 & \alert<2>{0.062} & 0.750 & 0.004
+
+        \end{tabular}
+    \end{center}
+    \label{tbl:auc_overal}
+\end{table}
+}
+	\item Mahalanobis distance used
+\end{itemize}
+\end{frame}
+
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/roc_flow_overal}}
+{\footnotesize discriminating http from vpn, httptunnel and woodpecker in \textbf{flow} sample}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/roc_trace_overal}}
+{\footnotesize discriminating http from vpn, httptunnel and woodpecker in \textbf{trace} sample}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{\usebackgroundtemplate{}}
+\mode*
+
+
+\begin{frame}{Model complexity}
+\begin{itemize}
+	\item Mean and standard deviation of the area under ROC curve. 
+    Effect of Gaussian Mixture Model complexity on discriminative performance.
+{\small
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{trace}} &\multicolumn{2}{ c }{\emph{flow}}\\
+         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+
+\alert<2>{PCA(dim=3),Mahalanobis} & \alert<2>{0.751} & \alert<2>{0.003} & 0.760 & 0.085\\ \hline
+\alert<2>{PCA(dim=3),GMM(comp=1)} & \alert<2>{0.751} & \alert<2>{0.003} & 0.760 & 0.085\\ \hline
+\alert<3>{PCA(dim=3),GMM(comp=2)} & 0.701 & 0.020 & \alert<3>{0.830} & \alert<3>{0.019}\\ \hline
+PCA(dim=3),GMM(comp=5) & 0.532 & 0.014 & 0.821 & 0.031\\ \hline
+PCA(dim=3),GMM(comp=10) & 0.590 & 0.021 & 0.827 & 0.019
+
+        \end{tabular}
+    \end{center}
+  \label{tbl:roc_gmm}
+\end{table}
+}
+	\item PCA transformation with $m=3$ used
+\end{itemize}
+\end{frame}
+
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/roc_flow_gmm}}
+{\footnotesize discriminating http from vpn, httptunnel and woodpecker in \textbf{flow} sample}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/roc_trace_gmm}}
+{\footnotesize discriminating http from vpn, httptunnel and woodpecker in \textbf{trace} sample}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{\usebackgroundtemplate{}}
+\mode*
+
+\begin{frame}{Classes}
+\begin{itemize}
+	\item Mean and standard deviation of the area under ROC curve.
+     Comparison of discriminative performance between clases.
+{\small
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+vpn & 0.830 & 0.019 & 0.758 & 0.006\\ \hline
+woodpecker & 0.796 & 0.107 & 0.816 & 0.009\\ \hline
+httptunnel & 0.442 & 0.198 & 0.707 & 0.005\\ \hline
+all & 0.814 & 0.210 & 0.755 & 0.005\\ \hline
+        \end{tabular}
+    \end{center}
+    \label{tbl:auc_class}
+\end{table}
+}
+	\item PCA transformation with $m=3$ used
+	\item \textbf{trace} sample: Mahalanobis distance used 
+	\item \textbf{flow} sample: log-probability under GMM  (2 components) used
+\end{itemize}
+\end{frame}
+
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/roc_flow_pca}}
+{\footnotesize discriminating http from vpn, httptunnel and woodpecker in \textbf{flow} sample}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/roc_trace_pca}}
+{\footnotesize discriminating http from vpn, httptunnel and woodpecker in \textbf{trace} sample}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{
+\usebackgroundtemplate{\includegraphics[height=0.95\paperheight]{img/pca_eigenvalues}}
+{\footnotesize semilogtarithmic plot of the eigenvalues using the \emph{flow} and \emph{trace} datasets}
+\begin{frame}[plain]
+\end{frame}
+}
+\mode<all>{\usebackgroundtemplate{}}
+\mode*
+
+
+\begin{frame}{References}
+
+{\small
+	\bibliographystyle{ieeetr}
+	\bibliography{references}
+	}
+\end{frame}
+
+\end{document}

@@ -1,245 +1,161 @@
 
 \chapter{Introduction}
 
-\section{Anomaly Detection}
+An anomaly or anomalous behavior is the behavior that deviates from established ``normal'' habits.
+In many cases it refers to some actionable or critical state. For that reason it has been 
+researched in wide variety of domains and wide variety of anomaly detection techniques has been emerged.
+For example and anomaly detection techniques are used in patients health data to detect possible
+symptoms of disease. In safety critical environment an anmalous behavior can indicate
+performance degradation with possible catastrophic outcomes.
 
-%\section{Computer Network Security Aspects}
+In many cases the anomaly detection is related to outlier detection.
+In statistics, an outliers are a data instances that are deviate from given sample in which 
+they occure. Grubbs in~\cite{grubbs1969procedures} defined ``\emph{an outlying observation, 
+or `outlier', is one that appears to deviate markedly from other members of the sample in which it occurs}''.
+ When using outlier detection for detection of anomalies, an assumption 
+that anomalies are distant from the rest of observations apply. However an outlying observation 
+may be result of data acquisition error, or numerical error, or it may indicate faulty estimation of the models.
+
+In field of computer security anomaly often refers to malicious behavior -- to behavior of some 
+agent that can be harmfull and ususally unwanted at given context. 
+The computer network is space that provides opportunity for malicious agents to perform activities such
+as unauthorized acces, privacy violation, reduction of availability of services, fraudulent operations, etc.
+Detection and prevention of most of malicious activities is important in ensuring the 
+availability and reliability of the computer systems. 
+
+Systems used to detect malicious behavior in computer security are traditionally referred to as an
+\emph{intrusion detection systems} (IDS) and are divided into three main categories: a \emph{signature detection}
+systems, an a\emph{nomaly detection} systems or \emph{hybrid} systems comprising both approaches. While signature
+based systems depend on database of attack signatures, anomaly detection systems rely on 
+models of normal behavior. Decision in a hybrid system is based on both approaches --
+on a normal model as well as the malicious behavior of the attacker.
+
+Crucial assuption in anomaly detection based intrusion detection systems is that the malicious activity
+is subset of the anomalous activity. The example of such activity is the possible malicious agent
+trying to penetrate information system without knowledge of its typical use. Such activity
+is likely to be detected as anomalous. On contrary if similar agent uses knowledge of normal usage
+it may be difficult to detect its activity.
+
+In present work we introduce an anomaly detection technique that uses model based on spectral analysis in order
+to identify a malicious behavior. Our technique is based on assumption that the attacks can introduce
+irregularities at given periodic contexts. These context are reffered to as a frequency domain or
+frequency spectrum. We claim that the malicious agents performing attacks can be detected as their habit 
+can deviate from normal behavior. Such difference can be shown on a example of typical user that 
+folow an circadian rythm that can lead in oscilations in network usage at about 24 hours.
+On contrary mallware that would not follow same rythm  does not leave trails in same frequency context.
+Different example could be a violation of specification of the network protocol.
+In case the malicious user tries to escape security restrictions for example  by misusing a allwed
+protocol to tunnel  the restricted one this can imprint a different pattern in frequency spectrum, as  
+showed by \name{Chen} and \name{Hwang} in~\cite{chen2007tcp,chen2007spectral}.
 
 \section{Related Work}
-%% this contains abstracts now
 
-Anomaly detection as an inportant problem has been researched within wide variety of reasearch areas and domains.
-
-\name{Chandola et al.} \cite{chandola2009anomaly} addressed anomaly detection in general and also identified various approaches and application domains.
+\name{Chandola et al.}~\cite{chandola2009anomaly} addressed anomaly detection in general and also 
+identified various approaches and application domains.
 They described methods based on \emph{classification}, \emph{clustering}, \emph{nearest neighbour}, 
 \emph{statistical}, \emph{information theory} and \emph{spectral analysis}. 
 They covered several application domains such as \emph{cyber-intrusion detection}, \emph{fraud detection}, 
 \emph{idustrial damage detection}, \emph{sensor networks} etc. 
-Their contribution in respect to our work is mainly an exact definition of anomaly detection and deep, 
-structured overview of the known techniques in various application domains. In the domain of our interest, the network intrusion detection, 
-they depicted fact that although available data has an temporal content, known techniques typically do not exploit this aspect explicitly. 
-The data is mostly high-dimensional with continuous as well as categorical attributes. The challenge faced by used techniques in this domain is the changing nature of anomalies as the intruders adapt to the existing intrusion detection solutions and the high dimensionality and hight ammount of
-the data. They showed that the existing methods in this domain are based on statistical analysis, classification, clustering, spectral and information theoretic.
+Their contribution with respect to our work is mainly an exact definition of anomaly detection and deep, 
+structured overview of the known techniques in various application domains. In the domain of our interest --
+the network intrusion detection, they depicted fact that although available data has an temporal content, 
+known techniques typically do not exploit this aspect explicitly. 
+The data is mostly high-dimensional with continuous as well as categorical attributes. 
+The challenge faced by techniques in this domain is the changing nature of anomalies as the intruders
+adapt to the existing intrusion detection solutions and the high dimensionality and high ammount of
+the data. They showed that the existing methods in this domain are based on statistical analysis, classification, 
+clustering, spectral decomposition and information theory.
 %
-%\paragraph*{V. Chandola, et al. Anomaly detection: A survey}\citep{chandola2009anomaly}
-%Anomaly detection is an important problem that has been researched within diverse research areas and application domains. Many anomaly detection techniques have been specifically developed for certain application domains, while others are more generic. This survey tries to provide a structured and comprehensive overview of the research on anomaly detection. We have grouped existing techniques into different categories based on the underlying approach adopted by each technique. For each category we have identified key assumptions, which are used by the techniques to differentiate between normal and anomalous behavior. When applying a given technique to a particular domain, these assumptions can be used as guidelines to assess the effectiveness of the technique in that domain. For each category, we provide a basic anomaly detection technique, and then show how the different existing techniques in that category are variants of the basic technique. This template provides an easier and more succinct understanding of the techniques belonging to each category. Further, for each category, we identify the advantages and disadvantages of the techniques in that category. We also provide a discussion on the computational complexity of the techniques since it is an important issue in real application domains. We hope that this survey will provide a better understanding of the different directions in which research has been done on this topic, and how techniques developed in one area can be applied in domains for which they were not intended to begin with.
-%
-\name{Patcha} and \name{Park} \cite{patcha2007anomaly} covered cyber-intrusion domain focusing on statistical,
-data-mining and machine learning anomaly detection techniques. 
-They described works that are seminal for the cyber-intrusion detection and referenced number of research systems.
+
+\name{Patcha} and \name{Park}~\cite{patcha2007anomaly} covered cyber-intrusion domain focusing on statistical,
+data-mining and machine learning techniques. They provided overview of the solutions in use and are state-of-the 
+art in the cyber-intrusion detection and referenced number of research systems.
 %%
 %
-%\paragraph*{A. Patcha. An overview of anomalydetection techniques: Existingsolutions and latesttechnologicaltrends}
-%\citep{patcha2007anomaly}
-%As advances in networking technology help to connect the distant corners of the globe and as the Internet continues to expand its influence as a medium for communications and commerce, the threat from spammers, attackers and criminal enterprises has also grown accordingly. It is the prevalence of such threats that has made intrusion detection systems—the cyberspace’s equivalent to the burglar alarm—join ranks with firewalls as one of the fundamental technologies for network security. However, today’s commercially available intrusion detection systems are predominantly signature-based intrusion detection systems that are designed to detect known attacks by utilizing the signatures of those attacks. Such systems require frequent rule-base updates and signature updates, and are not capable of detecting unknown attacks. In contrast, anomalydetection systems, a subset of intrusion detection systems, model the normal system/network behavior which enables them to be extremely effective in finding and foiling both known as well as unknown or “zero day” attacks. While anomalydetection systems are attractive conceptually, a host of technological problems need to be overcome before they can be widely adopted. These problems include: high false alarm rate, failure to scale to gigabit speeds, etc. In this paper, we provide a comprehensive survey of anomalydetection systems and hybrid intrusion detection systems of the recent past and present. We also discuss recent technologicaltrends in anomalydetection and identify open problems and challenges in this area.
-%
-\name{Davis} and \name{Clark} \cite{davis2011data} focused on data preprocessing techniques for network
+
+\name{Davis} and \name{Clark}~\cite{davis2011data} focused on data preprocessing techniques for network
 intrusion detection. They described \emph{dataset creation}, \emph{feature construction} and \emph{reduction}
 techniques. 
 In this comprehensive review they grouped a related works according to the type of features and
 data preprocessing techniques they addressed. They identified aggregation of packets into flows as useful
-as it enforces contextual analysis and statistical measures to detect anomalous behavior. They notice that
+as it enforces contextual analysis and statistical measures to detect anomalous behavior. They noticed that
 packet header based approaches are not sufficient as the use of defense against attacks forced attackers 
 to use different attack vectors such as crafted application data. They suggest that there is need to use 
 features derived from contents of packets but as there is little research in this area they expect that
 more results would emerge in future.
 %
-\name{Onut} and \name{Ghorbani} \cite{onut2007feature} derived taxonomy of features used for anomaly detection.
+\name{Onut} and \name{Ghorbani}~\cite{onut2007feature} derived taxonomy of features used for anomaly detection.
 Futhermore they introduced anomaly network intrusion detection systems which use them.
-%\paragraph*{Onut and Ghorbani. A feature classification scheme for network intrusion detection} \cite{onut2007feature} One of the most important phases of the IDS/IPS implementation identifies the set of features that the system is going to use. We present a feature classification schema for network intrusion detection intended to provide a better understanding regarding the features that can be extracted from network packets. Furthermore, we present the design of a feature extractor that extracts and statistically analyze features with respect to attacks. The experimental results, conducted on DARPA dataset, are intended to statistically highlight the importance of each proposed feature category, as well as to identify some of the most sensitive features to attacks.
 %
-%\paragraph*{Jonathan J. Davis. Data preprocessing for anomaly based network intrusion detection: A review}
-%
-%Data preprocessing is widely recognized as an important stage in anomaly detection. This paper reviews the data preprocessing techniques used by anomaly-based network intrusion detection systems (NIDS), concentrating on which aspects of the network traffic are analyzed, and what feature construction and selection methods have been used. Motivation for the paper comes from the large impact data preprocessing has on the accuracy and capability of anomaly-based NIDS. The review finds that many NIDS limit their view of network traffic to the TCP/IP packet headers. Time-based statistics can be derived from these headers to detect network scans, network worm behavior, and denial of service attacks. A number of other NIDS perform deeper inspection of request packets to detect attacks against network services and network applications. More recent approaches analyze full service responses to detect attacks targeting clients. The review covers a wide range of NIDS, highlighting which classes of attack are detectable by each of these approaches.
-%Data preprocessing is found to predominantly rely on expert domain knowledge for identifying the most relevant parts of network traffic and for constructing the initial candidate set of traffic features. On the other hand, automated methods have been widely used for feature extraction to reduce data dimensionality, and feature selection to find the most relevant subset of features from this candidate set. The review shows a trend toward deeper packet inspection to construct more relevant features through targeted content parsing. These context sensitive features are required to detect current attacks.
-%
-\name{Gogoi et. al} \cite{gogoi2011survey} focused on comparison of specific techniques used for network anomaly
+\name{Gogoi et al.}~\cite{gogoi2011survey} focused on comparison of specific techniques used for network anomaly
 detection. They covered supervised and unsupervised approaches covering several techniques in detail, such as
 statistical, signal processing, graph teoretic, clustering  or rule-based techniques.
 
-%\paragraph*{P. Gogoi, et al. A Survey of Outlier Detection Methods in Network Anomaly Identification}\cite{gogoi2011survey} The detection of outliers has gained considerable interest in data mining with the realization that outliers can be the key discovery to be made from very large databases. Outliers arise due to various reasons such as mechanical faults, changes in system behavior, fraudulent behavior, human error and instrument error. Indeed, for many applications the discovery of outliers leads to more interesting and useful results than the discovery of inliers. Detection of outliers can lead to identification of system faults so that administrators can take preventive measures before they escalate. It is possible that anomaly detection may enable detection of new attacks. Outlier detection is an important anomaly detection approach. In this paper, we present a comprehensive survey of well-known distance-based, density-based and other techniques for outlier detection and compare them. We provide definitions of outliers and discuss their detection based on supervised and unsupervised learning in the context of network anomaly detection.
+In our study we focused on papers that uses spectral analysis. 
+\name{Chen} and \name{Hwang} in~\cite{chen2007tcp,chen2007spectral}
+invented an anomaly detection technique involving spectral analysis of the network traffic to analyze spectral 
+characteristic of network protocols (TCP, UDP).
+They were able to distinguish between different protocols using statistical methods on 
+freqency spectrum of the packet arrival process. 
+In adition they introduced statistical anomaly detection method to distinguish between 
+legitimate and malicious TCP flows. 
+An spectral characteristics of the network traffic has been researched also by
+\name{X. He, et al.}~\cite{he2004spectral}.
+They used an technique of spectral analysis to show the signatures of different layers of the 
+network protocols.
+Also time-frequency based methods has been used by \name{Salagean}~\cite{salagean2010real} or \name{Gao et al.}~\cite{gao2006anomaly}
+involving a \emph{wavelet transform}. In~\cite{salagean2010real}  used a wavelet transform and higher-order statistics
+to discriminate attacks from normal traffic.
 
-\name{X. He, et al.} \cite{he2004spectral} explored an spectral analysis approach using fourier transform on features obtained from packet traces. 
-They focused on link layer and showed that signature specific to link
-is observed in frequency spectrum after link is saturated. They applied the fourier
-transform  to convert the packet arrival process to frequency domain. 
-In addition they compared the signatures of different layers of the traffic - link layer 
-and application layer.  %
-%
-The work of \name{Chen} and \name{Hwang} \cite{chen2007tcp,chen2007spectral} used similar approach to analyze spectral 
-characteristic of network protocols TCP, UDP and they 
-were able to distinguish the traffic using statistical methods using features derived
-from freqency spectrum of the packet arrival process.
-In adition they introduced classification method to distinguish between 
-legitimate  and malicious TCP flows. 
-In %this and future work %\cite{} 
-their work they focused on reduction-of-service (RoS) attack.
-The RoS attack unlike denial-of-service (DoS) attack don`t attempt to completely deny the
-service by throttling the resources submittig a fake requests, but the attacker`s focus is on reduction of the quality (e.g. prolong the response times) 
-by using small ammount of the requests. 
-Due to low traffic during attack, RoS attacks are hard to detect with volume-based methods.
-%TODO expalain what we are going to take from this work
-%
-%\paragraph*{X. He, et al. Spectral Characteristics of Saturated Links}
-%\cite{he2004spectral}
-%Internet protocols frequently create periodic patterns in traffic. Examples included packets paced by bottleneck links, periodic exchange of information such as routing, transport-layer effects such as TCP self-clocking, and application-level effects. Although measurement of such periodicities could shed light on Internet traffic, current understanding of periodic behavior in general traffic is quite limited. This paper explores this area by studying the spectral behavior of these kinds of traffic. Our technique is completely passive and can be applied to aggregate traces gathered at various observation points on the network. Unlike techniques measuring packet inter-arrival time, our technique does not require per-flow separation. Our experiments show that the signature of a saturated link persists in the presence of background traffic or when we observe only a portion of the traffic through the saturated link. We investigate how such signatures evolve as the traffic traverses through the network and identify the major influential factors that affect the signatures. Developing a technique to detect saturated links is part of our future work.
-
-\name{Wright et al.} \cite{wright2006inferring} and \name{Dusi et al.} \cite{dusi2009tunnel} 
+We were also concerned about spectral techniques in discriminating tunneling protocols. We
+observed that
+\name{Wright et al.}~\cite{wright2006inferring} and \name{Dusi et al.}~\cite{dusi2009tunnel} 
 investigated an detection of encrypted tunnels inside the application layer. 
 They addressed the problem of bypassing an network-boundary
 security inspection by encapsulating of data subject to restrictions 
 (peer-to-peer, chat, e-mail and others) into protocols that are considered safe 
 and necessary (HTTP, HTTPS, SSH, DNS etc.). 
-\name{Est{\'e}vez-Tapiador et al.} \cite{estevez2004measuring}  and \name{Yamada et al.} 
+\name{Est{\'e}vez-Tapiador et al.}~\cite{estevez2004measuring}  and \name{Yamada et al.} 
 \cite{yamada2007intrusion} studied anomalies in encrypted traffic.
-
-\name{Wright et al.} \cite{wright2006inferring} used features derived from packet headers 
+%
+\name{Wright et al.}~\cite{wright2006inferring} used features derived from packet headers 
 agregating packets over protocols, and time span of arrival. They counted packets in 
 categories during an epoch
 resulting in vector. Then they used k-nearest neighbor (kNN) and hidden Markov model 
 (HMM) techniques. They constructed models for differnet kind of encrypted tunnels 
 such as single- or multi-flow tunnels. They were able to infer application protocols even in
 multiplexed packet flows without need of demultiplexing.
-
-%\paragraph*{Wright et al. On Inferring Application Protocol Behaviors in Encrypted Network Traffic}
-%\cite{wright2006inferring}
-%Several fundamental security mechanisms for restricting access to network resources rely on the ability of a reference monitor to inspect the contents of traffic as it traverses the network. However, with the increasing popularity of cryptographic protocols, the traditional means of inspecting packet contents to enforce security policies is no longer a viable approach as message contents are concealed by encryption. In this paper, we investigate the extent to which common application protocols can be identified using only the features that remain intact after encryption---namely packet size, timing, and direction. We first present what we believe to be the first exploratory look at protocol identification in encrypted tunnels which carry traffic from many TCP connections simultaneously, using only post-encryption observable features. We then explore the problem of protocol identification in individual encrypted TCP connections, using much less data than in other recent approaches. The results of our evaluation show that our classifiers achieve accuracy greater than 90\% for several protocols in aggregate traffic, and, for most protocols, greater than 80\% when making fine-grained classifications on single connections. Moreover, perhaps most surprisingly, we show that one can even estimate the number of live connections in certain classes of encrypted tunnels to within, on average, better than 20\%.
-
-
-\name{Dusi et al.} \cite{dusi2009tunnel} brought an statistical approach 
+%
+\name{Dusi et al.}~\cite{dusi2009tunnel} brought an statistical approach 
 to detect an tunnel inside application layer.
 In the paper they described diffenrent tunneling techniques and designed statistical pattern recognition 
-classifier to identify them. 
+classifier to identify them. Classification of the encrypted traffic has been also researched by \name{Ingham et al.} 
+\citep{ingham2007comparing,ingham2007anomaly} or \name{Alshammari et al.}~\cite{alshammari2009machine}.
 %
-%\paragraph*{Dusi et al. Tunnel hunter: Detecting application-layer tunnels with statistical fingerprinting}
-%\cite{dusi2009tunnel}
-%Application-layertunnels nowadays represent a significant security threat for any network protected by firewalls and ApplicationLayer Gateways. The encapsulation of protocols subject to security policies such as peer-to-peer, e-mail, chat and others into protocols that are deemed as safe or necessary, such as HTTP, SSH or even DNS, can bypass any network-boundary security policy, even those based on stateful packet inspection.
-%In this paper we propose a statistical classification mechanism that could represent an important step towards new techniques for securing network boundaries. The mechanism, called Tunnel Hunter, relies on the statistical characterization at the IP-layer of the traffic that is allowed by a given security policy, such as HTTP or SSH. The statistical profiles of the allowed usages of those protocols can then be dynamically checked against traffic flows crossing the network boundaries, identifying with great accuracy when a flow is being used to tunnel another protocol. Results from experiments conducted on a live network suggest that the technique can be very effective, even when the application-layer protocol used as a tunnel is encrypted, such as in the case of SSH.
-
-
-%\paragraph*{Est{\'e}vez-Tapiador et al. Measuring normality in HTTP traffic for anomaly-based intrusion detection}
-%\cite{estevez2004measuring}
-%In this paper, the problem of measuring normality in HTTP traffic for the purpose of anomaly-based network intrusion detection is addressed. The work carried out is expressed in two steps: first, some statistical analysis of both normal and hostile traffic is presented. The experimental results of this study reveal that certain features extracted from HTTP requests can be used to distinguish anomalous (and, therefore, suspicious) traffic from that corresponding to correct, normal connections. The second part of the paper presents a new anomaly-based approach to detect attacks carried out over HTTP traffic. The technique introduced is statistical and makes use of Markov chains to model HTTP network traffic. The incoming HTTP traffic is parameterised for evaluation on a packet payload basis. Thus, the payload of each HTTP request is segmented into a certain number of contiguous blocks, which are subsequently quantized according to a previously trained scalar codebook. Finally, the temporal sequence of the symbols obtained is evaluated by means of a Markov model derived during a training phase. The detection results provided by our approach show important improvements, both in detection ratio and regarding false alarms, in comparison with those obtained using other current techniques.
-
-
-%\paragraph*{Yamada et al. Intrusion Detection for Encrypted Web Accesses } 
-%\cite{yamada2007intrusion}
-%As various services are provided as web applications, attacks against web applications constitute a serious problem. Intrusion detection systems (IDSes) are one solution, however, these systems do not work effectively when the accesses are encrypted by protocols. Because the IDSes inspect the contents of a packet, it is difficult to find attacks by the current IDS. This paper presents a novel approach to anomaly detection for encrypted web accesses. This approach applies encrypted traffic analysis to intrusion detection, which analyzes contents of encrypted traffic using only data size and timing without decryption. First, the system extracts information from encrypted traffic, which is a set comprising data size and timing for each web client. Second, the accesses are distinguished based on similarity of the information and access frequencies are calculated. Finally, malicious activities are detected according to rules generated from the frequency of accesses and characteristics of HTTP traffic. The system does not extract private information or require enormous pre-operation beforehand, which are needed in conventional encrypted traffic analysis. We show that the system detects various attacks with a high degree of accuracy, adopting an actual dataset gathered at a gateway of a network and the DARPA dataset.
-
-\emph{CAIDA Trace Project} \cite{caida2011trace}... %caidaoc48trace,caida2010trace,
-\name{DARPA Intrusion Detection Data Sets (IDEVAL)} are five weeks of packet trace data generated at \emph{MIT Lincoln Labs} for
-Intrusion detection evaluation \cite{darpa1999ids}.  The data represent simulated traffic on fictional Air Force base.
-For each week there are five network trace files that represent nnetwork traffic from 8:00 to 17:00. The data is considered
-very inportant due to many network intrusion detection system papers used it for evaluation.
-%
-\name{McHugh} \cite{mchugh2000testing} depicted an issues associated with design and execution of the IDEVAL datasets..
-%TODO provide moe information and discuss how it affects our work
-%\paragraph*{McHugh et al. Testing intrusion detection systems: a critique of the 1998 and 1999 DARPA intrusion detection system evaluations as performed by Lincoln Laboratory}
-%In 1998 and again in 1999, the Lincoln Laboratory of MIT conducted a comparative evaluation of intrusion detection systems (IDSs) developed under DARPA funding. While this evaluation represents a significant and monumental undertaking, there are a number of issues associated with its design and execution that remain unsettled. Some methodologies used in the evaluation are questionable and may have biased its results. One problem is that the evaluators have published relatively little concerning some of the more critical aspects of their work, such as validation of their test data. The appropriateness of the evaluation techniques used needs further investigation. The purpose of this article is to attempt to identify the shortcomings of the Lincoln Lab effort in the hope that future efforts of this kind will be placed on a sounder footing. Some of the problems that the article points out might well be resolved if the evaluators were to publish a detailed description of their procedures and the rationale that led to their adoption, but other problems would clearly remain.
-%\cite{mchugh2000testing}
-%
-\name{Mahoney} and \name{Chan} \cite{mahoney2003analysis}
-analyzed the IDEVAL dataset and compared it to data captured in their university server.
-They comapared the attributes of the packet headers and some inferred features. Furthermore they mixed the simulated data with real data
-and tested several anomaly detection systems. They ... %TODO explain their findings
-%
-%\paragraph*{Mahoney et al. An analysis of the 1999 DARPA/Lincoln Laboratory evaluation data for network anomaly detection}
-%\cite{mahoney2003analysis}
-%The DARPA/MIT Lincoln Laboratory off-line intrusion detection evaluation data set is the most widely used public benchmark for testing intrusion detection systems. Our investigation of the 1999 background network traffic suggests the presence of simulation artifacts that would lead to overoptimistic evaluation of network anomaly detection systems. The effect can be mitigated without knowledge of specific artifacts by mixing real traffic into the simulation, although the method requires that both the system and the real traffic be analyzed and possibly modified to ensure that the system does not model the simulated traffic independently of the real traffic.
-%
-
-\paragraph*{Thomas et al. Usefulness of DARPA dataset for intrusion detection system evaluation}
-\cite{thomas2010usefulness}
-
-
-\paragraph*{Alshammari et al. Machine learning based encrypted traffic classification: identifying SSH and skype}
-\cite{alshammari2009machine}
-The objective of this work is to assess the robustness of machine learning based traffic classification for classifying encrypted traffic where SSH and Skype are taken as good representatives of encrypted traffic. Here what we mean by robustness is that the classifiers are trained on data from one network but tested on data from an entirely different network. To this end, five learning algorithms - adaboost, support vector machine, Naive Bayesian, RIPPER and C4.5 - are evaluated using flow based features, where IP addresses, source/destination ports and payload information are not employed. Results indicate the C4.5 based approach performs much better than other algorithms on the identification of both SSH and Skype traffic on totally different networks.
-
-
-\paragraph*{Ingham. Anomaly detection for HTTP intrusion detection: algorithm comparisons and the effect of generalization on accuracy}
-\cite{ingham2007anomaly}
-Network servers are vulnerable to attack, and this state of affairs shows no sign of abating. Therefore security measures to protect vulnerable software is an important part of keeping systems secure. Anomaly detection systems have the potential to improve the state of affairs, because they can independently learn a model of normal behavior from a set of training data, and then use the model to detect novel attacks. In most cases, this model represents more instances than were in the training data set—such generalization is necessary for accurate anomaly detection.
- This dissertation describes a framework for testing anomaly detection algorithms under identical conditions. Because quality test data representative of today’s web servers is not available, this dissertation also describes the Hypertext Transfer Protocol (HTTP) request data collected from four web sites to use as training and test data representing normal HTTP requests. A collection of attacks against web servers and their applications did not exist either, so prior to testing it was necessary to also build a database of HTTP attacks, the largest publicly-available one.
-  These data were used to test nine algorithms. This testing was more rigorous than any performed previously, and it shows that the previously-proposed algorithms (character distribution, a linear combination of six measures, and a Markov Model) are not accurate enough for production use on many of the web servers in use today, and might explain the lack of their widespread adoption. Two newer algorithms (deterministic finite automaton induction and n-grams) show more promise.
-  This dissertation shows that accurate anomaly detection requires carefully controlled generalization. Too much or too little will result inaccurate results. Calculating the growth rate of the set that describes the anomaly detector’s model of normal provides a means of comparing anomaly detection algorithms and predicting their accuracy. Identification of undergeneralization locations can be automated, leading to more rapid discovery of the heuristics needed to allow an anomaly detection system to achieve the required accuracy for production use.
-  
-\paragraph*{Ingham and Ingham. Comparing anomaly detection techniques for http}
-\cite{ingham2007comparing}
-Much data access occurs via HTTP, which is becoming a universal transport protocol. Because of this, it has become a common exploit target and several HTTP specific IDSs have been proposed as a response. However, each IDS is developed and tested independently, and direct comparisons are difficult. We describe a framework for testing IDS algorithms, and apply it to several proposed anomaly detection algorithms, testing using identical data and test environment. The results show serious limitations in all approaches, and we make predictions about requirements for successful anomaly detection approaches used to protect web servers.
-
-\paragraph*{Jamdagni et al. Intrusion detection using GSAD model for HTTP traffic on web services}
-\cite{jamdagni2010intrusion}
-Intrusion detection systems are widely used security tools to detect cyber-attacks and malicious activities in computer systems and networks. Hypertext Transport Protocol (HTTP) is used for new applications without much interference. In this paper, we focus on intrusion detection of HTTP traffic by applying pattern recognition techniques using our Geometrical Structure Anomaly Detection (GSAD) model. Experimental results reveal that features extracted from HTTP request using GSAD model can be used to distinguish anomalous traffic from normal traffic, and attacks carried out over HTTP traffic can be identified. We evaluate and compare our results with the results of PAYL intrusion detection systems for the test of DARPA 1999 IDS data set. The results show GSAD has high detection rates and low false positive rates.
-
-
-\paragraph*{Sarasamma et al. Hierarchical Kohonenen net for anomaly detection in network security}
-\cite{sarasamma2005hierarchical}
-A novel multilevel hierarchical Kohonen Net (K-Map) for an intrusion detection system is presented. Each level of the hierarchical map is modeled as a simple winner-take-all K-Map. One significant advantage of this multilevel hierarchical K-Map is its computational efficiency. Unlike other statistical anomaly detection methods such as nearest neighbor approach, K-means clustering or probabilistic analysis that employ distance computation in the feature space to identify the outliers, our approach does not involve costly point-to-point computation in organizing the data into clusters. Another advantage is the reduced network size. We use the classification capability of the K-Map on selected dimensions of data set in detecting anomalies. Randomly selected subsets that contain both attacks and normal records from the KDD Cup 1999 benchmark data are used to train the hierarchical net. We use a confidence measure to label the clusters. Then we use the test set from the same KDD Cup 1999 benchmark to test the hierarchical net. We show that a hierarchical K-Map in which each layer operates on a small subset of the feature space is superior to a single-layer K-Map operating on the whole feature space in detecting a variety of attacks in terms of detection rate as well as false positive rate.
-
-
-\paragraph*{Undercoffer et al. Modeling Computer Attacks: An Ontology for Intrusion Detection}
-\cite{undercoffer2003modeling}
-We state the benefits of transitioning from taxonomies to ontologies and ontology specification languages, which are able to simultaneously serve as recognition, reporting and correlation languages. We have produced an ontology specifying a model of computer attack using the DARPA Agent Markup Language+Ontology Inference Layer, a descriptive logic language. The ontology’s logic is implemented using DAMLJessKB. We compare and contrast the IETF’s IDMEF, an emerging standard that uses XML to define its data model, with a data model constructed using DAML+OIL. In our research we focus on low level kernel attributes at the process, system and network levels, to serve as those taxonomic characteristics. We illustrate the benefits of utilizing an ontology by presenting use case scenarios within a distributed intrusion detection system.
-
-\paragraph*{Wu et al. The use of computational intelligence in intrusion detection systems: A review}
-\cite{wu2010use}
-Intrusion detection based upon computational intelligence is currently attracting considerable interest from the research community. Characteristics of computational intelligence (CI) systems, such as adaptation, fault tolerance, high computational speed and error resilience in the face of noisy information, fit the requirements of building a good intrusion detection model. Here we want to provide an overview of the research progress in applying CI methods to the problem of intrusion detection. The scope of this review will encompass core methods of CI, including artificial neural networks, fuzzy systems, evolutionary computation, artificial immune systems, swarm intelligence, and soft computing. The research contributions in each field are systematically summarized and compared, allowing us to clearly define existing research challenges, and to highlight promising new research directions. The findings of this review should provide useful insights into the current IDS literature and be a good source for anyone who is interested in the application of CI approaches to IDSs or related fields.
-
-\paragraph*{Chebrolu et al. Feature deduction and ensemble design of intrusion detection systems}
-\cite{chebrolu2005feature}
-Current intrusion detection systems (IDS) examine all data features to detect intrusion or misuse patterns. Some of the features may be redundant or contribute little (if anything) to the detection process. The purpose of this study is to identify important input features in building an IDS that is computationally efficient and effective. We investigated the performance of two feature selection algorithms involving Bayesian networks (BN) and Classification and Regression Trees (CART) and an ensemble of BN and CART. Empirical results indicate that significant input feature selection is important to design an IDS that is lightweight, efficient and effective for real world detection systems. Finally, we propose an hybrid architecture for combining different feature selection algorithms for real world intrusion detection.
-
-\paragraph*{Sommer and Paxson. Outside the closed world: On using machine learning for network intrusion detection}
-\cite{sommer2010outside}
-In network intrusion detection research, one popular strategy for finding attacks is monitoring a network's activity for anomalies: deviations from profiles of normality previously learned from benign traffic, typically identified using tools borrowed from the machine learning community. However, despite extensive academic research one finds a striking gap in terms of actual deployments of such systems: compared with other intrusion detection approaches, machine learning is rarely employed in operational "real world" settings. We examine the differences between the network intrusion detection problem and other areas where machine learning regularly finds much more success. Our main claim is that the task of finding attacks is fundamentally different from these other applications, making it significantly harder for the intrusion detection community to employ machine learning effectively. We support this claim by identifying challenges particular to network intrusion detection, and provide a set of guidelines meant to strengthen future research on anomaly detection.
-
-\paragraph*{Bajcsy et al. Cyber defense technology networking and evaluation}
-\cite{bajcsy2004cyber}
-Creating an experimental infrastructure for developing next-generation information security technologies.
-
-\paragraph*{Goodall et al. Focusing on context in network traffic analysis}
-\cite{goodall2006focusing}
-The time-based network traffic visualizer combines low-level, textual detail with multiple visualizations of the larger context to help users construct a security event's big picture. TNV is a visualization tool grounded in an under standing of the work practices of security analysts. We designed it to support ID analysis by giving analysts a visual display that facilitates pattern and anomaly recognition, particularly overtime. It also offers more focused views on packet-level detail in the context of the surrounding network traffic.
-
-
-\paragraph*{Zanero. Analyzing TCP traffic patterns using self organizing maps}
-\cite{zanero2005analyzing}
-The continuous evolution of the attacks against computer networks has given renewed strength to research on anomaly based Intrusion Detection Systems, capable of automatically detecting anomalous deviations in the behavior of a computer system. While data mining and learning techniques have been successfully applied in host-based intrusion detection, network-based applications are more difficult, for a variety of reasons, the first being the curse of dimensionality. We have proposed a novel architecture which implements a network-based anomaly detection system using unsupervised learning algorithms. In this paper we describe how the pattern recognition features of a Self Organizing Map algorithm can be used for Intrusion Detection purposes on the payload of TCP network packets.
-
-\paragraph*{Yu Chen. TCP Flow Analysis for Defense against Shrew DDoS Attacks}
-The shrew or RoS attacks are low-rate DDoSattacks that degrade the QoS to end systems slowly but not todeny the services completely. These attacks are more difficultto detect than the flooding type of DDoS attacks. In this paper,we explore the energy distributions of Internet traffic flows infrequency domain. Normal TCP traffic flows present someform of periodicity because of TCP protocol behavior. Ourresults reveal that normal TCP flows can be segregated frommalicious flows using some energy distribution properties. Wediscover the spectral shifting of attack flows from that ofnormal flows. Combining flow-level spectral analysis withsequential hypothesis testing, we propose a novel defensescheme against shrew DDoS or RoQ (reduction-of-service)attacks. Our detection and filtering scheme can effectivelyrescue 99\% legitimate TCP flows under the RoS attacks.
-
-\paragraph*{M. Zalewski. Silence on the Wire}
-\cite{zalewski2005silence}
-\cite{zalewski2005silence10}
-\cite{zalewski2005silence11}
-
-\paragraph*{M. Iliofotou, et al. Exploiting dynamicity in graph-based 
-traffic analysis: techniques and applications}\cite{iliofotou2009exploiting}
-Network traffic can be represented by a Traffic Dispersion Graph (TDG) that contains an edge between two nodes that send a particular type of traffic (e.g., DNS) to one another. TDGs have recently been proposed as an alternative way to interpret and visualize network traffic. Previous studies have focused on static properties of TDGs using graph snapshots in isolation. In this work, we represent network traffic with a series of related graph instances that change over time. This representation facilitates the analysis of the dynamic nature of network traffic, providing additional descriptive power. For example, DNS and P2P graph instances can appear similar when compared in isolation, but the way the DNS and P2P TDGs change over time differs significantly. To quantify the changes over time, we introduce a series of novel metrics that capture changes both in the graph structure (e.g., the average degree) and the participants (i.e., IP addresses) of a TDG. We apply our new methodologies to improve graph-based traffic classification and to detect changes in the profile of legacy applications (e.g., e-mail).
-
-
-\paragraph*{P. Smith, et al.: Network resilience: a systematic approach}\cite{smith2011network}
-The cost of failures within communication networks is significant and will only increase as their reach further extends into the way our society functions. Some aspects of network resilience, such as the application of fault-tolerant systems techniques to optical switching, have been studied and applied to great effect. However, networks - and the Internet in particular - are still vulnerable to malicious attacks, human mistakes such as misconfigurations, and a range of environmental challenges. We argue that this is, in part, due to a lack of a holistic view of the resilience problem, leading to inappropriate and difficult-to-manage solutions. In this article, we present a systematic approach to building resilient networked systems. We first study fundamental elements at the framework level such as metrics, policies, and information sensing mechanisms. Their understanding drives the design of a distributed multilevel architecture that lets the network defend itself against, detect, and dynamically respond to challenges. We then use a concrete case study to show how the framework and mechanisms we have developed can be applied to enhance resilience.
-
-\paragraph*{V. Chandola et al. Anomaly Detection for Discrete Sequences: A Survey}\cite{chandola2012anomaly}
-This survey attempts to provide a comprehensive and structured overview of the existing research for the problem of detecting anomalies in discrete/symbolic sequences. The objective is to provide a global understanding of the sequence anomaly detection problem and how existing techniques relate to each other. The key contribution of this survey is the classification of the existing research into three distinct categories, based on the problem formulation that they are trying to solve. These problem formulations are: 1) identifying anomalous sequences with respect to a database of normal sequences; 2) identifying an anomalous subsequence within a long sequence; and 3) identifying a pattern in a sequence whose frequency of occurrence is anomalous. We show how each of these problem formulations is characteristically distinct from each other and discuss their relevance in various application domains. We review techniques from many disparate and disconnected application domains that address each of these formulations. Within each problem formulation, we group techniques into categories based on the nature of the underlying algorithm. For each category, we provide a basic anomaly detection technique, and show how the existing techniques are variants of the basic technique. This approach shows how different techniques within a category are related or different from each other. Our categorization reveals new variants and combinations that have not been investigated before for anomaly detection. We also provide a discussion of relative strengths and weaknesses of different techniques. We show how techniques developed for one problem formulation can be adapted to solve a different formulation, thereby providing several novel adaptations to solve the different problem formulations. We also highlight the applicability of the techniques that handle discrete sequences to other related areas such as online anomaly detection and time series anomaly detection.
-
-\paragraph*{V. Chandola. Comparative evaluation of anomaly detection techniques for sequence data}\cite{chandola2008comparative} We present a comparative evaluation of a large number of anomaly detection techniques on a variety of publicly available as well as artificially generated data sets. Many of these are existing techniques while some are slight variants and/or adaptations of traditional anomaly detection techniques to sequence data.
-
-\paragraph*{H. Ringberg, 
-Sensitivity of PCA for traffic anomaly detection}
-\cite{ringberg2007sensitivity}
-Detecting anomalous traffic is a crucial part of managing IP networks. In recent years, network-wide anomaly detection based on Principal Component Analysis (PCA) has emerged as a powerful method for detecting a wide variety of anomalies. We show that tuning PCA to operate effectively in practice is difficult and requires more robust techniques than have been presented thus far. We analyze a week of network-wide traffic measurements from two IP backbones (Abilene and Geant) across three different traffic aggregations (ingress routers, OD flows, and input links), and conduct a detailed inspection of the feature time series for each suspected anomaly. Our study identifies and evaluates four main challenges of using PCA to detect traffic anomalies: (i) the false positive rate is very sensitive to small differences in the number of principal components in the normal subspace, (ii) the effectiveness of PCA is sensitive to the level of aggregation of the traffic measurements, (iii) a large anomaly may in advertently pollute the normal subspace, (iv) correctly identifying which flow triggered the anomaly detector is an inherently challenging problem.
-
-\paragraph*{A. Chapanond. Graph Theoretic and Spectral Analysis
-of Enron Email Data}
-\cite{chapanond2005graph}
-Analysis of social networks to identify communities and model their evolution has been an active area of recent research. This paper analyzes the Enron email data set to discover structures within the organization. The analysis is based on constructing an email graph and studying its properties with both graph theoretical and spectral analysis techniques. The graph theoretical analysis includes the computation of several graph metrics such as degree distribution, average distance ratio, clustering coefficient and compactness over the email graph. The spectral analysis shows that the email adjacency matrix has a rank-2 approximation. It is shown that preprocessing of data has significant impact on the results, thus a standard form is needed for establishing a benchmark data.
-
-\cite{wei1994time}
 
 \section{Our Contribution}
 
+A frequency spectrum based anomaly detection technique has been proposed by~\cite{he2004spectral,chen2007spectral,chen2007tcp}.
+They analyzed properties of network protocols and also developed method for detection of network attack
+causing deviation of the spectral characteristics at given context.
+
+In our work we are going further and we use the analysis of the frequency spectrum in detection of the tunnelled connections
+inside application layer and also in the detection of the mallware-like behavior. 
+
+First we apply the detection technique at short time span (approx. 2 sec) to model a properties of the HTTP protocol and diferentiate it from
+the tunneled protocols. Tunneled protocols missuse the encapsulating protocol (in this case HTTP) in order to circumvent restrictions in computer networks 
+(e.g. corporate proxy server). Detection of tunneling protocols has been researched by many authors 
+\cite{wright2006inferring,yamada2007intrusion,estevez2004measuring,ingham2007comparing,ingham2007anomaly,alshammari2009machine,dusi2009tunnel}, 
+although none of them used frequency analysis.
+
+Next we look at higher time span (approx. 24 hour) in order to detect an mallware that uses HTTP protocol to leak data, but it is 
+assumed that is behaves differently at this time context. 
+
+The detection methods are going to be part of system comprising different detection methods and providing agregation of partial outcomes.
+
 \section{Organization}
+
+This work is organized into 5 chapters. Chapter~\ref{ch:theory} brings theoretical introduction to anomaly detection and 
+introduces computer network security aspects. Chapter~\ref{ch:method} provides detailed description of proposed
+anomaly detection method. In chapter~\ref{ch:experiments} an implementation is introduced as well as the experimentation on
+real data is depicted. Finaly, chapter~\ref{ch:conclude} concludes the work.

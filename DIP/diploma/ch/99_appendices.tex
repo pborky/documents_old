@@ -1,81 +1,326 @@
-\appendix
+
 \pagenumbering{Roman}
 \thispagestyle{empty}  
 \renewcommand{\appendixname}{Appendix}%%přílohy, číslování římskými
 
+\begin{appendices}
 
-\chapter*{Appendix A - \code{PyNfSA}: User Manual} 
-\addcontentsline{toc}{chapter}{Appendix A - \code{PyNfSA}: User Manual}
+%\addcontentsline{toc}{chapter}{Appendix}
+
+\chapter{PyNfSA Documentation}\label{ch:appa}
+
+\ifpdf%
+\includepdf[pagecommand={\thispagestyle{plain}},pages={5-}]{PyNfSA.pdf}
+\fi
 
 
 
-
-\chapter*{Appendix B } 
-\addcontentsline{toc}{chapter}{Appendix B}
+\chapter{Results}\label{ch:appb}
 
 
-%\section*{} 
-
-%
-%\section*{GARBAGE}
-%
 %\begin{figure}[h!]%
 %  \centering
-%  \includegraphics[width=140mm]{img/spect_dst_bdivp}
-%  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{target}}
-%  \label{fig:spect_dst_bdivp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/spect_src_bdivp}
-%  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(1)}$ and agregation over \textbf{source}}
-%  \label{fig:spect_src_bdivp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/spect_dst_logp}
-%  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(2)}$ and agregation over \textbf{target}}
-%  \label{fig:spect_dst_logp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/spect_src_logp}
-%  \caption{Spectrums ($mean$ - blue, $mean\pm st.dev$ - red) of some  endpoints using feature $r_t^{(2)}$ and agregation over \textbf{source}}
-%  \label{fig:spect_src_logp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/dens_dst_bdivp}
-%      \includegraphics[width=40mm]{img/legend}
-%  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(1)}_{*,j}|_e ) $ using feature $r_t^{(1)}$ and agregation over \textbf{target}}
-%  \label{fig:dens_dst_bdivp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/dens_src_bdivp}
-%    \includegraphics[width=40mm]{img/legend}
-%  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(1)}_{*,j}|_e ) $ using feature $r_t^{(1)}$ and agregation over \textbf{source}}
-%  \label{fig:dens_src_bdivp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/dens_dst_logp}
-%      \includegraphics[width=40mm]{img/legend}
-%  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{target}}
-%  \label{fig:dens_dst_logp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/dens_src_logp}
-%  \includegraphics[width=40mm]{img/legend}
-%  \caption{Conditional probability density estimation $Pr ( \mathcal{R}^{(2)}_{*,j}|_e ) $ using feature $r_t^{(2)}$ and agregation over \textbf{source}}
-%  \label{fig:dens_src_logp}
-%\end{figure}
-%\begin{figure}[h!]%
-%  \centering
-%  \includegraphics[width=140mm]{img/loglik_src_bdivp}
-%  \includegraphics[width=40mm]{img/legend}
-%  \caption{Example of log-likelihood functions $\log(L)$ used to estimate maximum likelihood}
-%  \label{fig:loglik_src_bdivp}
+%  \includegraphics[width=\textwidth]{img/roc_flow_overal}
+%  \caption{\small ROC curves of \emph{flow} dataset  when discriminating \emph{http} from   \emph{woodpecker}, \emph{httptunnel} and \emph{vpn}}
+%  \label{fig:roc_flow_overal}
 %\end{figure}
 %
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_trace_overal}
+%  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{woodpecker}, \emph{httptunnel} and \emph{vpn}}
+%  \label{fig:roc_trace_overal}
+%\end{figure}
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_flow_overal}
+  \caption{\small ROC curves of the \emph{flow} dataset when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}. Comparison of different dimensionality reduction techniques. }
+  \label{fig:roc_flow_overal}
+\end{figure}
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_trace_overal} 
+  \caption{\small ROC curves of the \emph{trace} dataset when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}. Comparison of different dimensionality reduction techniques. }
+  \label{fig:roc_trace_overal}
+\end{figure}
+ 
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+
+M(var,curt,skew) & 0.479 & 0.011& 0.643 & 0.004\\ \hline
+PCA(dim=3) & 0.760 & 0.085& 0.779 & 0.002\\ \hline
+PCA(dim=1) & 0.616 & 0.011& 0.751 & 0.004\\ \hline
+BF(bands=10) & 0.323 & 0.016 & 0.754 & 0.003\\ \hline
+BF(bands=5) & 0.468 & 0.113 & 0.768 & 0.003\\ \hline
+BF(bands=2) & 0.712 & 0.062 & 0.750 & 0.004
+
+        \end{tabular}
+    \end{center}
+    \caption{Sample mean and standard deviation of the AUC ROC when discriminating 
+    \emph{http} from \emph{woodpecker}, \emph{httptunnel} and \emph{vpn}.
+    Comparison of different dimensionality reduction techniques.}
+    \label{tbl:auc_overal}
+\end{table}
+
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_flow_pca}
+  \caption{\small ROC curves of \emph{flow} dataset  when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}.  Comparison of discriminative performance between clases.}
+  \label{fig:roc_flow_class}
+\end{figure}
+
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_trace_pca}
+  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}.  Comparison of discriminative performance between clases.}
+  \label{fig:roc_trace_class}
+\end{figure}
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+vpn & 0.830 & 0.019 & 0.758 & 0.006\\ \hline
+woodpecker & 0.796 & 0.107 & 0.816 & 0.009\\ \hline
+httptunnel & 0.442 & 0.198 & 0.707 & 0.005\\ \hline
+all & 0.814 & 0.210 & 0.815 & 0.005\\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{Mean and standard deviation of the area under ROC curve.
+     Comparison of discriminative performance between clases.}
+    \label{tbl:auc_class}
+\end{table}
+
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_flow_gmm}
+  \caption{\small ROC curves of \emph{flow} dataset  when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}.  Effect of Gaussian Mixture Model complexity on discriminative performance.}
+  \label{fig:roc_flow_gmm}
+\end{figure}
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_trace_gmm}
+  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}.  Effect of Gaussian Mixture Model complexity on discriminative performance.}
+  \label{fig:roc_trace_gmm}
+\end{figure}
+
+
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+
+PCA(dim=3),Mahalanobis & 0.751 & 0.003 & 0.760 & 0.085\\ \hline
+PCA(dim=3),GMM(comp=1) & 0.751 & 0.003 & 0.760 & 0.085\\ \hline
+PCA(dim=3),GMM(comp=2) & 0.701 & 0.020 & 0.830 & 0.019\\ \hline
+PCA(dim=3),GMM(comp=5) & 0.663 & 0.014 & 0.821 & 0.031\\ \hline
+PCA(dim=3),GMM(comp=10) & 0.659 & 0.021 & 0.827 & 0.019
+
+        \end{tabular}
+    \end{center}
+    \caption{Mean and standard deviation of the area under ROC curve. 
+    Effect of Gaussian Mixture Model complexity on discriminative performance.}
+  \label{tbl:roc_gmm}
+\end{table}
+
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \textbf{Window width}   &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         \textbf{in samples}& $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+ 1000 &&& 0.659 & 0.004\\ \hline
+ 500 &&& 0.744 &0.007\\ \hline
+ 200 &&& 0.751 & 0.003
+        \end{tabular}
+    \end{center}
+    \caption{Mean and standard deviation of the area under ROC curve. Effect of windowing on discriminative performance. }
+  \label{tbl:roc_wnd}
+\end{table}
+
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_flow_pca2}
+  \caption{\small ROC curves of \emph{flow} dataset  when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}.  
+  Effect of number of retained eigenvectors on discriminative performance.}
+  \label{fig:roc_flow_pca}
+\end{figure}
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/roc_trace_pca2}
+  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{woodpecker}, 
+  \emph{httptunnel} and \emph{vpn}.  
+  Effect of number of retained eigenvectors on discriminative performance.}
+  \label{fig:roc_trace_pca}
+\end{figure}
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|cc}
+        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+
+PCA(dim=1) & 0.757 & 0.003 & 0.612 & 0.019\\ \hline
+PCA(dim=2) & 0.760 & 0.005 & 0.628 & 0.045\\ \hline
+PCA(dim=3)& 0.751 & 0.003 & 0.532 & 0.053\\ \hline
+PCA(dim=5) & 0.751 & 0.004 & 0.366 & 0.027\\ \hline
+PCA(dim=10) & 0.729 & 0.005 & 0.331 & 0.028\\ \hline
+PCA(dim=25) & 0.720 & 0.004 & 0.292 & 0.016
+
+        \end{tabular}
+    \end{center}
+    \caption{Mean and standard deviation of the area under ROC curve. 
+    Effect of number of retained eigenvectors on discriminative performance.}
+  \label{tbl:roc_pca}
+\end{table}
+
+
+
+
+\begin{figure}[h]%
+  \centering
+                \includegraphics[width=\textwidth]{img/pca_eigenvalues}
+  \caption{\small Semilogtarithmic plot of the eigenvalues using the \emph{flow} and \emph{trace} datasts.}
+  \label{fig:pca_eig}
+\end{figure}
+
+%
+%
+%\begin{table}[h]
+%    \begin{center}
+%        \begin{tabular}{c|cc|cc}
+%        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+%         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+%
+%M(var,curt,skew) & 0.605 & 0.007 & 0.514 & 0.006\\ \hline
+%PCA(dim=3) & 0.796 & 0.107 & 0.706 & 0.003\\ \hline
+%PCA(dim=1) & 0.772 & 0.008& 0.724 & 0.004\\ \hline
+%BF(bands=10) & 0.383 & 0.019 & 0.644 & 0.006\\ \hline
+%BF(bands=5) & 0.533 & 0.072 & 0.664 & 0.007\\ \hline
+%BF(bands=2) & 0.841 & 0.042 & 0.674 & 0.005
+%
+%        \end{tabular}
+%    \end{center}
+%    \caption{Sample mean and standard deviation of the AUC ROC when discriminating \emph{http} from \emph{woodpecker})}
+%    \label{tbl:auc_woodpecker}
+%\end{table}
+%
+%
+%
+%
+%\begin{table}[h]
+%    \begin{center}
+%        \begin{tabular}{c|cc|cc}
+%        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+%         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+%
+%M(var,curt,skew) & 0.238 & 0.009 & 0.850 & 0.002\\ \hline
+%PCA(dim=3) & 0.561 & 0.189 & 0.882 & 0.004\\ \hline
+%PCA(dim=1) & 0.326 & 0.010 & 0.804 & 0.004\\ \hline
+%BF(bands=10) & 0.173 & 0.031 & 0.901 & 0.002\\ \hline
+%BF(bands=5) & 0.330 & 0.160 & 0.903 & 0.002\\ \hline
+%BF(bands=2) & 0.465 & 0.133 & 0.842 & 0.003
+%
+%        \end{tabular}
+%    \end{center}
+%    \caption{Sample mean and standard deviation of the AUC ROC  when discriminating \emph{http} from  \emph{vpn}}
+%    \label{tbl:auc_vpn}
+%\end{table}
+%
+%
+%\begin{table}[h]
+%    \begin{center}
+%        \begin{tabular}{c|cc|cc}
+%        \multirow{2}{*}{\textbf{Method}}  &\multicolumn{2}{ c| }{\emph{flow}} &\multicolumn{2}{ c }{\emph{trace}}\\
+%         & $\overline{AUC}$ & $s_{AUC}$ & $\overline{AUC}$ & $s_{AUC}$ \\ \hline
+%
+%M(var,curt,skew) &&& 0.430 & 0.006\\ \hline
+%PCA(dim=3) &&& 0.816 & 0.009\\ \hline
+%PCA(dim=1) &&& 0.840 & 0.009\\ \hline
+%BF(bands=10) &&& 0.699 & 0.005\\ \hline
+%BF(bands=5) &&& 0.736 & 0.006\\ \hline
+%BF(bands=2) &&& 0.785 & 0.008
+%
+%        \end{tabular}
+%    \end{center}
+%    \caption{Sample mean and standard deviation of the AUC ROC  when discriminating \emph{http} from   \emph{httptunnel}.
+%    Note that no data is available for traffic flow dataset.}
+%    \label{tbl:auc_httptunnel}
+%\end{table}
+
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_flow_woodpecker}
+%  \caption{\small ROC curves of \emph{flow} dataset  when discriminating \emph{http} from   \emph{woodpecker}}
+%  \label{fig:roc_flow_woodpecker}
+%\end{figure}
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_flow_vpn}
+%  \caption{\small ROC curves of \emph{flow} dataset  when discriminating \emph{http} from   \emph{vpn}}
+%  \label{fig:roc_flow_vpn}
+%\end{figure}
+%
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_trace_woodpecker}
+%  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{woodpecker}}
+%  \label{fig:roc_trace_woodpecker}
+%\end{figure}
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_trace_httptunnel}
+%  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{httptunnel}}
+%  \label{fig:roc_trace_httptunnel}
+%\end{figure}
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_trace_vpn}
+%  \caption{\small ROC curves of \emph{trace} dataset  when discriminating \emph{http} from   \emph{vpn}}
+%  \label{fig:roc_trace_vpn}
+%\end{figure}
+%
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/roc_trace_vpn_mahal_gmm}
+%  \caption{\small Comparison of unimodal Mahalanobis distance estimate and Gaussian mixture model}
+%  \label{fig:maha_gmm}
+%\end{figure}
+%
+%\begin{figure}[h!]%
+%  \centering
+%  \includegraphics[width=\textwidth]{img/pca_http_eig}
+%  \caption{\small Determining the number of dimensions of PCA transformation. Most of variance is present in first 3-5 components.
+%  	This holds for each dataset.}
+%  \label{fig:pca_http_eig}
+%\end{figure}
+
+\end{appendices}

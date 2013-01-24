@@ -2,7 +2,7 @@
 %%
 %% Network Anomaly Detection by Means of Spectral Analysis
 %% V1.2
-%% 2012/09/17
+%% 2013/01/03
 %% by Peter Boraros
 %% See http://www.pborky.sk/contact for current contact information.
 %%
@@ -22,7 +22,7 @@
 %%*************************************************************************
 
 %<------------------------------base template and packages------------------------------>
-\documentclass[a4paper,twoside,english,english,openright,cleardoublepage=empty,BCOR10mm,DIV11]{scrreprt}
+\documentclass[a4paper,twoside,english,english,openright,cleardoublepage=empty,BCOR10mm,DIV11,12pt]{scrreprt}
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{varioref}
@@ -36,21 +36,24 @@
 \usepackage{ifpdf}
 \ifpdf
 \usepackage[pdftex]{graphicx}
-%\graphicspath{{./img/}}
 \DeclareGraphicsExtensions{.pdf}
 \else
 \usepackage[dvips]{graphicx}
-%\graphicspath{{./img/}}
 \DeclareGraphicsExtensions{.eps}
 \fi
 \usepackage{caption}
 \usepackage{subcaption}
+ 
+\usepackage{multicol}
+\usepackage{multirow}
 \usepackage{color}
+
+\usepackage[toc,title]{appendix}
 
 %<-------------------------------headers----------------------------------------->
 \usepackage{headers}
 %<-------------------------------společná nastavení------------------------------>
-\usepackage[colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks]{hyperref}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks,bookmarks]{hyperref}
 \usepackage[hyphenbreaks]{breakurl}
 \usepackage[numbers,sort&compress]{natbib} %balíček pro citace literatury  
 \usepackage{hypernat}%interakce mezi hyperref a natbib
@@ -58,9 +61,8 @@
 pdftitle={\Title},%   
 pdfauthor={\AuthorName},%  
 pdfsubject={\Subject},%   
-pdfkeywords={\Keywords}%                             
+pdfkeywords={\Keywords}%
 }
-\usepackage{multicol}
 
 %% include whole pdfpages (only if using pdflatex)
 \ifpdf
@@ -74,7 +76,7 @@ pdfkeywords={\Keywords}%
 %\usepackage{packages/bc-latinmodern}
 %\usepackage{packages/bc-times}
 %\usepackage{packages/bc-palatino}
-\usepackage{packages/bc-iwona}
+%\usepackage{packages/bc-iwona}
 %\usepackage{packages/bc-helvetika}
 %<------------------------------záhlaví stránek------------------------------------->
 %\usepackage{packages/bc-headings}
@@ -184,7 +186,7 @@ prací. \par}
 
 \include{ch/02_anomaly_theory}
 
-\include{ch/03_network_security}
+%\include{ch/03_network_security}
 
 \include{ch/04_proposed_methods}
 
@@ -193,10 +195,9 @@ prací. \par}
 \include{ch/06_conclusion}
 
 %<------------------------------bibliography--------------------------------------->
-\bibliographystyle{ieeetr}
 \cleardoublepage{}
-\addcontentsline{toc}{chapter}{Bibliography}
-\bibliography{references}
+\bibliographystyle{ieeetr}
+\bibliography{references}\addcontentsline{toc}{chapter}{Bibliography}
 
 
 \cleardoublepage{}

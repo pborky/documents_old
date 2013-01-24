@@ -1,14 +1,24 @@
 
-\chapter{Anomaly Detection}
+\chapter{Theoretical Introduction} \label{ch:theory}
+
+\section{Anomaly Detection}
 
 %% this is intended to be brief, so keep it simple and general
-In general an anomaly detection is the problem of finding patterns in data that do not 
+In general, an anomaly detection is the problem of finding patterns in data that do not 
 conform to expected behavior.
-A term \emph{anomaly} or \emph{outlier} refers to these non-conforming patterns. 
-Usually knowledge about non-conforming patterns is inportant due to fact that they may refer
+A term \emph{anomaly}  refers to these non-conforming patterns. Similar term, an \emph{outlier}
+refers to patterns that are numerically distant from the rest of sample.
+In most cases outlier can indicate an anomaly. 
+
+However, the origin of diversion can be 
+caused by other factors such as artifacts or systematic error during data acciusition
+or numerical error during computations. 
+Outliers caused by such agents are usually not in
+researcher`s interest. But the  knowledge about non-conforming patterns is inportant due to fact that they may refer
 to singnificant information, in many cases also critical and actionable, 
 e.g. a tumor presence may be indicated by anomalous magnetic resonance imaging (MRI) scan, 
-network intrusion may cause anomalous signature of the packets to be observed.
+network intrusion may cause observation of anomalous signature of the packets, and unexpected 
+deviation of the physical measures in nuclear plant can have catastrophic consequences. 
 
 %% history
 The anomaly detection has been studied as early as the $19^{th}$ century by 
@@ -18,21 +28,21 @@ or developed specificaly for particular domain. %TODO moar faking history
 
 Apparently simple approach of anomaly detection is to define a region representing 
 normal behavior and declare any patterns which does not conform to this region as anomaly. 
-This approach is obfuscated by several factors:
+This na\"ive approach is obfuscated by several factors:
 \begin{itemize}
-	\item Definition of normal behavior must contain every possible normal behavior 
-	and it is difficultly achievable.
-	\item The boundary between anomalies and normal behavior is not accurate and 
-	can introduce wrong interpretation	of particular patterns laying near the boundary.
-	\item Adaptation of malicious agents to make their outcomes appear like normal in 
-	given feature space.
+	\item definition of normal behavior must contain every possible normal behavior 
+	and it is difficultly achievable,
+	\item the boundary between anomalies and normal behavior is not accurate and 
+	can introduce wrong interpretation	of particular patterns laying near the boundary,
+	\item adaptation of malicious agents to make their outcomes appear like normal in 
+	given feature space,
 	%TODO \footnote{Adaptation of the agents may }
-	\item Normal behavior is evolving in time and thus an normal model defined in one time span 
-	can be inaccurate or invalid in future.
-	\item An ammount of labeled data needed for derivation of the normal model is insuficient.
-	\item Presence of the noise that can  be similar as anomalies, and thus it 
-	can be difficult to suppress. 
-	\item Different application domains have different notion of an anomaly, 
+	\item normal behavior is evolving in time and thus an normal model defined in one time span 
+	can be inaccurate or invalid in future,
+	\item an ammount of labeled data needed for derivation of the normal model is insuficient,
+	\item presence of the noise that can  be similar as anomalies, and thus it 
+	can be difficult to suppress,
+	\item different application domains have different notion of an anomaly, 
 	thus development of domain-indepedent method is complicated.
 \end{itemize}
 
@@ -42,7 +52,7 @@ factors specific for a particular domain. The anomaly detection techniques itsel
 were developed by adoption of the concepts from diverse disciplines such as \emph{statistics}, 
 \emph{machine learning}, \emph{data mining}, \emph{information theory}, \emph{spectral theory}.
 
-\section{Input Data}
+\subsection{Input Data}
 
 Input is generally a collection of data instances, referred as \emph{pattern}, 
 \emph{sample} or \emph{observation}.
@@ -55,7 +65,7 @@ Furthermore in case of each data instance consist of single attribute it is reff
 For multivariate instances the data types of the attributes might be mixed as well as 
 the domain of definition might be different.
 
-\subsection{Relationship Among Data Instances}
+\paragraph*{Relationship Among Data Instances.}
 
 Based on presence of the relationship in data, the input data can be further categorized as
 \emph{point data}, \emph{sequence data}, \emph{spatial data}, and \emph{graph data}. 
@@ -85,7 +95,8 @@ The metric determines an neighbourhood of each data instance. The examples of me
 	for $k=2$ we get an Euclid distance, or for $k=\infty $ we get a Chebyshev distance.
 } %
 (e.g. \emph{Euclidean} distance or \emph{Manhattan} distance), \emph{Levenshtein distance}
-(editation distance between strings of characters). Typical example of spatial data is the
+(editation distance between strings of characters) or \emph{Mahalanobis distance}.
+Typical example of spatial data is the
 coordinate in geographic coordinate system or, asuming our definition, also textual data 
 (notice that Levenshtein distance is \emph{metric} among the strings of characters).
 The \emph{graph data} instances are represented by graph structure%
@@ -98,12 +109,12 @@ The \emph{graph data} instances are represented by graph structure%
 	assigning a number (e.g. weight, price, etc.) to each edge, we call structure
 	$G=\left( V,E,w \right)$ a \emph{weighted graph}.
 }%
-. As an example of the graph data is map of social social interactions.
+. As an example of the graph data can be a map of social interactions on community.
 
 In case context are mixed we refer to spatio-temporal (e.g. climate data) or 
 graph-temporal data (computer network packet flows).
 
-\subsection{Data Labels}
+\paragraph*{Data Labels.}
 
 Labels associated with particular data instances denote if instance is \emph{anomalus}
 or \emph{normal}. Labeling is often done by human expert hence it is very expensive and requires
@@ -112,17 +123,39 @@ than obtaining labels for anomalous behavior. Moreover, anomalous behavior is dy
 new types of the anomalies might originate. Newly formed anomalies might be then missing 
 from models and hence might elude undetected in detection process. 
 
-\section{Anomalies}
+Instead of dichotomous labeling (marking instances as normal or anomalous) an more comprehensive
+classification can be provided. This may have advantage in construction model of specific normal behavior.
+
+\subsection{Anomalies}
 
 Based on presence of the relationship between data instances and problem formulation, anomalies
 can be divided into \emph{point anomalies}, \emph{contextual anomalies} and \emph{collective anomalies}.
 
-\textbf{Point anomalies.} In the simplest case, if an individual data instance is considered as
+\begin{figure}[h]%
+  \centering
+        \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{img/anomaly_point}
+                \caption{\small point anomaly; anomalous data instance lies far avay from the
+                rest of data set}
+                \label{fig:anomaly_point}
+        \end{subfigure}%
+        ~ \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{img/anomaly_colective} 
+                \caption{\small collective anomaly occuring in time series; the red part represents deviation from normal}
+                \label{fig:anomaly_collective}
+        \end{subfigure}%
+  \caption{\small Example of a point anomaly and a collective anomaly. }
+  \label{fig:anomaly}
+\end{figure}
+
+\paragraph*{Point anomalies.} In the simplest case, if an individual data instance is considered as
 anomalous with respect to the rest of data. No information about relationship between data instances
 is assumed. This type of anomaly is target of most of the research studies.
 %TODO include examples and pictures
 
-\textbf{Contextual anomalies.} In many cases, an context is present in data set. 
+\paragraph*{Contextual anomalies.} In many cases, an context is present in data set. 
 Context is induced by the structure of the data. In case a data instance is anomalous only whithin
 a given context, it is called \emph{contextual anomaly}. 
 The notion of the context has to be specified within problem formulation. 
@@ -138,9 +171,7 @@ the number of arrived packets during network communication whithin a specific ti
 as an behavioral attribute. Identical data instances (in terms of behavioral attributes) 
 may be considered as anomalous or non-anomalous in a different contexts.
 
-%TODO some graphics
-
-\textbf{Collective anomalies.} If a collection of related data instances is anomalous with respect
+\paragraph*{Collective anomalies.} If a collection of related data instances is anomalous with respect
 entire dataset it is called \emph{collective anomaly}. The collective anomaly is defined only 
 in data set where an relationship among instances are related, e.g. in sequence data, graph data or
 spatial data.
@@ -152,37 +183,44 @@ and \emph{collective anomalies} are relevant for data where relationship among i
 detection problem can be converted into contextual anomaly detection problem.
 %TODO example needed
 
-\section{Techniques}
+\subsection{Techniques}\label{subsec:anomtech}
+
+\name{Chandola et al.} in~\cite{chandola2009anomaly} provided an comprehensive overview of anomaly detection
+techniques. They covered a wide range of appliaction domains as well as wide range of used tehcniques 
+depicting the advantages and drawbacks of each. We provide brief extract of them in this section. 
 
 Availability of the data labeling singnificantly affects usability of particular anomaly technique. 
 Based on extent, in which labels are present in data, following modes of operation of anomaly detection 
 techniques are available: \emph{supervised}, \emph{semi-supervised} and \emph{unsupervised}.
 
-\textbf{Supervised anomaly detection} assumes availability of labeled data, for normal and also for 
-anomaly class. This approach has two major issues. First is that it requires model for both -- the normal
+\paragraph*{Supervised anomaly detection} In supervised anomaly detection
+availability of labeled data is assumed.
+%, for normal and also for anomaly class. 
+This approach has two major issues. First is that it requires model for both -- the normal
 and the anomalous instances. As the anomalous instances are less frequent it takes huge effort to 
-obtain and to label data instances for all possible anomalous behaviors. Secondly it is an problem of
-imbalanced class distribution, that has been addressed by several studies, e.g. \cite{chawla2004editorial},
-\cite{phua2004minority} or \cite{joshi2002predicting}.
-%TODO explain the problem of imbalanced class distribution
+obtain and to label data instances for all possible anomalous behaviors. 
+Secondly it is an problem of imbalanced class distribution.
+Obtaining a acurate and representative labels for all classes  is dificult.
 
-\textbf{Semi-Supervised anomaly detection} assumes availability of data labels only for one class. 
+\paragraph*{Semi-Supervised anomaly detection} assumes availability of data labels only for one class. 
 Generaly, it is not easy nor possible to model anomalies as this might entail previously unseen 
 catastrophic event, to be predicted using the given method.
 Thus the wast majority of {semi-spervised} techniques model normal behavior.
 
-\textbf{Unsupervised anomaly detection} do not require training data. The unsupervised 
+\paragraph*{Unsupervised anomaly detection} do not require training data. The unsupervised 
 techniques are based on assumption that normal instances are more frequent or have densier distribution
 than anomalous.	
 
+\paragraph*{}
 
 Typically, the output produced by anomaly detection technique are \emph{scores} or \emph{labels}.
-%
-\textbf{Score} is assigned to each data instance depending on the degree to which that instance is 
-considered as anomaly.
-\textbf{Label} is assigned to each data instance to distinguish normal or anomalous instance.
+Score is assigned to each data instance depending on the degree to which that instance is 
+considered as anomaly. Label is assigned to each data instance to distinguish normal or anomalous instance.
 
-Based on used method, techniques can be divided to following categories: \emph{classification},
+\paragraph*{}
+
+Techniques can be further subdivided based on method into following subcategories:
+\emph{classification},
 \emph{nearest neighbor}, \emph{clustering}, \emph{statistical}, \emph{information teoretic},
 \emph{spectral decomposition}%
 \footnote{
@@ -196,29 +234,104 @@ Based on used method, techniques can be divided to following categories: \emph{c
 }%
 , etc. Some of the techniques are inherently \emph{unsupervised}, e.g. \emph{nearest neighbor} and 
 \emph{clustering} based.
-\begin{itemize}
-	\item clasification 
-	\begin{itemize}
-		\item rule 
-		\item bayesian network 
-		\item support vector machines
-		\item neural networks
-	\end{itemize}
-	\item nearest neighbor
-	\begin{itemize}
-		\item density  
-		\item distance
-	\end{itemize}
-	\item clustering
-	\item statistical
-	\begin{itemize}
-		\item parametric  
-		\item nonparametric
-	\end{itemize}
-	\item information theoretic
-	\item spectral decomposition
-\end{itemize}
 
-\section{Evaluation of Outlier Detection}
+\paragraph*{Clasification} is the problem of identification to which of a 
+	categories a observation belongs to. It operates in two phases: first it ``learns'' a model 
+	based on subset observations (training set) and second it infers a class for new observations 
+	(testing set) based on learnt model.
+	Examples of classification techniques are:
+	\begin{itemize}
+		\item \emph{Rule based} classification or concept learning uses a rule or concept based on logical 
+		representation of the data instance.
+		\item \emph{Bayesian network} uses a model represented by a probabilistic graphical model.
+		\item \emph{Support vector machines} is a problem of finding discriminating hyperplane in 
+		a feature space such that it maximizes distance from the data instances of particular classes.
+		A kernel trick can be used to map a obeservation into inner product space without need to compute 
+		the product explicitly.
+		\item \emph{Artificial neural networks} is a network of artificial neurons, an abstractions of 
+		biologial neurons. They try to resemble learning proces of the biological neural networks.
+	\end{itemize}
+\paragraph*{Nearest neighbor.} Under assuption that anomlies are more distant from other data instances, 
+than normal data instances. A detection method based on neighbourhood can use the \emph{distance to $k$-th 
+nearest neighbor} or the \emph{relative density} of each data isntance to compute anomaly score.
 
-\section{Application domain}
+\paragraph*{Clustering} is unsupervised technique that groups instances based on their similarity measure.
+It uses assumption that normal data belongs to a larger and denser clusters of similar instances, while the anomalies
+occur alone or in smaller or sparser clusters.
+
+
+\paragraph*{Statistical} anomaly detection techniques uses principle stated by Anscombe in~\cite{anscombe1960rejection}:
+``\emph{An anomaly is an observation which is suspected of being partially or wholly irrelevant because it is not 
+generated by the stochastic model assumed.}'' Statistical techniques assume that anomalies occurs in low probability 
+areas of the stochastic model. A model estimation is done by fitting to given data (training set) and prediction
+if unseen observation belongs to a normal model is done by statistical hypothesis testing.
+Based on nature of the model statistical techniques can be subdivided into \emph{parametric} and \emph{nonparametric}.
+While \emph{parametric} techniques rely on presence of distribution over data. The fitting is then process of
+estimation of distribution parameters. \emph{Non-parametric} techniques do not rely on data belonging to any particular distribution,
+they may involve histogram model or the kernel function based model.
+
+\paragraph*{Information theoretic} anomaly detection techniques use information theoretic measures, such as \emph{entropy}, 
+in analysis of data. The key assuption is that the anomalies induce irregularities in information content.
+
+\paragraph*{Spectral decomposition} is used to embed the data in lower dimensional subspace in which the data 
+instances can be discriminated easily. Many techniques based on Principal Component Analysis has been emerged 
+(e.g.~\cite{ringberg2007sensitivity}). Some of them decompose space to normal, anomaly and noise subspaces.
+The anomalies can be then detected in \emph{anomaly subspace}. 
+
+Spectral analysis is also related to statistical analysis of the time domain signal in frequency domain.
+The power spectral density (PSD) of a stochatic proces is estimated and statistical properties are 
+analyzed in this representation. In present work we are concerned about this method and more comprehensive
+description is provided in chapter~\ref{ch:method}.
+
+
+%\subsection{Evaluation}
+
+%\subsection{Application domains}
+
+\section{Computer Network Security}
+%\section{Computer Network Anomaly Detection}
+
+Computer security focuses on maintaining \emph{confidentiality}, \emph{integrity} and \emph{availability} of information
+and iformation systems. The information or the information system that is accesible from the network must face the
+problem with possibility of unauthorized access, wiolation of integrity or reduction of the availability.
+These concern are true especially systems that are in economical interest of the potential malicious agents
+such as banking portal, Virtual Private Network (VPN) access to the companies, etc. 
+
+Detecting and preventing the activity of malicious agents is the goal of the \emph{intrusion detection systems} (IDS).
+The intrusion detection systems can be categorized into \emph{network}, \emph{host-based}.
+In the \emph{Host-based intrusion detection systems} (HIDS) an malicious activity is identified by examinig the 
+actions performend on the attacked computer.
+\emph{Network intrusion detection systems} (NIDS) are indepent platforms that identifies malicious activities by examining 
+the network traffic.
+
+The intrusion detection systems can be also divided to \emph{active} and \emph{reactive}. 
+The \emph{active} intrusion detection systems are monitoring
+and detecting potential malicious activities and in case of positive findings they raise alert or record an audit log.
+On the ohter hand the \emph{reactive} systems also known as \emph{intrusion prevention systems} (IPS)
+responds to the malicious activity by blocking the network traffic from the suspected source.
+
+According to~\cite{patcha2007anomaly} the network intrusion detection systems can be further subdivided into 
+\emph{signature} or \emph{misuse} detection,
+\emph{anomaly} detection systems or \emph{hybrid systems} comprising both approaches.
+
+\emph{Signature detection} is technique that relies on database of patterns of known attacks. 
+The patterns are then compared with  data from the environment. The model of intrusive process is represented by
+the patterns. These systems try to collect an evidence of malicious activities irrespective to the 
+normal behavior. While the signatures of attacks are often conclusive evidence of malicious activity,
+an detection of alarm is accurate. However system fails to detect and malicious activity in case the attack
+model is changing or is new, unknown to a system.
+
+An \emph{anomaly detection} systems detect the malicious activity by comparing the observations whith model of normal
+behavior. They rely on assumption that malicious activity is subset of anomalous ones. As it models a normal behavior
+it able to detect new previously unseen anomalies. In case the malicious behavior is not anomalous, it is not detected.
+Moreover if the model is not accurate an legitimate acitivity can be treated as malicious. 
+
+\emph{Hybrid system} combines advantages of both approaches. Is models a normal behavior and provides
+detection of anomalies as well as it models an malicious activity combining outcomes of both approaches.
+
+\name{Chandola et al.} in~\cite{chandola2009anomaly} provided an comprehensive overview of anomaly detection
+techniques. They covered a wide range of appliaction domains as well as wide range of used tehcniques 
+depicting the advantages and drawbacks of each. \name{Patcha et al.} in~\cite{patcha2007anomaly}
+provided comprehensive overview of anomaly detection techniques used specifically in intrusion detection systems. 
+Some of the techniques has been introduced in section~\ref{subsec:anomtech} in this section we focus specifically
+on techniques used in network instrusion detection not mentioned above.

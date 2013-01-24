@@ -1,2 +1,126 @@
-\chapter{Conclusion}
+
+
+\chapter{Assessment and Conclusion}\label{ch:conclude}
+%\section{} 
+\section{Results}
+\label{sec:results}
+
+Analysis has been performed using non-public \code{NetFlow} and \code{PCAP} data.
+Summary information about datasets are provided in the table~\ref{tbl:datasets}.
+We will denote the datasets hereby as \emph{flow} resp.  \emph{trace}.
+The overal time span has been two weeks. Simulation of the malicious behavior
+has been performed at duration of several days and mixed into both data sets.
+
+The sampling frequency for \emph{flow} has been given by nature of the data. 
+As it is presampled at period 5 minutes, it`s inverse, a value 0.0033Hz has been used.
+In \emph{trace} data, a sample rate have been selected based on 
+analysis of the inter-packet time. For the HTTP traffic it has been observed that 
+that the inter-packet time for most of the packets was less than 20ms thus sample rate 
+of 100Hz has been chosen according to Nyquist theorem.
+ 
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{r|cc}
+        	\textbf{Dataset identification} & \textbf{flow}	&  \textbf{trace} \\ \hline
+        	{Source data format} & \code{NetFlow}	&  \code{PCAP} \\ 
+        	Duration [day] &  $\sim$  14 &  $\sim$  7 \\
+        	Number of annotated flows [-] & 774677 & 1148\\
+        	Sample rate [Hz] & 0.0033 & 100  \\
+        	Window size [samples] & 284 & 200  \\ %TODO
+        	Window size  [hour; second] & $\sim$ 24 & 2  \\
+        \end{tabular}
+    \end{center}
+    \caption{\small Information about datasets}
+    \label{tbl:datasets}
+\end{table}
+
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|cc|ccc}
+        	& \multicolumn{2}{ c| }{Number of samples}&&&\\
+        	& \textbf{trace}& \textbf{flow}& Model	&  Negative & Positive \\ \hline
+        	\emph{http} & 21249 &7183& x & x & - \\
+        	\emph{vpn} & 128026 &210& - & - & x \\
+        	\emph{httptunnel} & 14064 &20& - & - & x \\ %TODO
+        	\emph{woodpecker} & 160054 &400& - & - & x \\
+        \end{tabular}
+    \end{center}
+    \caption{\small Labeling of the sample}
+    \label{tbl:classes}
+\end{table}
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{c|c}
+        	\textbf{Method}	& \textbf{Parameters}  \\ \hline
+        	Principal Component Analysis (PCA) & number of dimensions  \\
+        	Momentum (M) & list of moment functions  \\
+        	Band Filter (BF) & number of bands \\
+        \end{tabular}
+    \end{center}
+    \caption{\small Assesed methods of dimensionality reduction}
+    \label{tbl:methods}
+\end{table}
+
+Table \ref{tbl:classes} contains information about classes present in dataset. A class \emph{http}
+has been used to fit the models. All classes including modeled have been used in validation.
+
+On the figures \ref{fig:roc_flow_overal} and \ref{fig:roc_trace_overal} (in appendix \ref{ch:appb})
+there is a ROC curve of various methods on datasets described by table \ref{tbl:datasets}.
+It depicts overal discrimative properties between positive and negative classes
+as described by table \ref{tbl:classes}. 
+Quantitave measures are in table \ref{tbl:auc_overal}.
+Consistently better results are achieved by using methods based on PCA dimensionality reduction.
+
+On figures \ref{fig:roc_flow_gmm}, \ref{fig:roc_trace_gmm} and table \ref{tbl:roc_gmm}
+we compared how is gaussian model complexity affecting discriminative performance and we 
+examined that for packet trace data, decrasing performance with increasing complexity occured.
+However for \emph{netflow} dataset using a bimodal instead of unimodal model significantly improves performance. 
+The plot is showing ROC curves for gaussian mixtures with varying number of components.
+We decided to use unimodal distibution for packet trace data and bimodal model for flow data.
+
+The figure \ref{fig:roc_flow_class}, \ref{fig:roc_trace_class} depicts diferences between classes. For \emph{flow} the ROC
+cuves tend to by sharp and good performing in discriminating all measured classes.
+Table \ref{tbl:auc_class} contains quantitative measures.
+
+Figure \ref{fig:pca_eig} depicts an decrease of variances of eigenvectors. This trend is dependent on
+data instancef of the \emph{http} class. It can be shown that taking first~2 eigenvectors is sufficient.
+Plots \ref{fig:roc_flow_pca}, \ref{fig:roc_trace_pca} and table \ref{tbl:roc_pca} supports this statement. It shows
+ROC curves and AUC values for varying number of eigenvectors used.
+
+
+\section{Conclusion}
+
+In present work we proposed new detection mechanism of network traffic anomalies
+based on statistical analysis of the frequency components of the signal.
+
+We were focused on detecting tunneled connections and missuse of the HTTP protocol as it is easy way to
+circumvent restriction policies.
+
+
+Our method estimates power spectral density of the packet process to create features.
+Packet process is treated as stochastic stationary process of packet arrivals and departures.
+Power spectral density has been estimated using rectangular windowing and using Fourier transform of
+autocorrelation function.
+
+Principal component analysis has been used to reduce feature space dimensionality and increase
+information content in retained features.
+Analysis of the eigenvalues showed that first~3 dimensions are significant. 
+
+Finally statistical analysis based on  Mahalanobis distance with
+unimodal Gaussian model has been used  to evaluate anomaly score.
+Other possibilities of estimating anomaly score can involve Gaussian Mixture Models.
+The score in this case, is the log-probability estimated by model.
+
+We modeled normal behavior of the HTTP connections. The model has been fitted
+by means of maximum likelihood estimator (MLE) to a testing dataset
+comprising approximately two weeks of traffic. The model has been then crossvalidated using testing set 
+drawn from same population using stratified k-fold crossvalidation.
+For evaluation we used an ROC curves. ROC analysis showed that the method is performing well on 
+the packet trace data as well as on traffic flow statistics data.
+
+Further research is required to assess robustness in collaborative environment.
+The method is intended to focus on specific behavior. In collaborative system it is intended
+to be usefull in detecting  various activities by extending a models to cover different behaviors.
 

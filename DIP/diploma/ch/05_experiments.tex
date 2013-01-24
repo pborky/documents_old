@@ -1,364 +1,240 @@
-\chapter{Experiments}\label{sec:experiments}
+\chapter{Experiments}\label{ch:experiments}
 
-In this part we describe an experimentation with the method described in chapter
-\ref{ch:method}. Software \code{pynfsa} has been created for
-experimentation purposes.The software has been developed using 
-Python Programming Language ver.~2.7.3
-(see~\cite{rossum2011python} for reference manual).
+In this chapter we describe an experimentation with the method derived in chapter
+\ref{ch:method}. Software \code{PyNfSA} has been created using 
+Python Programming Language~\cite{rossum2011python} for
+experimentation purposes. It is intended
+to be a set of tools to provide convenient environment 
+for performing signal analysis on the network traffic data. 
 
-\section{Data gathering}
+In following sections we introduce data acciusition process (section~\ref{sec:data})
+as well as the process of signal analysis using \code{PyNfSA} (section~\ref{sec:sw}).
+Finally we depict the results of the experimentation on real data (section~\ref{sec:results}).
+
+\section{Data gathering} \label{sec:data}
 
 For training and evaluation purposes several datasets has been used. We took in account
 \emph{packet trace} data as well as \emph{traffic flow statistics}. 
 
-For the capure and storage of the packet \emph{trace data} we use \code{pcap} format.
-This format is used by open-source library \code{libpcap} \cite{jacobson2009libpcap}, 
-that is available for wide range of platforms (Windows, Linux, BSD, ...) and 
-has bindings to several programming laguages (C, perl, python, ...).
+For the capure and storage of the packet \emph{trace data} we use \code{PCAP} format.
+This format is used by open-source library \code{libpcap}~\cite{jacobson2009libpcap}, 
+that is available for wide range of platforms (Windows, Linux, BSD, etc.) and 
+has bindings to several programming laguages (C, perl, python, etc.).
 
 For \emph{traffic flow statistics}  Cisco Systems developed an 
 \code{NetFlow} format and communication protocol.
 It has now wide range of equivalent implementations, e.g. \code{JFlow} 
 (developped by Juniper Networks), and there also exists software to generate 
-\code{NetFlow} from \code{pcap} files.
+\code{NetFlow} from \code{PCAP} files.
 
-\emph{Cisco Systems NetFlow v. 9}  protocol is published in RFC3954 \cite{claise2007rfc}.
-It contains information about NetFlow data gathering and exchange process, as well
+\emph{Cisco Systems NetFlow v. 9}  protocol is published in RFC3954~\cite{claise2007rfc}.
+The publication contains information about NetFlow data gathering and exchange process, as well
 as the specification of data attributes contained within dataset.
 However the specification is extensive, and for our experiments we use only negligable 
-subset of the attributes as has been defined in section \ref{sec:collect}.
+subset of the attributes as has been defined in section~\ref{sec:collect}.
 
-As for internal representation of the data we use integer matrices,
-our experimental software uses \code{HDF5} suite \cite{folk2011overview}
-for an internal representation of the data. This suite consits of several 
-open-source libraries, tools and bindings to various languages.
+For internal representation of the data we use matrices and array databases.
+Our experimental software uses \code{HDF5} suite~\cite{folk2011overview}
+for storage of the data. This suite consits of several open-source libraries, tools and 
+bindings to various languages.
 %this is irrelevantIt is used also by Matlab or Mathematica.
-Our experimantal software is capable of conversion from \code{pcap} or \code{NetFlow} 
-formats to integer-matrix representation in \code{HDF5} files.
+Our experimantal software is capable of conversion from \code{PCAP} or \code{NetFlow} 
+formats to matrix representation in \code{HDF5} files.
 
 \subsection{Simulation}
-Virtual testbed has been used to simulate traffic in low scale.
-A \code{tcpdump} \cite{jacobson2009tcpdump} software has been used to 
+Virtual testbed has been used to simulate traffic in a low scale.
+A \code{tcpdump}~\cite{jacobson2009tcpdump} software has been used to 
 capture packet data in experimental testbed.
-Testbed consist of three or more virtual host computers. Communication between
-them has been routed trought one of them where \code{tcpdump} has been used
+Testbed consist of three or more virtual computers. Communication between
+hosts has been routed trought one of them where \code{tcpdump} has been used
 to capture the communication in the tesbed. The \code{tcpdump} captures every
-packet passing trough the interfaces and stores it in file of \code{pcap} format.
- Each captured
-packet has been truncated to 200 bytes before storing as we are not concerned with
-payloads of the packets in our analysis.
+packet passing trough the interfaces and stores the data in \code{PCAP} ~\cite{jacobson2009libpcap} file.
+Each captured packet has been truncated to 200 bytes before storing.
 
 Various scenarios has been simulated in the testbed  in small scale: 
-file tranfers, telnet and VPN  connections
-using HTTP and HTTPS tunneling, as well as the experimental mallware-like 
-software execution%
-\footnote{
-    In this case the malware has been sending information to remote server
-    using HTTP or HTTPS protocols. The amount of data were
-    inverse proportional to delay between transmissions and the delay 
-    has been chosen at random.
-}%
-. This data has been mixed with data obtained from the publis sources, 
-e.g. CAIDA Anonymized Internet Traces \cite{caida2011trace}.
+\emph{eperimantal mallware-like
+software}, \emph{file tranfers}, \emph{text terminal sessions}, 
+\emph{tunneled connections}, \emph{virtual private network (VPN)  connections}.%
+%\footnote{
+%    In this case the malware has been sending information to remote server
+%    using HTTP or HTTPS protocols. The amount of data were
+%    inverse proportional to delay between transmissions and the delay 
+%    has been chosen at random.
+%}%
+%. 
 
-\subsection{Anonymized public data}
-There are wide range of datasets available in public domain, however improper 
-selection of dataset can bias the results of the experiments. 
+The experimental mallware-like software called \code{woodpecker} 
+has been created for purposes of present work.
+It has been intended to simulate behavior of the malicious agent sending and receiving information to
+remote server using HTTP protocol. The delay between consecutive requests 
+as well as the size of the payload has been randomized. 
+At protocol level an agent has not been intended to violate specification, 
+thus standard implementation of HTTP protocol has been used.
+At least ten instances of the \code{woodpecker} operated over several days 
+in eperimental testbed simulating several attacked hosts.
 
-By reseraching in papers related to IDS systems, references to public datasets has been found.
-We took into consideration few of them:
+For tunneled connection an \code{httptunnel} software has been used. This softvare provides
+data link between two endpoint encapsulating the data to payloads of the HTTP requests and 
+responses. A random data has been used to pass trought the tunnel.
 
-\emph{DARPA Intrusion Detection Data Sets} \cite{darpa1999ids} are dataset captred in artificial
-environmnet simulated in laboratory. \name{McHugh}  raised critics against this datasets about
-the extent to which the data is appropiate for evaluation of IDS systems.
-He noticed that the architecture has been developed from the attacker's point of view which
-can lead in biased evaluation.
+For the VPN connection an \code{OpenVPN} software has been used. It is open-source and
+widely used VPN client and server. It has been used to tunnel the user traffic
+including world wide web, terminal sessions, or the file transfers. The behavior of the
+traffic encapsulated in tunnel has been changing. The were present single connection as well
+as multiplexed ones. It has been also used to pass troughout the HTTP proxy server 
+to circumvent security restrictions. 
+The VPN server uses an HTTPS service TCP port and is intended to be undistinguishable 
+from the HTTPS service by the port number. 
+However there are signature-based methods used to detect such behavior,
+it uses inspection of the packet payload. We are not concerned with this option
+as we intend to build an anomaly detection method instead that doues not have 
+the packet payload at the input.
 
-One of the most used datasets are published by \emph{The Cooperative Association for Internet 
-Data Analysis (CAIDA)}. Published datasets, that are in our interest are 
-\emph{CAIDA Anonymized Internet Traces 2011} \cite{caida2011trace},
-captured at internet backbone links in Chicago, US.
-The data contains timestamped anonymized packet headers in \code{pcap} format.
+Simulated data has been mixed with data obtained from other sources. Simulated 
+malicious activities has been subject to test the performance of the method.
 
-\subsection{NetFlow}
 
-NetFlow data has been provided by team of present work supervisor. The data were organized
-in text files. The text files has been produced using \code{nfdump} \cite{haag2006netflow}
-software. The output format contains one record per line and each records contains following
-information about single flow:
-\begin{itemize}
-\item start of the flow (timestamp in millisecond resolution),
-\item duration of the flow (given in millisecond resolution),
-\item protocol,
-\item source IP address,
-\item destination IP address,
-\item source port (for TCP and UDP protocols, zero for other protocols),
-\item destination port (for TCP and UDP protocols, type and code for ICMP, 
-	zero for other protocols),
-\item TCP flags in text format,
-\item Type of Service (ToS),
-\item packet count,
-\item total bytes.
-\end{itemize}
+%\subsection{Anonymized public data}
+%
+%There are wide range of datasets available in public domain, however improper 
+%selection of dataset can bias the results of the experiments. 
+%
+%By reseraching in papers related to IDS systems, references to public datasets has been found.
+%We took into consideration few of them:
+%
+%\emph{DARPA Intrusion Detection Data Sets}~\cite{darpa1999ids} are dataset captred in artificial
+%environmnet simulated in laboratory. \name{McHugh}  raised critics against this datasets about
+%the extent to which the data is appropiate for evaluation of IDS systems.
+%He noticed that the architecture has been developed from the attacker's point of view which
+%can lead in biased evaluation.
+%
+%One of the most used datasets are published by \emph{The Cooperative Association for Internet 
+%Data Analysis (CAIDA)}. Published datasets, that are in our interest are 
+%\emph{CAIDA Anonymized Internet Traces 2011}~\cite{caida2011trace},
+%captured at internet backbone links in Chicago, US.
+%The data contains timestamped anonymized packet headers in \code{PCAP} format.
 
-The data has been collected at university routers and switches and contains %TODO  specify how many
-amount of flows.
+\subsection{Anonnymized non-public data}\label{susec:non-pub}
 
-\subsection{Labeling}
+Two evaluation datasets has been used. One has been captured on campus routers
+and has been provided by this work`s supervisor. The data format used an \code{NetFlow} specification
+to gather the data. It was an capture of flow statistics at the campus network over
+two weeks. An 5 minute sampling period has been used. An open-source implementation
+of \code{NetFlow} standards is the \code{nfdump}~\cite{haag2006netflow} software.
+It has several options of data formatting and most convenient for further processing
+is the line text format as the parser should be implemented ass the single regular expression.
+
+Another datased has been captured at different locations and environment using a \code{tcpdump} 
+software providing a \code{PCAP} format. The data comprises typical use of the computer network
+as the world wide web (\code{WWW}), terminal session (\code{SSH}, \code{telnet}, \code{RDP}), 
+file transfers (\code{SCP}, \code{CIFS}) etc. It has been collected over period of one week.
+
+\subsection{Labeling}\label{subsec:labeling}
 
 Labeling of the data is performed in manual manner involving expert knowledge.
-For the simulated traffic the labels are easy to assign as they are known during the simulation.
-Labeling the gathered data requires huge effort. Especially or the data obtained at high 
-wolumes at Internet backbone. An approach often used, is to use the state-of-the-art
-intrusion detection system to perform analysis and obtain labeling from its output. 
-However the labelling the can be biased especially for new unknown malicious behaviors
-that is subject to research.
+For the simulated traffic, labels are easy to assign as they are known during the simulation.
+Labeling data gathered in real network over longer period of time
+requires huge effort. 
+
+An approach often used, %TODO cite
+is to use  state-of-the-art intrusion detection system to perform analysis and obtain
+labeling from its output, however labelling obtained  this way
+can be biased especially for new unknown malicious behaviors that is subject to research.
 
 The labeling of the data is needed for training in case of supervised or semi-supervised
 anomaly detection methods and it is always needed for evaluation of the performance of methods
 (even unsupervised).
 
+In case the labels are not coresponding to reality it can bias the model fitting process and 
+thus decrease performance of the model. Altought there are model fitting methods that are 
+robust to mislabelled sample, it is important to obtain sample with correct labeling
+information for model finding and evaluation purposes. The evaluation of the robustness
+of such method has to be performed separately.
+
+In present work labeling of captured data has been derived using manual inspection by human expert.
+Labeling o the simmulated attacks has been know at the time of the data capture.
 
 
-\cite{rossum2011python,oliphant2006numpy,pedregosa2011scikit}
+\section{Implementation} \label{sec:sw}
 
-In experiments we focused on the application protocols that are most 
-spread in computer networks and that are thus most widely miss-used. 
-In particular we will analyze protocol HTTP and its encrypted version -- HTTPS. 
-Most of the network gateways allow only usage of network protocols HTTP or HTTPS. 
-As protocol HTTPS uses encryption, the gateway is unable to detect miss-use by 
-analyzing content and thus it is unable to enforce policy restrictions.
-~\\
-~\\
-\textbf{FOLLOWS PART OF OLDER WORK (garbage):}
+For purposes of exeperimentation an \code{PyNfSA}~\cite{boraros2012PyNfSA} 
+software has been created. It integrates several libraries in Python Programming language
+to provide computations introduced in chapter~\ref{ch:method}. The solution is built
+around \code{numpy}~\cite{oliphant2006numpy} library. Complete list of dependecies as well as the
+usage and development manual is included in \emph{PyNfSA Documentation} in Appendix~\ref{ch:appa}.
+Let us introduce the implementation details of the \code{PyNfSA}  software in terms 
+described in chapter~\ref{ch:method}:
 
-\section{Introduction}
-Motivation for this work is to enable ability to distinguish a periodic behavior of potential threats from ordinary network communication. Example dataset that has been provided for purposes of this work contains a samples of communication of the unknown malware along with the ordinary network communication. Malware had periodically sending  (in interval of 10 seconds) a small amount of data to one concrete host (malware`s server).
+Data accuisition requires \code{libpcap} ~\cite{jacobson2009libpcap} library for capturing packet data 
+or the \code{nfdump}~\cite{haag2006netflow}
+software used for capture netflow statistics. The \code{nfdump} software has several output formats
+but the \code{PyNfSA} software relies on ``long'' line format as it can be easily parsed using reqular 
+expression. The \code{PyNfSA} reads and converts accuired data into internal matrix representation.
+The matrices are then stored using \code{HDF5} technology~\cite{folk2011overview} for later use. 
+When parsing the \code{PCAP} or the \code{NetFlow} format, only subset of information is 
+selected as specified in subsection~\ref{susec:non-pub}.
 
-Only few of the network communication participants have been analysed, as most of the traffic have not been fully identified. Endpoints, that has been taken in consideration are a proxy server, a host attacked by malware, the malware`s server and host with ordinary web usage (it cannot be considered as an legitimate).
+Next step is to compute \emph{flow matrix}. Rows in flow matrix represents data instances comprising
+timestamp, packet count and size, direction and flow identification. 
+The flow identification is based on \emph{flow 5-tuple} 
+i.e. tranmission \emph{protocol} speciffication, \emph{address} and \emph{port} of
+source and destination endpoint. When modeling behavior of specific source endpoint with 
+respect to specific application service, it is usefull to discard source port information in some cases.
+The reason is that the application client side often requests an socket from operating system
+to the destination server, performs request-response roundtrip and closes the socket.
+For succesive request new sockets are openned. Based on implementation of the traffic flow 
+protocol in operating system new source port is assigned. In our analysis we consider that succesive 
+connections are related together. This is the case especially for HTTP application protocol,
+the client side often creates new socket for each small set of requests. As the HTTP application protocol
+are subject to our research our flow identification scheme does not include the source port.
 
-\section{Definitions}
-\subsection{Network traffic, gathering the data}
-It is possible to represent a network traffic by set of flows distributed in time. The flow is a sequence of packets having  similar attributes. Packets are exchanged usually among network endpoints. Attributes taken under consideration are at least: source and destination endpoint address, port and protocol. Mentioned attributes usualy delimitate flows.11.9.2012. The RFCs are now stored in SVN in the doc reposi
+After flow matrix is computed it is stored in \code{HDF5} file for later analysis. Such representation of
+the data is very compact when compared to netflow or to the pcap format, as it is constructed 
+based on pre-defined set of the attributes. In addition an \code{HDF5} technolgy allows indexing of the 
+array data and thus filtering in the data is often faster than in raw formats.
+Drawback of this representation is that addition of new attribute means processing of 
+raw data and re-creation of whole matrix.
 
-In order to evaluate anomaly rate of paticular flow other properties ought to be taken in account. Especially number of packets and bytes, starting and ending time (time-stamp of the first or the last packet in the flow).
+From the flow matrix an \emph{feature matrix} is constructed. Features are created by computation of \emph{power
+spectral density} in defined time window and using specified sample rate. 
+%This proces requires extensive filtering of the flow matrix so the efective implementation is needed.
+ Each row in feature matrix represents
+single data instance comprising the frequency components. A flow identification is assigned to each 
+sample and it stored as a vector along with a feature matrix.
+While in flow matrix a time context is still present, it is not present in in feature matrix,
+the only relation between samples is the flow identification.
 
-%TODO mention the features 
-The time distribution of flows can be determined by considering the starting timestamp of each flow. This approach provides generalized view on the flow, as it has been occured in network channel with unlimited throughput.
+The labeling is implemented using filtering based on \emph{flow 5-tuple}.
+The labels are assigned based on filters selecting the subset of flows identifications.
+A labeling vector is stored along with the flow identification vector and the feature matrix.
+Filters are created manualy, \code{JSON} media type~\cite{crockford2006application} is used. The format of the 
+filter is specified in \emph{PyNfSA Documentation}.
 
-Experimental dataset provided for purposes of this work has been extended with classification information, a knowledge if particular endpoint is harmfull or not or even if it is suspicious.
+The model fitting and evaluation uses $k$-fold stratified cross validation. 
+During model fitting phase an training sample undergoes transformations in order to reduce dimensionality
+and fitting is performed on transformed sample. A model is then used to obtain raw score.
+For unimodal Gausian distribution an Mahalanobis distance is used, for Gaussian Mixture Model and
+log-probability is used as raw score. The fitting of the unimodal Gausian distribution  for 
+Mahalanobis distance computations and robust covariance matrix estimation can be used. 
+The  computation then involves Minimum Covariance Determinant~\cite{rousseeuw1984least}.
 
-\subsection{Data binning}
-In order to reduce minor observation errors binning technique ought to be used. The time axis is divided into disjoint intervals - bins. Let $h$ be number of bins and $\mathbb{F}$ be the set of all flows captured in time interval $\mathbb{T} = (0, T_{max}\rangle $. The $t$-th bin is known as  set of flows $\mathbb{F}_t$ that occurs in time interval $\mathbb{T}_t = ((t-1)\cdot \delta, t\cdot \delta\rangle $ where $t \in \{1, .. h\}$ and $\delta$ is the width of time intervals denoted $\delta = \frac{T_{max}}{h}$. Denote
-\begin{equation}
-\mathbb{F}_t = \{f : f \in \mathbb{F} \wedge s(f) \in \mathbb{T}_t \}
-\end{equation}
-where function $s:\mathbb{F} \rightarrow \mathbb{N} $ 
-returns starting timestamp of the flow $f\in \mathbb{F}$.
+For the machine learning procedures and \code{SciKit} library~\cite{pedregosa2011scikit} has been used.
+It is set of classes in Python Programming Language that implements lot of algorithms for
+machine learning and statistical analysis. Few extensions to the computational models has been 
+performed during the \code{PyNfSA} development.
 
-For each interval,
-representative value is calculated. Following formulas have been considered:
-\begin{equation}
-r_t^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_t}b(f)}{\sum\limits_{f\in \mathbb{F}_t}p(f)}
-\end{equation}
-\begin{equation}
-r_t^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_t}p(f))
-\end{equation}
-where $r_t$ is representative of time interval $t$, $\mathbb{F}_t$ is set of flows captured in time 
-interval $t$, function $b:\mathbb{F} \rightarrow \mathbb{N}$ outputs size of the flow $f$ in bytes and function 
-$p:\mathbb{F} \rightarrow \mathbb{N}$ outputs the packet count of the flow $f$.
-
-%TODO further description of representatives and features
-
-\subsection{Fourier transformation}
-Representatives $r_t$ are subject to transformation from the time domain to the
-frequency domain.
-This can be achieved by fourier-related
-tranforms, e.g. by a fourier or a wavelet transform.
-The wavelet transform, unlike the fourier transform, captures
-not only a notion of the frequency content of the input, by
-examining it at different scales, but also temporal content.
-
-To achieve fast computation, a fast fourier transform (FFT) algorithm 
-has been involved.
-It is an efficient algorithm to compute the discrete fourier tranform (DFT) and
-its inverse.
-A DFT decomposes a sequence of values into components of
-different frequencies. 
-This operation is useful in many fields but computing it directly from the
-definition is often too slow to be practical.
-An FFT is a way to compute the same result more quickly: 
-computing a DFT of N points in the naive way, using the definition, takes
-$O(N^2$) arithmetical operations, 
-while an FFT can compute the same result in only $ O(N \log N)$ operations.
-
-The sequence of $N$ complex numbers $x_0, ...,x_{N-1}$ is trnasformed into the 
-sequence of $N$ complex numbers $X_0, ...,X_{N-1}$ by the DFT according to the formula:
-\begin{equation}
-X_k = \sum_{n=0}^{N-1} x_n e^{-\frac{2 \pi i}{N} k n} \quad \quad k = 0, \dots, N-1
-\end{equation}
-where $i$ is imaginary unit and $e^{-\frac{2 \pi i}{N} k n}$ is $N$-th root of
-unity. 
-
-The transform is sometimes denoted as 
-$\mathcal{F}\colon\mathbb{C}^N \to \mathbb{C}^N$, e.g.
-$\mathbf{X} = \mathcal{F} \left ( \mathbf{x} \right )$.
-
-Before processing the fourier transform, the sequence of representatives 
-$r_1, ...,r_h$ is choped into overlaping slices.
-Each slice (sequence $r_a, ..., r_b$, where $a$ and $b$ are boundaries
-of particular slice) is then transformed by means of fourier transformation,
-resulting in sequence of complex coeficients for each slice.
-By discarding phase information real coeficients ${R}_i$ are obtained,
-where $i = 0, ..., b-a-1$.
-
-Slices are ordered as they are occuring in time and they ought to be numbered
-$j = 1,..., g $. The count of slices  depends on the number of elements 
-in input sequence $h$, on the slice size $w$ and the step size $s$; one of the
-$g=\lfloor\frac{h-w}{s} \rfloor$ or $g=\lceil\frac{h-w}{s} \rceil$.
-For the sake of convenience the slice size $w$ is power of two.
-Let $a_j$ and $b_j$ be the boundaries of the $j$-th slice. Then
-$a_1 = 1$, $b_j = a_j + w$ and $a_{j+1} = a_j + s$.
-For the overlaping slices inequality $s < w$ is valid.
-Proper values of $s$ and $w$ are subject to research.
-
-Let $\mathcal{R}$ be matrix of fourier coeficients where
-$\mathcal{R}_{i,j}$ is $i$-th fourier coeficient of $j$-th slice,
-i.e. 
-\begin{equation}
-\mathcal{R}_{*,j} = abs(\mathcal{F}(r_{a_j}, ..., r_{b_j}))
-\end{equation}
-The row $\mathcal{R}_{i,*}$ represents a trend of $i$-th fourier
-coeficient in time.
-
-\subsection{Distinguishing the endpoints}
-As mentioned above experimental dataset contains also
-classification information pointing out an level of anomaly of 
-particular endpoints. Endpoint is determined by its address.
-We now extend the definitions mentioned
-former in order to be able to distinct the fourier coeficients for
-particular endpoint.
-
-Let $\mathbb{E}$ be a set of all endpoints that
-participate in coummunication within time interval $\mathbb{T}$.
-Let $\mathbb{F}_{t,u \rightarrow}$ be the set of flows captured in
-time interval $\mathbb{T}_{t}$ %TODO: refer
-which are \textbf{initiated} by the endpoint $u \in \mathbb{E}$,
-similarly $\mathbb{F}_{t, \rightarrow u}$ are \textbf{ended} at the
-endpoint $u$. Formaly
-
-\begin{equation}
-\mathbb{F}_{t,u \rightarrow} = \{f : f \in \mathbb{F} \wedge e_{s}(f) = u \wedge s(f) \in \mathbb{T}_t \}
-\end{equation}
-\begin{equation}
-\mathbb{F}_{t, \rightarrow u} = \{f : f \in \mathbb{F} \wedge e_{d}(f) = u \wedge s(f) \in \mathbb{T}_t \}
-\end{equation}
-where $e_{s}:\mathbb{F}\rightarrow \mathbb{E}$ and
-$e_{d}:\mathbb{F}\rightarrow \mathbb{E}$ 
-are functions returning source and destination endpoint for the 
-flow $f$.
-The representative value of particular bin for particular endpoint is 
-then:
-\begin{equation}\label{bigrepr1}
-r_{t,e}^{(1)} = \frac{\sum\limits_{f\in \mathbb{F}_{t,e}}b(f)}{\sum\limits_{f\in \mathbb{F}_{t,e}}p(f)}
-\end{equation}
-\begin{equation}\label{bigrepr2}
-r_{t,e}^{(2)} = \log(1+\sum\limits_{f\in \mathbb{F}_{t,e}}p(f))
-\end{equation}
-where index ${}_e$ is replaces symbols ${}_{u\rightarrow}$ or 
-${}_{\rightarrow u}$ from previous definition. So it is distinguished 
-if the connection is initiated by the endpoint $u$, or ended at the
-endpoint $u$.
-
-Matrix of fourier coeficients $\mathcal{R}^\bullet$ is 3-dimensional:
-\begin{equation}\label{bigmatrix}
-\mathcal{R}^\bullet_{*,j,e} = abs(\mathcal{F}(r_{a_j,e}, ..., r_{b_j,e}))
-\end{equation}
-First dimension is related to the frequency domain, second to the time domain 
-(this is the trend of the fourier coeficients over time), 
-and third dimension is related to the endpoint.
-We can denote that matrix $\mathcal{R}^{(1)\bullet}$ (resp. $\mathcal{R}^{(2)\bullet}$)
-is using representative $r_{t,*}^{(1)}$ (resp. $r_{t,*}^{(2)}$) based on formulas
-(\ref{bigrepr1}) and (\ref{bigrepr2}).
-
-\section{Experiments}
-Main task is to find an property of the frequency spectrum so that the malicious behavior
-can be distinguished. Matrix $\mathcal{R}^\bullet$ provides trend of the frequency spectrum
-in time domain for particular endpoint.
-Following parameters has been choosen empiricaly:
-
-\begin{center}
-\begin{tabular}{c|rl}
-width of bins & $\delta =$ & $1000$ ms \\ \hline
-slice width & $w =$ & $128$ \\ \hline
-slicing step & $s=$ & $40$ \\
-\end{tabular}
-\end{center}
-
-Size of the resulting matrix $\mathcal{R}^\bullet$ is then
-$[w\times g\times \lvert\mathbb{E}\rvert]$, where $w=128$, $g=\lfloor\frac{h-w}{s} \rfloor$, 
-$h = \lfloor\frac{T_{max}}{\delta}\rfloor$ and $\lvert\mathbb{E}\rvert $ is the number of the 
-considered endpoints.
-
-\subsection{Measurements}
-The figures \ref{fig:spect_dst_bdivp},
-\ref{fig:spect_src_bdivp}, \ref{fig:spect_dst_logp} and \ref{fig:spect_src_logp} are 
-showing an mean value of the fourier coeficients along with a standard deviation.
-The blue curves are mean values and red are standard deviations added to respectively 
-subtracted from mean values. 
-The trend of the first momentum in frequency domain has a periodic fluctuations
-for the mallware`s target host. Second momentum is
-very low for the first 4 fourier coeficient. This properties seems to be unique in 
-comparison to other endpoints.
+The \code{PyNfSA} allows entering to interactive mode. Interactive mode is used to invoke analysis
+``on-the-fly'' using an ad-hoc commands on the commad line. For interactive mode \code{iPython}~\cite{iPython} 
+interactive shell  is  used. It allow to use syntax similar to \code{Matlab}, 
+\code{Octave} or even \code{R} by invoking special commands. In addition \code{HDF5} data file
+can be used directly by \code{Matlab} or \code{Octave} as it is natively supported format,
 
 
-The figures \ref{fig:dens_dst_bdivp}, \ref{fig:dens_src_bdivp},
-\ref{fig:dens_dst_logp} and \ref{fig:dens_src_logp} are showing
-an kernel density estimation of the value of first six coeficients.
-Before the calculation dataset had been put in scale so that the
-central mean equals to zero and standard deviation equals to one.
-Kernel function is the normal and bandwidth (or smoothing parameter)
-is guessed by maximizing likelihood. 
-Curves on figure \ref{fig:loglik_src_bdivp} are showing
-the dependency of the likelihood on the bandwidth. 
-Likelihood is computed as a sum of the logarithms of values of the
-partial probability density models evaluated on a testing datasets,
-while the model parameters are trained on a training datasets. 
-Both, the testing and training datasets are obtained by 5-fold
-crossvalidation.
-%TODO: formulas
+%\cite{rossum2011python,oliphant2006numpy,pedregosa2011scikit}
 
-Both the first momentum and the second mometum ought to be taken in
-consideration in the process of the anomaly evaluation.
-The periodic fluctuations are distinct from the
-chaotic behavior of the ordinary endpoints. Low values of second
-momentum and the fluctuations in frequency domain are notable too.
-
-\subsection{Implementation}
-Anomaly evaluation based on the values of the second momentum has
-been implemented as a agent for testing purposes in the Camnep
-intrusion detection system. The programming language is Java.
-Agent receives an statistics from the data geathering agents and
-is called each time the 5-minutes block is received. Matrix
-$\mathcal{R}^{(1)\bullet}$ is computed. Row
-$\mathcal{R}^{(1)\bullet}_{i,*,e}$ represents a trend of the
-coeficient $i$ in time domain for the particular target endpoint $e$.
-Standard deviation is then calculated and matrix 
-$\mathcal{D}^{(1)}_{i,e}$ of the standard deviations is constructed.
-For each coeficient $i$ 10th-percentile $t^{(1)}_i$ is calculated
-over all target endpoints $e$, where $t^{(1)}_i$ is a threshold.
-Logical matrix $\mathcal{K}^{(1)}_{t,e}$ is then constructed:
-$\mathcal{K}^{(1)}_{i,e} = \mathcal{D}^{(1)}_{i,e} \le t^{(1)}_i $.
-So for 10\% endpoints with least value of $\mathcal{K}^{(1)}$
-it contains value 1 otherwise value 0. Weighted average over the
-sequence $\mathcal{K}^{(1)}_{*,e}$ then outputs the level of anomaly
-$a_e$ for each target endpoint. 
-Weights are choosen empiricaly and some results were obtained giving
-weight of $1$ for coeficients $i \in \{1,2,3,4,5\}$, weight of $0.2$
-where $i\in \{6,7,... 20\}$ otherwise weight of $0$.
-
-\section{Conclusion}
-The implementation is still under development. Next research ougth to be aimed on the modeling of the
-frequency spectrums and the fluctuations. More endpoints ought to be taken in consideration. 
-
-Relation between model and different behaviors of the mallware is also important to be investigated.
+%In experiments we focused on the application protocols that are most 
+%spread in computer networks and that are thus most widely miss-used. 
+%In particular we will analyze protocol HTTP and its encrypted version -- HTTPS. 
+%Most of the network gateways allow only usage of network protocols HTTP or HTTPS. 
+%As protocol HTTPS uses encryption, the gateway is unable to detect miss-use by 
+%analyzing content and thus it is unable to enforce policy restrictions.
