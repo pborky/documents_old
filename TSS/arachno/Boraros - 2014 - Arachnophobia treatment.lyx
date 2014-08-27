@@ -77,7 +77,7 @@ figs-within-sections
 \begin_body
 
 \begin_layout Title
-Arachnophobia Treatment with Oxytocin
+Assesment of Phobic Dissorders and Treatment with Oxytocin
 \end_layout
 
 \begin_layout Author
@@ -158,11 +158,25 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-Description of the problem: Arachnophobia 
+In the 
+\emph on
+phobic dissorder,
+\emph default
+ a fear and anxiety is triggered by a specific stimulus, which can be an
+ object (e.g.
+ animal, location, body fluid, ..) or situation.
+ The extent of triggered fear is not proportional to danger posed.
+ Althought suferers understand their irrational behavior, they are still
+ overhelmed by the fear.
 \end_layout
 
 \begin_layout Standard
-Anxiety is a psychological, physiological, and behavioral state induced
+Phobic dissorder is a type of 
+\emph on
+anxiety disorder.
+
+\emph default
+ Anxiety is a psychological, physiological, and behavioral state induced
  in animals and humans by a threat to well-being or survival, either actual
  or potential.
  It is characterized by increased arousal, expectancy, autonomic and neuroendocr
@@ -171,38 +185,7 @@ ine activation, and specific behavior patterns.
  unexpected situation.
  Pathological anxiety interferes with the ability to cope successfully with
  life challenges.
- Vulnerability to psychopathology appears to be a consequence of predisposing
- factors (or traits), which result from numerous gene-environment interactions
- during development (particularly during the perinatal period) and experience
- (life events), in this review, the biology of fear and anxiety will be
- examined from systemic (brain-behavior relationships, neuronal circuitry,
- and functional neuroanatomy) and cellular/molecular (neurotransmitters,
- hormones, and other biochemical factors) points of view, with particular
- reference to animal models.
- These models have been instrumental in establishing the biological correlates
- of fear and anxiety, although the recent development of noninvasive investigati
-on methods in humans, such as the various neuroimaging techniques, certainly
- opens new avenues of research in this field.
- Our current knowledge of the biological bases of fear and anxiety is already
- impressive, and further progress toward models or theories integrating
- contributions from the medical, biological, and psychological sciences
- can be expected.
  
-\end_layout
-
-\begin_layout Standard
-The amygdala may play an important role in regulating social behavior.
- Thus, in adult macaque monkeys, selective bilateral lesions of the amygdala
- result in a lack of fear response to inanimate objects and a “socially
- uninhibited” pattern of behavior.70 The amygdala may function as a protective
- “brake” during evaluation of a potential threat, and it has been suggested
- that social anxiety may involve a dysregulation or hyperactivity of the
- amygdala evaluative process.70 Studies in rats also suggest that the basolateral
- nucleus of the amygdala may play a crucial role in the consolidation of
- information that leads to the formation of a specific phobia.
-\end_layout
-
-\begin_layout Standard
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Steimer2002"
