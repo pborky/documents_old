@@ -514,12 +514,12 @@ key "Kuo2014"
 \end_layout
 
 \begin_layout Subsubsection
-Novel approaches (TACS, TPCS, TRNS)
+Novel approaches (tACS, tPCS, tRNS)
 \end_layout
 
 \begin_layout Standard
-About novel approaches of transcranial electric stimulation (tACS, tPCS,
- tRNS) is not known too much.
+About novel approaches of transcranial electric stimulation is not known
+ too much.
  In 
 \emph on
 transcranial alternating current stimulation
@@ -547,8 +547,8 @@ transcranial pulse current stimulation
 \emph on
 tPCS
 \emph default
-), is a variation of tACS where the harmonic current is exchanged with rectangul
-ar electric signal.
+), is a variation of tACS where the harmonic current is exchanged for the
+ rectangular electric signal.
  Though the spectra in tPCS is wider, the dominant frequency is still the
  baseline frequency of the pulses.
  Recently, interest has emerged in new stimulation method, transcranial
@@ -575,17 +575,17 @@ Numerical simulations of electromagnetic field distribution in human cranium
 It has been presented 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "Wagner2004,Golestanirad2010,Tsuyama2009,March2014"
+key "Wagner2004,Golestanirad2010,Tsuyama2009,March2014,Datta2009,Bikson2012,Bikson2012a,Caparelli-Daquer2012a,Kuo2013b"
 
 \end_inset
 
  that numerical electromagnetic (EM) simulations (solving Maxwell’s equations)
  are powerful tools for estimation of distribution of magnetic and electric
- field inside the human head induced by TSs.
+ field induced by transcranial stimulation (TS) inside the human head.
  From distribution of magnetic and electric field electrical current density
  distribution can be computed.
- Most numerical simulations used for modeling of transcranial magnetic stimulati
-on (TMS) are based on finite element method (FEM).
+ Most numerical simulations used for modeling of TS are based on finite
+ element method (FEM).
  In literature some simplifications of realistic model of human head were
  used.
  In 
@@ -601,13 +601,20 @@ key "Wagner2004"
  A more accurate prediction of the field distribution can be found in 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "Golestanirad2010"
+key "Golestanirad2010,Datta2009,Bikson2012,Bikson2012a"
 
 \end_inset
 
 , where different 3-D patient specific numerical head phantoms (anatomically
  accurate numerical head models) have been developed.
- The phantoms were created using head imaging data of individual patients.
+ In 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Golestanirad2010"
+
+\end_inset
+
+ the phantoms were created using head imaging data of individual patients.
  The simulations were performed with relatively course mesh and difference
  between electrical properties of cerebrospinal fluid and brain white/gray
  matter was neglected.
@@ -639,25 +646,76 @@ key "Tsuyama2009"
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Standard
-see also
+ Also the electrode placement has been studied and 4x1 ring electrode assembly
+ has been proposed to increase focality of the stimulation 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "Datta2009,Bikson2012,Bikson2012a,Bikson2012b,Caparelli-Daquer2012a,Kronberg2012,Edwards2013,Kuo2013b"
+key "Datta2009,Caparelli-Daquer2012a,Edwards2013"
 
 \end_inset
 
-
+.
 \end_layout
 
 \begin_layout Section
-Conclusion
+Brain network dynamics, functional mapping and stimulation protocols
 \end_layout
 
 \begin_layout Standard
-nothing yet
+Stimulation protocols used for theraphy neglect the dynamic nature of brain
+ networks.
+ Althought in 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Price2010"
+
+\end_inset
+
+ the backgroud EEG activity is used to determine timing to improve efficiacy
+ rTMS, more studies ought to be carried out.
+ Incorporating the network dynamics and functional connections into stimulation
+ protocols can be promising especially in methods that interact with ongoing
+ neuronal activity.
+ 
+\end_layout
+
+\begin_layout Section
+Discussion
+\end_layout
+
+\begin_layout Standard
+The methods of transcranial stimulation are used to modulate cortical activity
+ for diagnostic and treatment.
+ Focal inhibition or excitation of cortical neurons vs.
+ to pharmacological treatment vs.
+ invasive stimulation.
+\end_layout
+
+\begin_layout Standard
+The treatment follows simple stimulation protocols, that are mostly based
+ on empirical knowledge.
+ In recent studies the parameters of the stimulation (placement and shape
+ of the electrodes, coils, parameters of the electromagnetic field) has
+ been manipulated based on simulation of the field in the tissue.
+ Also the timing of the stimulation based on background EEG activity has
+ been investigated as a mean of eficiacy increase.
+\end_layout
+
+\begin_layout Standard
+Models ignore the orientation of the neurons.
+ The orientation of the neurons in external field may be inportant (proof
+ need).
+\end_layout
+
+\begin_layout Standard
+Functional mapping can reveal new areas for stimulation.
+ Also connectivity of cortical cores can reveal a sequence of pulses in
+ different regions are needed.
+\end_layout
+
+\begin_layout Standard
+The ongoing activity can be mapped by LORETA and the stimulation can be
+ controlled.
 \end_layout
 
 \begin_layout Standard
