@@ -36,8 +36,8 @@ figs-within-sections
 \pdf_bookmarksnumbered false
 \pdf_bookmarksopen false
 \pdf_bookmarksopenlevel 1
-\pdf_breaklinks false
-\pdf_pdfborder false
+\pdf_breaklinks true
+\pdf_pdfborder true
 \pdf_colorlinks false
 \pdf_backref false
 \pdf_pdfusetitle true
@@ -90,7 +90,9 @@ status open
 
 \backslash
 thanks{P.
- Boráros is with Czech Technical University in Prague, pb@pborky.sk}
+ Boráros is with Czech Technical University in Prague, 
+\backslash
+href{mailto:pb@pborky.sk}{pb@pborky.sk}}
 \end_layout
 
 \end_inset
@@ -121,7 +123,9 @@ thanks{E.
 \backslash
 v{s}
 \backslash
-v{n}ák is with Charles University in Prague, eq@seznam.cz}
+v{n}ák is with Charles University in Prague, 
+\backslash
+href{mailto:eq@seznam.cz}{eq@seznam.cz}}
 \end_layout
 
 \end_inset
@@ -266,7 +270,7 @@ Conlusion
 \begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
-bibfiles "/home/pborky/Documents/Mendeley/Bibtex/Fileds-Affective psychophysiology"
+bibfiles "/home/pborky/Documents/Mendeley/BibTeX/Fileds-Affective psychophysiology"
 options "bibtotoc,IEEEtran"
 
 \end_inset
