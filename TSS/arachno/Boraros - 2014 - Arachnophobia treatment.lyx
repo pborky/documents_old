@@ -1,0 +1,278 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass IEEEtran
+\options jurnal,a4paper
+\use_default_options true
+\begin_modules
+eqs-within-sections
+figs-within-sections
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine natbib_numerical
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\bullet 1 0 9 -1
+\bullet 2 0 0 -1
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Arachnophobia Treatment with Oxytocin
+\end_layout
+
+\begin_layout Author
+Peter Boráros 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thanks{P.
+ Boráros is with Czech Technical University in Prague, pb@pborky.sk}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+and
+\end_layout
+
+\end_inset
+
+ Eugen Kvašňák 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thanks{E.
+ Kva
+\backslash
+v{s}
+\backslash
+v{n}ák is with Charles University in Prague, eq@seznam.cz}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+In this report ...
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+IEEEpeerreviewmaketitle
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Description of the problem: Arachnophobia 
+\end_layout
+
+\begin_layout Standard
+Anxiety is a psychological, physiological, and behavioral state induced
+ in animals and humans by a threat to well-being or survival, either actual
+ or potential.
+ It is characterized by increased arousal, expectancy, autonomic and neuroendocr
+ine activation, and specific behavior patterns.
+ The function of these changes is to facilitate coping with an adverse or
+ unexpected situation.
+ Pathological anxiety interferes with the ability to cope successfully with
+ life challenges.
+ Vulnerability to psychopathology appears to be a consequence of predisposing
+ factors (or traits), which result from numerous gene-environment interactions
+ during development (particularly during the perinatal period) and experience
+ (life events), in this review, the biology of fear and anxiety will be
+ examined from systemic (brain-behavior relationships, neuronal circuitry,
+ and functional neuroanatomy) and cellular/molecular (neurotransmitters,
+ hormones, and other biochemical factors) points of view, with particular
+ reference to animal models.
+ These models have been instrumental in establishing the biological correlates
+ of fear and anxiety, although the recent development of noninvasive investigati
+on methods in humans, such as the various neuroimaging techniques, certainly
+ opens new avenues of research in this field.
+ Our current knowledge of the biological bases of fear and anxiety is already
+ impressive, and further progress toward models or theories integrating
+ contributions from the medical, biological, and psychological sciences
+ can be expected.
+ 
+\end_layout
+
+\begin_layout Standard
+The amygdala may play an important role in regulating social behavior.
+ Thus, in adult macaque monkeys, selective bilateral lesions of the amygdala
+ result in a lack of fear response to inanimate objects and a “socially
+ uninhibited” pattern of behavior.70 The amygdala may function as a protective
+ “brake” during evaluation of a potential threat, and it has been suggested
+ that social anxiety may involve a dysregulation or hyperactivity of the
+ amygdala evaluative process.70 Studies in rats also suggest that the basolateral
+ nucleus of the amygdala may play a crucial role in the consolidation of
+ information that leads to the formation of a specific phobia.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Steimer2002"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(Arachno)phobia - irrational, induction by spider or spider-like object
+\end_layout
+
+\begin_layout Standard
+Proposed treatment: Oxytocin , Priming (Visual Subliminal Stimuli) 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Eder2012,Calvo2008"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Method of evaluation: Electroencephalography, Questionaires
+\end_layout
+
+\begin_layout Section
+Methods and materials
+\end_layout
+
+\begin_layout Subsection
+Subjects
+\end_layout
+
+\begin_layout Standard
+17 healthy adults (20-58 years old)
+\end_layout
+
+\begin_layout Subsection
+Oxytocin
+\end_layout
+
+\begin_layout Subsection
+Evaluation
+\end_layout
+
+\begin_layout Subsubsection
+Questionaires
+\end_layout
+
+\begin_layout Subsubsection
+Electrophysiology Correlates
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Section
+Conlusion
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "/home/pborky/Documents/Mendeley/Bibtex/Fileds-Affective psychophysiology"
+options "bibtotoc,IEEEtran"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
