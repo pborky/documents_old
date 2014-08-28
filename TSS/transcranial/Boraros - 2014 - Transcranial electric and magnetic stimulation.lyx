@@ -89,6 +89,19 @@ status open
 
 
 \backslash
+and
+\end_layout
+
+\end_inset
+
+ Eugen Kvašňák 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
 thanks{P.
  Boráros is with Czech Technical University in Prague, 
 \backslash
@@ -98,19 +111,6 @@ href{mailto:pb@pborky.sk}{pb@pborky.sk}}
 \end_inset
 
  
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-and
-\end_layout
-
-\end_inset
-
- Eugen Kvašňák 
 \begin_inset ERT
 status open
 
@@ -148,6 +148,15 @@ status open
 \backslash
 IEEEpeerreviewmaketitle
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
 
 \end_inset
 
@@ -367,7 +376,7 @@ In order to increase efficiency of the high-frequency rTMS a repeated individual
 \end_layout
 
 \begin_layout Standard
-According to recent studies
+According to recent studies 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Rokyta2014"
@@ -563,12 +572,15 @@ key "Terney2008"
 \end_inset
 
 .
- 
 \end_layout
 
 \begin_layout Section
-Numerical simulations of electromagnetic field distribution in human cranium
- 
+Undertanding of TS Effects on Neuronal Activity and Tailoring of Stimulation
+ Parameters
+\end_layout
+
+\begin_layout Subsection
+simulation of em field in neuronal tissue 
 \end_layout
 
 \begin_layout Standard
@@ -657,8 +669,14 @@ key "Datta2009,Caparelli-Daquer2012a,Edwards2013"
 .
 \end_layout
 
-\begin_layout Section
-Brain network dynamics, functional mapping and stimulation protocols
+\begin_layout Subsection
+effects in tissue exposed to EM field
+\end_layout
+
+\begin_layout Subsection
+online processing of neuronal net.
+ act.
+ and stimulation dynamics
 \end_layout
 
 \begin_layout Standard
@@ -680,14 +698,61 @@ key "Price2010"
 \end_layout
 
 \begin_layout Section
-Discussion
+Conclusion
+\end_layout
+
+\begin_layout Enumerate
+simulation FEM has been succesfully used to improve the coil design and
+ electrode placement.
+ expectation of further improvements.
+\end_layout
+
+\begin_layout Enumerate
+novel challenges : online processing and adjustment of stimulation paramters
+ (intesity, and temporal features, ..
+ ) can imediately improve the stimulation effects and target location based
+ on underlaying activity.
+ thougth there has limitations ..
+\end_layout
+
+\begin_layout Enumerate
+temporal and spatial colocalization of the neuronal act.
+ recording and the stimulation is the main challenge at present time.
+ 
+\end_layout
+
+\begin_layout Enumerate
+there are undefinite options in parametrization of stimulation, but
+\end_layout
+
+\begin_layout Enumerate
+structured research in field of the parametrization of stimulation and technique
+s of the colocalisation of the neuronal act.
+ recording and stimulation 
+\end_layout
+
+\begin_layout Enumerate
+improvements in native tissue 
+\end_layout
+
+\begin_layout Enumerate
+priblizit simulaciu a chovanie nativnej tkane
+\end_layout
+
+\begin_layout Enumerate
+presne vediet parametre pola a jeho efektov - simulacie FEM, but it can
+ help in immediately
 \end_layout
 
 \begin_layout Standard
 The methods of transcranial stimulation are used to modulate cortical activity
- for diagnostic and treatment.
- Focal inhibition or excitation of cortical neurons vs.
- to pharmacological treatment vs.
+ for treatment.
+ 
+\end_layout
+
+\begin_layout Standard
+Non-invasive focal inhibition or excitation of cortical neurons vs.
+ pharmacological treatment vs.
  invasive stimulation.
 \end_layout
 
@@ -697,8 +762,7 @@ The treatment follows simple stimulation protocols, that are mostly based
  In recent studies the parameters of the stimulation (placement and shape
  of the electrodes, coils, parameters of the electromagnetic field) has
  been manipulated based on simulation of the field in the tissue.
- Also the timing of the stimulation based on background EEG activity has
- been investigated as a mean of eficiacy increase.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -708,14 +772,14 @@ Models ignore the orientation of the neurons.
 \end_layout
 
 \begin_layout Standard
-Functional mapping can reveal new areas for stimulation.
- Also connectivity of cortical cores can reveal a sequence of pulses in
- different regions are needed.
+Also the timing of the stimulation based on background EEG activity has
+ been investigated as a mean of eficiacy increase.
 \end_layout
 
 \begin_layout Standard
-The ongoing activity can be mapped by LORETA and the stimulation can be
- controlled.
+Functional mapping may reveal new locations for stimulation and together
+ with study of functional connectivity of different cortical areas can bring
+ new aplications of TS.
 \end_layout
 
 \begin_layout Standard
