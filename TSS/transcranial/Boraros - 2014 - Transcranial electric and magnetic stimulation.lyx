@@ -88,9 +88,9 @@ status open
 
 \begin_layout Plain Layout
 
-
+~
 \backslash
-and
+and~
 \end_layout
 
 \end_inset
@@ -103,10 +103,10 @@ status open
 
 
 \backslash
-thanks{P.
- Boráros is with Czech Technical University in Prague, 
+thanks{
 \backslash
-href{mailto:pb@pborky.sk}{pb@pborky.sk}}
+href{mailto:peter.boraros@gmail.com}{P.
+ Boráros} is with Czech Technical University in Prague}
 \end_layout
 
 \end_inset
@@ -119,14 +119,14 @@ status open
 
 
 \backslash
-thanks{E.
+thanks{
+\backslash
+href{mailto:eugen.kvasnak@gmail.com}{E.
  Kva
 \backslash
 v{s}
 \backslash
-v{n}ák is with Charles University in Prague, 
-\backslash
-href{mailto:eq@seznam.cz}{eq@seznam.cz}}
+v{n}ák} is with Charles University in Prague}
 \end_layout
 
 \end_inset
@@ -135,8 +135,16 @@ href{mailto:eq@seznam.cz}{eq@seznam.cz}}
 \end_layout
 
 \begin_layout Abstract
-In this article we provide overview of non-invasive neuromodulation techniques
- which use external source of the electromagnetic field.
+The methods of transcranial electric and magnetic stimulation (TS) are used
+ to noninvasively modulate cortical activity.
+ The TS techniques found their use in therapy in the areas of psychiatry,
+ neurology, neurophysiology.
+ The methods of TS emerged based on empirical knowledge about modulation
+ of neuronal activity using external electromagnetic field.
+ Nowadays, structured research is focused on understanding of TS principles
+ leading to novel, more efficient methods and protocols.
+ In present work, we brought overview of TS methods in use and we identified
+ some of the future directions of the research and development.
 \end_layout
 
 \begin_layout Standard
@@ -170,13 +178,8 @@ Transcranial electric and magnetic stimulation is a set of techniques used
  in affected tissue which is accompanied by changes in neuronal excitability
  or in case of higher intensities also by formation of action potentials
  in neurons.
- 
-\end_layout
-
-\begin_layout Standard
-This techniques have therapeutic and diagnostic applications in psychiatry,
+ This techniques have therapeutic and diagnostic applications in psychiatry,
  neurology, neurophysiology, etc.
- 
 \end_layout
 
 \begin_layout Standard
@@ -276,14 +279,14 @@ definition of the dose
 Due to the principle of induction of the electric field in the tissue, the
  stimulating magnetic field can be effectively applied only within pulses.
  The pulse ramp rate and the peak intensity are the main parameters affecting
- the unit dose of the stimulation.
+ the unit dose of the stimulation 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Peterchev2012"
 
 \end_inset
 
-
+.
 \end_layout
 
 \begin_layout Standard
@@ -390,11 +393,7 @@ high-frequency rTMS
 \end_inset
 
 Hz).
- 
-\end_layout
-
-\begin_layout Standard
-Experimental evidence has revealed that rTMS with repetition rates below
+ Experimental evidence has revealed that rTMS with repetition rates below
  1
 \begin_inset space ~
 \end_inset
@@ -438,7 +437,7 @@ key "Rokyta2014"
 
 , this method is able to induce changes in the central nervous system at
  the cellular level including changes at ionic and metabolic level.
- Therapeutic effects were confirmed in the literature of psychiatric disorders
+ Therapeutic effects were confirmed in the literature in psychiatric disorders
  such as depression, acute mania, bipolar disorder, panic attacks, hallucination
 s, obsessive states, schizophrenia, catatonia or post-traumatic stress disorder
  
@@ -650,27 +649,32 @@ Effects of TS on Neuronal Activity and Adjusting Stimulation Parameters
 \end_layout
 
 \begin_layout Subsection
-Numerical Simulation of Electromagnetic Field in Cranium
+Numerical Simulation of Electromagnetic Field elicited by TS in the Brain
 \end_layout
 
 \begin_layout Standard
-Numerical simulation of electromagnetic (
+Thanks to growing computational power of computers and developed SW the
+ use of numerical simulations of electromagnetic (
 \emph on
 EM
 \emph default
-) field has been used in 
+) field have also rosen bringing useful tool to estimate the EM field distributi
+on induced by transcranial stimulation in human brain 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "Wagner2004,Golestanirad2010,Tsuyama2009,Datta2009,Bikson2012,Bikson2012a"
+key "Wagner2004,Golestanirad2010,Tsuyama2009,Datta2009,Bikson2012"
 
 \end_inset
 
- to estimate the distribution of EM field induced by transcranial stimulation
- (TS) in human cranium.
- Simulations are typically based on finite element method (FEM).
+.
+ Simulations are typically based on finite element method (
+\emph on
+FEM
+\emph default
+).
  
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 Describe FEM
@@ -678,51 +682,51 @@ Describe FEM
 
 \end_inset
 
- Simplified model of human head has been used in 
+ Simplified model of the human head approximates the head with a sphere
+ exposed to time varying magnetic field 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Wagner2004"
 
 \end_inset
 
-, aproximating the head with sphere exposed to time varying magnetic field.
- More accurate models based on volumetric imaging of human head have been
- used in 
+.
+ More accurate models use the volumetric imaging of human head 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "Golestanirad2010,Datta2009,Bikson2012,Bikson2012a"
+key "Golestanirad2010,Datta2009,Bikson2012"
 
 \end_inset
 
 .
- Still some aproximations are in use, e.g.
- in 
+ Different labs employ different approximations, e.g.
+ the differences in electrical properties of white/gray matter or cerebrospinal
+ fluid have been neglected 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Golestanirad2010"
 
 \end_inset
 
- the diferences in electrical properties of white/gray matter, celebrospinal
- fluid have been neglected or in 
+ or the anisotropy of the tissue has not been taken in account 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Datta2009"
 
 \end_inset
 
- the anisotropy of the tissue has not been taken in account.
- The modelling and simulation studies yielded in design improvements of
- the coil to increase spatial focality and stimulation depth of the magnetic
- field 
+.
+ The modelling and simulation studies report of benefits coming from design
+ improvements of the coil leading to increase of spatial focality and stimulatio
+n depth of the magnetic field 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Tsuyama2009"
 
 \end_inset
 
- or proposal of 4x1 ring electrode assembly to increase focality of the
- electrical stimulation 
+ or from proposal of ring shape assembly of electrodes leading to increase
+ of focality of the electrical stimulation 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Datta2009,Caparelli-Daquer2012a,Edwards2013"
@@ -734,7 +738,7 @@ key "Datta2009,Caparelli-Daquer2012a,Edwards2013"
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 It has been presented that numerical electromagnetic (EM) simulations (solving
@@ -760,7 +764,7 @@ key "Wagner2004"
  A more accurate prediction of the field distribution can be found in 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "Golestanirad2010,Datta2009,Bikson2012,Bikson2012a"
+key "Golestanirad2010,Datta2009,Bikson2012"
 
 \end_inset
 
@@ -823,10 +827,14 @@ key "Datta2009,Caparelli-Daquer2012a,Edwards2013"
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Subsection
 Physiological Effects of the Electromagnetic Field in Neuronal Tissue
+\end_layout
+
+\begin_layout Plain Layout
+won't be included
 \end_layout
 
 \begin_layout Plain Layout
@@ -843,10 +851,14 @@ Study of effects of external EM field on neuronal populations are essential
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Subsection
 Functional and Connectivity Mapping of the Neuronal Network
+\end_layout
+
+\begin_layout Plain Layout
+won't be included
 \end_layout
 
 \begin_layout Plain Layout
@@ -866,20 +878,20 @@ Processing of Neuronal Network Activity and Stimulation Dynamics
 \end_layout
 
 \begin_layout Standard
-Therapeutic TS protocols neglect the dynamic nature of brain neuronal networks.
- Typically TS is applied under static temporal and spatial conditions.
- Altought there are attempts 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "Price2010"
-
-\end_inset
-
- to use the EEG coregistration to determine timing of the stimuli improve
- rTMS efficiacy.
- The main drawback in TMS is the interference of stimulation pulses with
- EEG acquisition, but also contraction of muscles by the pulses have to
- be taken in account 
+TS protocols used in therapy so far neglect the dynamic nature of the neuronal
+ networks in the brain.
+ Typically, TS is applied with static parameters of electric or magnetic
+ field (e.g.
+ the intensity, frequency and timing of the pulses in rTMS are fixed during
+ TS session), spatial configuration (i.e.
+ focus of TS does not change according the tissue response).
+ In order to evaluate stimulation effects or to improve its parameters the
+ brain activity ought to be simultaneously coregistered with the stimulation.
+ Although the main drawback is the interference of stimulating EM field
+ and the acquisition system, some of the problems with interference can
+ be reduced to certain extent by filtering.
+ On the other hand, the artifacts can occur because of contraction of muscles
+ affected by TS 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "Ilmoniemi2010"
@@ -887,11 +899,136 @@ key "Ilmoniemi2010"
 \end_inset
 
 .
- In tES the 
+ In stimulation by magnetic field the artifacts are generated by the interferenc
+e of powerful magnetic field with acquisition wires of device recording
+ neuronal activity.
+ In stimulation by electric current the artifacts are generated by the interfere
+nce caused by galvanic connection of the stimulation and acquisition electrodes
+ with the human body.
+ There are successful attempts to use simultaneous application of TS and
+ coregistration of the brain activity (via e.g.
+ EEG signal, glucose consumption, fMRI, blood flow, etc.) to identify the
+ most effective parameters of stimulation and so that to improve TS efficacy.
+ There are promising results found already for rTMS 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Price2010"
+
+\end_inset
+
+ or for tES in fMRI scanner 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Saiote2013"
+
+\end_inset
+
+.
 \end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Therapeutic TS protocols neglect the dynamic nature of brain neuronal networks.
+ Typically TS is applied with static electrical, temporal and spatial conditions
+ (e.g.
+ the intensity, frequency and timing of the pulses in rTMS is fixed during
+ the stimulation session).
+ In order evaluate stimulation effects or to improve its parameters the
+ brain activity ought to be coregistered with the stimulation.
+ Although the main drawback is the interference of stimulating field and
+ the acquisition system, some of the problems with interference can be reduced
+ to some extent by filtering.
+ Artifacts can also occur because of contraction of muscles that are affected
+ by the stimulation 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Ilmoniemi2010"
+
+\end_inset
+
+.
+ In TMS the interference of powerful magnetic field with wires of acquisition
+ device yield in artifact generation and in tES the interference is caused
+ by galvanic connection of the stimulation and acquisition electrodes with
+ the human body.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+There are attempts to use coregistration of the brain electrophysiology
+ to determine timing of the stimuli and to improve rTMS efficacy 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Price2010"
+
+\end_inset
+
+ or to use fMRI scanner to objectively evaluate the effects of tES 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Saiote2013"
+
+\end_inset
+
+, showing promising results.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+to structure as follows (the problems introduced here are almost common
+ - occurence of artifacts, based on electromagnetic interference, contraction
+ of stimulated muscles, etc.):
+\end_layout
+
+\begin_layout Enumerate
+study the changes induced by stimulator and adjust the parameters based
+ on outcomes (similar to numerical simulation, but we are analyzing the
+ efects in real neuronal tissue)
+\end_layout
+
+\begin_layout Enumerate
+adjust the stimulation parameters based on output from acquisition methods
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status collapsed
 
 \begin_layout Section
 Risk Assesment
+\end_layout
+
+\begin_layout Subsection
+Pathological Changes Induced by Electromagnetic Field
+\end_layout
+
+\begin_layout Subsection
+Epileptoform Effect of Electromagnetic Field
+\end_layout
+
+\begin_layout Plain Layout
+won't be included
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -899,12 +1036,104 @@ Conclusion
 \end_layout
 
 \begin_layout Standard
-test
+Methods of transcranial stimulation (TS) emerged from empirical knowledge
+ that the electric or magnetic field can induce changes in neurons of human
+ brain cortex.
+ The evidence about transient excitation or inhibition of the cortical neurons
+ elicited by TS has been found.
+ In recent years structured and systematic research has provided deeper
+ insight in the effects of TS which facilitates exploration of novel methods
+ and improvements of TS efficacy.
+ Simulations of the electromagnetic field lead to construction of more efficient
+ and more compatible stimulation and acquisition devices.
+ Functional mapping of cortical activity and connectivity of different cortical
+ areas may bring reveal novel applications and locations of TS.
+ Further progress and main challenges in TS research are expected in changing
+ the static stimulation TS protocols into real-time processing of electrophysiol
+ogical or volumetric data of neuronal network with aim to adjust electrical,
+ temporal and spatial parameters of the stimulation.
+ Thus the research and development of advanced TS techniques and protocols
+ adjusted by outcomes of simultaneous processing of activity of affected
+ neuronal populations (feedback) will be elaborated.
+ This includes the construction of compatible acquisition and stimulation
+ devices, the signal processing and analysis algorithms for artifacts filtering
+ and direct stimulation control.
 \end_layout
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
+
+\begin_layout Plain Layout
+Methods of transcranial stimulation (TS) emerged from empirical knowledge
+ that the electric or magnetic field can induce changes in cortical neurons
+ under cranium.
+ The evidence about transient excitation or inhibition of the cortical neurons
+ has been obtained by acquisition and study of the neuronal activity.
+ In recent years a structured and systematic approach has provided more
+ insight in functioning of the TS methods and allowing for exploration of
+ novel methods and improving TS efficacy.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+Simulation of the electromagnetic field in cranium may lead in construction
+ of more efficient and compatible stimulation and acquisition devices.
+ Functional mapping may reveal new locations for stimulation and together
+ with study of functional connectivity of different cortical areas can bring
+ novel applications of TS.
+ From usage of static stimulation protocols the research is moving forward
+ to include real-time processing of electrophysiological or volumetric data
+ to adjust electrical, temporal or spatial parameters of the stimulation
+ based on observed state of the neuronal network and individual physiological
+ properties.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+The main challenges for future research and development of TS methods include
+ involvement of online processing of neuronal network activity and adjustment
+ of stimulation parameters based on underlying activity.
+ This includes the construction of compatible acquisition and stimulation
+ devices, the signal processing and analysis algorithms allowing for filtering
+ of the artifacts, direct controlling of stimulation.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Enumerate
+The methods of transcranial stimulation are used to modulate cortical activity
+ for treatment.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Improvement have to be carried out carefuly.
+ The stimulation concepts have to be verified by modeling and simulation,
+ in-vitro studies, and clinical studies that are specific in particular
+ field of medicine.
+\end_layout
+
+\begin_layout Enumerate
+mention indications and efficacy of DBS x NIBS x pharmacological approach,
+ and highlight features of the NIBS
+\end_layout
+
+\begin_layout Enumerate
+The treatment follows simple stimulation protocols, that are mostly based
+ on empirical knowledge.
+ In recent studies the parameters of the stimulation (placement and shape
+ of the electrodes, coils, parameters of the electromagnetic field) has
+ been manipulated based on simulation of the field in the tissue.
+ 
+\end_layout
 
 \begin_layout Enumerate
 simulation FEM has been succesfully used to improve the coil design and
@@ -949,51 +1178,20 @@ presne vediet parametre pola a jeho efektov - simulacie FEM, but it can
  help in immediately
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-The methods of transcranial stimulation are used to modulate cortical activity
- for treatment.
+\begin_layout Enumerate
+Problems with stimulation and coregistration of brain electrical often produces
+ artifacts due to interference of measurements with the stimulation field.
  
 \end_layout
 
-\begin_layout Plain Layout
-Non-invasive focal inhibition or excitation of cortical neurons vs.
- pharmacological treatment vs.
- invasive stimulation.
-\end_layout
-
-\begin_layout Plain Layout
-The treatment follows simple stimulation protocols, that are mostly based
- on empirical knowledge.
- In recent studies the parameters of the stimulation (placement and shape
- of the electrodes, coils, parameters of the electromagnetic field) has
- been manipulated based on simulation of the field in the tissue.
+\begin_layout Enumerate
+The main chalenges for future research and development include the construction
+ of compatible acquistion and stimulation devices and the signal processing
+ and analysis algorithms allowing for filtering of the artifacts, direct
+ controlling of stimulation in reaction to pathological changes in underlaying
+ tissue activity (e.g.
+ in case of psychiatrical dissorders).
  
-\end_layout
-
-\begin_layout Plain Layout
-Models ignore the orientation of the neurons.
- The orientation of the neurons in external field may be inportant (proof
- need).
-\end_layout
-
-\begin_layout Plain Layout
-Also the timing of the stimulation based on background EEG activity has
- been investigated as a mean of eficiacy increase.
-\end_layout
-
-\begin_layout Plain Layout
-Functional mapping may reveal new locations for stimulation and together
- with study of functional connectivity of different cortical areas can bring
- new aplications of TS.
 \end_layout
 
 \end_inset
